@@ -1,2 +1,2 @@
 github html preivew example:
-leaflet_map.html(http://htmlpreview.github.com/?https://github.com/skyetim/software_engineering_project/blob/dev/frontend/proto/leaflet_map.html)
+[leaflet_map.html](https://oymisaki.github.io/frontend/proto/leaflet_map.html)
