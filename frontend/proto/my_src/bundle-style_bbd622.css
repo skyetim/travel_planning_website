@@ -670,7 +670,7 @@ ol {
 .menu-page {
     height: 40px;
     line-height: 40px;
-    background: #17b585
+    background: #dadacb
 }
 
 .menu-page .menu-inner {
@@ -700,7 +700,7 @@ ol {
     right: 0;
     height: 40px;
     line-height: 40px;
-    background: #17b585;
+    background: #dadacb;
     z-index: 10
 }
 
