@@ -1,2 +1,2 @@
 github html preivew example:
-[leaflet_map.html](https://oymisaki.github.io/frontend/proto/leaflet_map.html)
+[demo](https://oymisaki.github.io/src/test/hello/leaflet_map.html)
