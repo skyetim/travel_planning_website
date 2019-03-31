@@ -1,0 +1,5 @@
+python>=3.6,<3.7
+django
+mysqlclient
+autopep8
+pylint
