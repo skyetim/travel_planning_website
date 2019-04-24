@@ -1,14 +1,14 @@
 @startuml
 
-skinparam classAttributeIconSize 0
-skinparam Dpi 300
-skinparam DefaultFontName Menlo
-skinparam DefaultFontSize 11
-skinparam DefaultFontStyle bold
-skinparam ClassFontSize 13
+skinparam Dpi 200
+skinparam DefaultFont {
+    Name Menlo
+    Size 13
+    Style bold
+}
+skinparam ClassAttributeIconSize 0
 
 namespace backend {
-
     User "1..1" *-- "1..*" UserInfo
     User "1..1" *-- "0..*" TravelGroup
     TravelGroup "1..1" o-- "0..*" Travel
@@ -16,6 +16,7 @@ namespace backend {
     Travel "1..*" <.. "0..*" User
     Travel "1..*" <.. "0..*" UserInfo
     TravelInfo "1..1" o-- "1..1" City
+    TravelInfo "1..1" *-- "2..2" Time
 
     class User {
         - user_id: int {readonly,frozen}
@@ -82,8 +83,8 @@ namespace backend {
         - travel_id: int {readonly,frozen}
         - travel_note: str
         - city: City
-        - time_start: int
-        - time_end: int
+        - time_start: Time
+        - time_end: Time
         - visibility: Visibility
         + get_user_id(): int
         + get_travel_id(): int
@@ -91,19 +92,31 @@ namespace backend {
         + set_travel_note(travel_note: str): int
         + get_city(): City
         + set_city(city_id: int): int
-        + get_time_start(): int
-        + set_time_start(time_start: int): int
-        + get_time_end(): int
-        + set_time_end(time_end: int): int
+        + get_time_start(): Time
+        + set_time_start(year: int, month: int, day: int): int
+        + get_time_end(): Time
+        + set_time_end(year: int, month: int, day: int): int
         + get_visibility(): Visibility
         + set_visibility(visibility: Visibility): int
     }
 
     class City {
-        + city_id: int {readonly,frozen}
-        + city_name: str {readonly,frozen}
-        + latitude: float {readonly,frozen}
-        + longitude: float {readonly,frozen}
+        - city_id: int {readonly,frozen}
+        - city_name: str {readonly,frozen}
+        - latitude: float {readonly,frozen}
+        - longitude: float {readonly,frozen}
+        + get_city_id(): int
+        + get_city_name(): str
+        + get_latitude(): float
+        + get_longitude(): float
+    }
+
+    class Time {
+        - year: int
+        - month: int
+        - day: int
+        + get_time(): int[3..3]
+        + set_time(year: int, month: int, day: int): int
     }
 }
 
