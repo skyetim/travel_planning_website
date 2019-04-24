@@ -1,0 +1,49 @@
+@startuml PackageDiagram.backend
+skinparam classAttributeIconSize 0
+skinparam Dpi 300
+skinparam DefaultFontName Menlo
+skinparam DefaultFontSize 11
+skinparam DefaultFontStyle bold
+skinparam ClassFontSize 13
+
+package Backend{
+    package _utilities{
+        'method gps_to_location()
+        class City
+        class Utilities
+        enum Visibility
+    }
+    package _interface{
+        class Interface
+    }
+
+    package _travel{
+        class Travel
+        class TravelGroup
+        class TravelInfo
+    }
+
+    package _user{
+        class User
+        class UserInfo
+        enum Gender
+    }
+}
+
+package django{
+}
+
+django..>Backend: <<import>>
+User  *--  UserInfo
+User  *--  TravelGroup
+TravelGroup  o--  Travel
+Travel  *--  TravelInfo
+Travel  <..  User
+Travel  <..  UserInfo
+TravelInfo  o--  City
+
+_travel..>_utilities: <<access>>
+_user..>_utilities: <<access>>
+_interface..>_travel: <<import>>
+_interface..>_user: <<import>>
+@enduml
