@@ -1,32 +1,16 @@
-@startuml PackageDiagram.backend
+@startuml PackageDiagram
 
-skinparam Dpi 100
+skinparam Dpi 200
 skinparam DefaultFont {
-    Name Monospace
+    Name Menlo
     Size 13
     Style bold
 }
 
 namespace Backend {
-    package _utilities {
-        'method gps_to_location()
-        class City
-        class Time
-        class Message
-        class Utilities
-        enum Gender
-        enum Visibility
-    }
     package _server{
         class Server
         interface Interface
-    }
-    'package _interface {}
-
-    package _travel {
-        class Travel
-        class TravelGroup
-        class TravelInfo
     }
 
     package _user {
@@ -35,13 +19,39 @@ namespace Backend {
         class UserInfo
         class FriendInfo
     }
+
+    package _travel {
+        class Travel
+        class TravelGroup
+        class TravelInfo
+    }
+
+    package _utilities {
+        ' method gps_to_location()
+        class City
+        class Time
+        class Message
+        class Utilities
+        enum Gender
+        enum Visibility
+    }
 }
 
 package django {
 }
 
-namespace Frontend{
-    package _view{
+namespace Frontend {
+    package _model {
+        class Model
+    }
+
+    package _controller {
+        class UserInfoController
+        class CityInfoController
+        class TravelController
+    }
+
+    package _view {
         abstract class MainBasicView
         class FriendView
         class MapView
@@ -50,72 +60,66 @@ namespace Frontend{
         abstract class EntranceBasicView
         class LoginView
         class RegisterView
-        
+
     }
-    package _components{
-            class HeaderComponent
-            class RegisterComponent
-            class LoginComponent
-            class BackgroundComponent
-            class NavigationComponent
-            class FriendRequestComponent
-            class UserInfoComponent
-        }
-    package _controller{
-        class UserInfoController
-        class CityInfoController
-        class TravelController
-    }
-    package _model{
-        class Model
+
+    package _components {
+        class HeaderComponent
+        class RegisterComponent
+        class LoginComponent
+        class BackgroundComponent
+        class NavigationComponent
+        class FriendRequestComponent
+        class UserInfoComponent
     }
 }
 
-package leaflet.js{
+package Vue.js {
+}
+
+package leaflet.js {
     class Map
 }
-package Vue.js{
-    
-}
 
-User        *--  UserInfo
-User        *--  FriendInfo
-User        *--  TravelGroup
-UserInfo    --|> UserInfoBase
-FriendInfo  --|> UserInfoBase
-TravelGroup o--  Travel
-Travel      *--  TravelInfo
-Travel      <..  User
-Travel      <..  FriendInfo
-TravelInfo  o--  City
-TravelInfo  *--  Time
+_view   .right.> Vue.js      : <<import>>
+_server .right.> django      : <<import>>
+MapView .down.>  Map
 
+Model .right.> Server
 
-Model .down.> Server
-Server ..|> Interface
+MainBasicView     <|-down- FriendView
+MainBasicView     <|-down- MapView
+MainBasicView     <|-down- ProfileView
+EntranceBasicView <|-down- LoginView
+EntranceBasicView <|-down- RegisterView
+MapView .right.> MapComponent
 
-MapView ..> Map
-MapView .> MapComponent
+EntranceBasicView .down.> BackgroundComponent
+LoginView         .down.> LoginComponent
+RegisterView      .down.> RegisterComponent
+MainBasicView     .down.> HeaderComponent
+MainBasicView     .down.> NavigationComponent
+ProfileView       .down.> UserInfoComponent
+ProfileView       .down.> FriendRequestComponent
 
-MainBasicView <|-- FriendView
-MainBasicView <|-- MapView
-MainBasicView <|-- ProfileView
-EntranceBasicView <|-- LoginView
-EntranceBasicView <|-- RegisterView
+Server       .right.|> Interface
+User         *-down-   UserInfo
+User         *-down-   FriendInfo
+User         *-right-  TravelGroup
+UserInfo     -down-|>  UserInfoBase
+FriendInfo   -down-|>  UserInfoBase
+UserInfoBase o-down-   City
+TravelGroup  *-down-   Travel
+Travel       *-down-   TravelInfo
+User         -down->   Travel
+FriendInfo   -right->  Travel
+TravelInfo   o-down-   City
+TravelInfo   *-down-   Time
 
-ProfileView ..> UserInfoComponent
-ProfileView ..> FriendRequestComponent
-MainBasicView ..> HeaderComponent
-MainBasicView ..> NavigationComponent
-LoginView ..>LoginComponent
-RegisterView ..>RegisterComponent
-EntranceBasicView ..> BackgroundComponent
+_view   .down.>  _components : <<import>>
+_server .down.>  _user       : <<import>>
+_server .down.>  _travel     : <<import>>
+_user   .down.>  _utilities  : <<access>>
+_travel .down.>  _utilities  : <<access>>
 
-_server    ..> django:    <<import>>
-_travel    ..> _utilities: <<access>>
-_user      .down.> _utilities: <<access>>
-_server ..> _travel:    <<import>>
-_server ..> _user:      <<import>>
-_view ..> Vue.js: <<import>>
-_view ..> _components: <<import>>
 @enduml

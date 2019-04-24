@@ -16,6 +16,8 @@ namespace Backend {
         - friend_info_list: FriendInfo[0..*]
         - travel_group_list: TravelGroup[0..*]
         __ methods __
+        + add_friend(friend_user_id: int): int
+        + del_friend(friend_user_id: int): int
         + add_travel_group(): int
         + del_travel_group(travel_group_id: int): int
         .. getters ..
@@ -171,17 +173,18 @@ namespace Backend {
         + set_time(year: int, month: int, day: int): int
     }
 
-    User        "1"    *--     "1"    UserInfo
-    User        "1"    *--     "0..*" FriendInfo
-    User        "1"    *-down- "0..*" TravelGroup
-    UserInfo           --|>           UserInfoBase
-    FriendInfo         --|>           UserInfoBase
-    TravelGroup "1"    o-down- "0..*" Travel
-    Travel      "1"    *-down- "1"    TravelInfo
-    Travel      "0..*" <..     "1"    User
-    Travel      "0..*" <..     "0..*" FriendInfo
-    TravelInfo  "1"    o--     "1"    City
-    TravelInfo  "1"    *--     "2..2" Time
+    User         "1"    *-down-  "1"    UserInfo
+    User         "1"    *-down-  "0..*" FriendInfo
+    User         "1"    *-right- "0..*" TravelGroup : "     "
+    UserInfo            -down-|>        UserInfoBase
+    FriendInfo          -down-|>        UserInfoBase
+    UserInfoBase "1"    o-right- "1"    City : "     "
+    TravelGroup  "1"    *-right- "0..*" Travel : "     "
+    Travel       "1"    *-down-  "1"    TravelInfo
+    User         "0..*" -right-> "1"    Travel : "     "
+    FriendInfo   "0..*" -up->    "0..*" Travel
+    TravelInfo   "1"    o-down-  "1"    City
+    TravelInfo   "1"    *-down-  "2..2" Time
 }
 
 @enduml
