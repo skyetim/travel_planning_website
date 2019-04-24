@@ -2,7 +2,7 @@
 
 skinparam Dpi 200
 skinparam DefaultFont {
-    Name Menlo
+    Name Monospace
     Size 13
     Style bold
 }
@@ -12,6 +12,7 @@ namespace Backend {
         'method gps_to_location()
         class City
         class Time
+        class Message
         class Utilities
         enum Gender
         enum Visibility
