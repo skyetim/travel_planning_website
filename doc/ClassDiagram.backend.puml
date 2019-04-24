@@ -1,11 +1,12 @@
 @startuml
 
-skinparam classAttributeIconSize 0
-skinparam Dpi 300
-skinparam DefaultFontName Menlo
-skinparam DefaultFontSize 11
-skinparam DefaultFontStyle bold
-skinparam ClassFontSize 13
+skinparam Dpi 200
+skinparam DefaultFont {
+    Name Menlo
+    Size 13
+    Style bold
+}
+skinparam ClassAttributeIconSize 0
 
 namespace backend {
 
