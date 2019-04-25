@@ -47,30 +47,37 @@ namespace Frontend {
 
     package _controller {
         class UserInfoController
-        class CityInfoController
         class TravelController
+        class CityInfoController
     }
 
     package _view {
-        abstract class MainBasicView
-        class FriendView
-        class MapView
-        class MapComponent
-        class ProfileView
-        abstract class EntranceBasicView
-        class LoginView
-        class RegisterView
-
+        package _loginview {
+            abstract class EntranceBasicView
+            class LoginView
+            class RegisterView
+        }
+        package _mainview {
+            abstract class MainBasicView
+            class MapView
+            class FriendView
+            class ProfileView
+        }
     }
 
     package _components {
-        class HeaderComponent
-        class RegisterComponent
-        class LoginComponent
-        class BackgroundComponent
-        class NavigationComponent
-        class FriendRequestComponent
-        class UserInfoComponent
+        package _login {
+            class BackgroundComponent
+            class RegisterComponent
+            class LoginComponent
+        }
+        package _main {
+            class HeaderComponent
+            class NavigationComponent
+            class MapComponent
+            class FriendRequestComponent
+            class UserInfoComponent
+        }
     }
 }
 
@@ -81,19 +88,26 @@ package leaflet.js {
     class Map
 }
 
-_view   .right.> Vue.js      : <<import>>
-_server .right.> django      : <<import>>
-MapView .down.>  Map
+_view   .right.> Vue.js : <<import>>
+_server .right.> django : <<import>>
+MapView .right.>  Map
+Vue.js --[hidden] Map
 
 Model .right.> Server
 
-MainBasicView     <|-down- FriendView
-MainBasicView     <|-down- MapView
-MainBasicView     <|-down- ProfileView
+LoginView   -[hidden] RegisterView
+ProfileView -[hidden] FriendView
+FriendView  -[hidden] MapView
 EntranceBasicView <|-down- LoginView
 EntranceBasicView <|-down- RegisterView
-MapView .right.> MapComponent
+MainBasicView     <|-down- ProfileView
+MainBasicView     <|-down- FriendView
+MainBasicView     <|-down- MapView
 
+_loginview -[hidden]  _mainview
+_login     -[hidden]  _main
+_mainview  --[hidden] _main
+_loginview --[hidden] _login
 EntranceBasicView .down.> BackgroundComponent
 LoginView         .down.> LoginComponent
 RegisterView      .down.> RegisterComponent
@@ -101,6 +115,8 @@ MainBasicView     .down.> HeaderComponent
 MainBasicView     .down.> NavigationComponent
 ProfileView       .down.> UserInfoComponent
 ProfileView       .down.> FriendRequestComponent
+MapView           .down.> MapComponent
+
 
 Server       .right.|> Interface
 User         *-down-   UserInfo
@@ -115,11 +131,12 @@ User         -down->   Travel
 FriendInfo   -right->  Travel
 TravelInfo   o-down-   City
 TravelInfo   *-down-   Time
+UserInfo -[hidden] FriendInfo
 
-_view   .down.>  _components : <<import>>
-_server .down.>  _user       : <<import>>
-_server .down.>  _travel     : <<import>>
-_user   .down.>  _utilities  : <<access>>
-_travel .down.>  _utilities  : <<access>>
+_view   .down.> _components : <<import>>
+_server .down.> _user       : <<import>>
+_server .down.> _travel     : <<import>>
+_user   .down.> _utilities  : <<access>>
+_travel .down.> _utilities  : <<access>>
 
 @enduml

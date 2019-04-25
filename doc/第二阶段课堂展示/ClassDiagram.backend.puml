@@ -185,6 +185,8 @@ namespace Backend {
     FriendInfo   "0..*" -up->    "0..*" Travel
     TravelInfo   "1"    o-down-  "1"    City
     TravelInfo   "1"    *-down-  "2..2" Time
+
+    UserInfo -[hidden] FriendInfo
 }
 
 @enduml
