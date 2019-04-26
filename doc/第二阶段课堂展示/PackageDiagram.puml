@@ -1,0 +1,142 @@
+@startuml PackageDiagram
+
+skinparam Dpi 200
+skinparam DefaultFont {
+    Name Menlo
+    Size 13
+    Style bold
+}
+
+namespace Backend {
+    package _server{
+        class Server
+        interface Interface
+    }
+
+    package _user {
+        class User
+        class UserInfoBase
+        class UserInfo
+        class FriendInfo
+    }
+
+    package _travel {
+        class Travel
+        class TravelGroup
+        class TravelInfo
+    }
+
+    package _utilities {
+        ' method gps_to_location()
+        class City
+        class Time
+        class Message
+        class Utilities
+        enum Gender
+        enum Visibility
+    }
+}
+
+package django {
+}
+
+namespace Frontend {
+    package _model {
+        class Model
+    }
+
+    package _controller {
+        class UserInfoController
+        class TravelController
+        class CityInfoController
+    }
+
+    package _view {
+        package _loginview {
+            abstract class EntranceBasicView
+            class LoginView
+            class RegisterView
+        }
+        package _mainview {
+            abstract class MainBasicView
+            class MapView
+            class FriendView
+            class ProfileView
+        }
+    }
+
+    package _components {
+        package _login {
+            class BackgroundComponent
+            class RegisterComponent
+            class LoginComponent
+        }
+        package _main {
+            class HeaderComponent
+            class NavigationComponent
+            class MapComponent
+            class FriendRequestComponent
+            class UserInfoComponent
+        }
+    }
+}
+
+package Vue.js {
+}
+
+package leaflet.js {
+    class Map
+}
+
+_view   .right.> Vue.js : <<import>>
+_server .right.> django : <<import>>
+MapView .right.>  Map
+Vue.js --[hidden] Map
+
+Model .right.> Server
+
+LoginView   -[hidden] RegisterView
+ProfileView -[hidden] FriendView
+FriendView  -[hidden] MapView
+EntranceBasicView <|-down- LoginView
+EntranceBasicView <|-down- RegisterView
+MainBasicView     <|-down- ProfileView
+MainBasicView     <|-down- FriendView
+MainBasicView     <|-down- MapView
+
+_loginview -[hidden]  _mainview
+_login     -[hidden]  _main
+_mainview  --[hidden] _main
+_loginview --[hidden] _login
+EntranceBasicView .down.> BackgroundComponent
+LoginView         .down.> LoginComponent
+RegisterView      .down.> RegisterComponent
+MainBasicView     .down.> HeaderComponent
+MainBasicView     .down.> NavigationComponent
+ProfileView       .down.> UserInfoComponent
+ProfileView       .down.> FriendRequestComponent
+MapView           .down.> MapComponent
+
+
+Server       .right.|> Interface
+User         *-down-   UserInfo
+User         *-down-   FriendInfo
+User         *-right-  TravelGroup
+UserInfo     -down-|>  UserInfoBase
+FriendInfo   -down-|>  UserInfoBase
+UserInfoBase o-down-   City
+TravelGroup  *-down-   Travel
+Travel       *-down-   TravelInfo
+User         -down->   Travel
+FriendInfo   -right->  Travel
+TravelInfo   o-down-   City
+TravelInfo   *-down-   Time
+UserInfo -[hidden] FriendInfo
+
+_view   .down.> _components : <<import>>
+_server .down.> _user       : <<import>>
+_server .down.> _travel     : <<import>>
+_user   .down.> _utilities  : <<access>>
+_travel .down.> _utilities  : <<access>>
+
+@enduml
