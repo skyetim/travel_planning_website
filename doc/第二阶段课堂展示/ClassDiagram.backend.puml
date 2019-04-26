@@ -1,0 +1,192 @@
+@startuml ClassDiagram.backend
+
+skinparam Dpi 200
+skinparam DefaultFont {
+    Name Menlo
+    Size 13
+    Style bold
+}
+skinparam ClassAttributeIconSize 0
+
+namespace Backend {
+    class User {
+        __ private data __
+        - user_id: int {readonly,frozen}
+        - user_info: UserInfo
+        - friend_info_list: FriendInfo[0..*]
+        - travel_group_list: TravelGroup[0..*]
+        __ methods __
+        + add_friend(friend_user_id: int): int
+        + del_friend(friend_user_id: int): int
+        + add_travel_group(): int
+        + del_travel_group(travel_group_id: int): int
+        .. getters ..
+        + get_user_id(): int                         {query}
+        + get_user_info(): UserInfo                  {query}
+        + get_friend_info_list(): FriendInfo[0..*]   {query}
+        + get_travel_group_list(): TravelGroup[0..*] {query}
+        .. setters ..
+        + set_friend_note(friend_user_id: int, friend_note: str): int
+    }
+
+    class UserInfoBase {
+        __ protected data __
+        # user_id: int {readonly,frozen}
+        # user_name: str
+        # email: str
+        # gender: Gender
+        # resident_city: City
+        __ methods __
+        .. getters ..
+        # get_user_id(): int        {query}
+        # get_user_name(): str      {query}
+        # get_email(): str          {query}
+        # get_gender(): Gender      {query}
+        # get_resident_city(): City {query}
+    }
+
+    class UserInfo {
+        __ private data __
+        - user_id: int {readonly,frozen}
+        - user_name: str
+        - email: str
+        - gender: Gender
+        - resident_city: City
+        __ methods __
+        .. getters ..
+        + get_user_id(): int        {query}
+        + get_user_name(): str      {query}
+        + get_email(): str          {query}
+        + get_gender(): Gender      {query}
+        + get_resident_city(): City {query}
+        .. setters ..
+        + set_user_name(user_name: str): int
+        + set_email(email: str): int
+        + set_gender(gender: Gender): int
+        + set_resident_city(city_id: int): int
+    }
+
+    class FriendInfo {
+        __ private data __
+        - user_id: int        {readonly,frozen}
+        - user_name: str      {readonly,frozen}
+        - user_note: str
+        - email: str          {readonly,frozen}
+        - gender: Gender      {readonly,frozen}
+        - resident_city: City {readonly,frozen}
+        __ methods __
+        .. getters ..
+        + get_user_id(): int        {query}
+        + get_user_name(): str      {query}
+        + get_user_note(): str      {query}
+        + get_email(): str          {query}
+        + get_gender(): Gender      {query}
+        + get_resident_city(): City {query}
+        .. setters ..
+        + set_user_note(user_note: str): int
+    }
+
+    class TravelGroup {
+        __ private data __
+        - user_id: int              {readonly,frozen}
+        - travel_group_id: int      {readonly,frozen}
+        - travel_group_note: str
+        - travel_list: Travel[0..*]
+        __ methods __
+        + add_travel(): int
+        + del_travel(travel_id: int): int
+        .. getters ..
+        + get_user_id(): int
+        + get_travel_group_id(): int
+        + get_travel_group_note(): str
+        + get_travel_list(): Travel[0..*]
+        .. setters ..
+        + set_travel_group_note(travel_group_note: str): int
+    }
+
+    class Travel {
+        __ private data __
+        - user_id: int   {readonly,frozen}
+        - travel_id: int {readonly,frozen}
+        - travel_info: TravelInfo
+        - company_user_id_list: int[0..*]
+        __ methods __
+        + add_company(company_user_id: int): int
+        + del_company(company_user_id: int): int
+        + move_to_travel_group(travel_group_id: int): int
+        + move_to_new_travel_group(): int[2..2]
+        .. getters ..
+        + get_user_id(): int            {query}
+        + get_travel_id(): int          {query}
+        + get_travel_info(): TravelInfo {query}
+    }
+
+    class TravelInfo {
+        __ private data __
+        - user_id: int   {readonly,frozen}
+        - travel_id: int {readonly,frozen}
+        - travel_note: str
+        - city: City
+        - time_start: Time
+        - time_end: Time
+        - visibility: Visibility
+        __ methods __
+        .. getters ..
+        + get_user_id(): int           {query}
+        + get_travel_id(): int         {query}
+        + get_travel_note(): str       {query}
+        + get_city(): City             {query}
+        + get_time_start(): Time       {query}
+        + get_time_end(): Time         {query}
+        + get_visibility(): Visibility {query}
+        .. setters ..
+        + set_city(city_id: int): int
+        + set_time_start(year: int, month: int, day: int): int
+        + set_time_end(year: int, month: int, day: int): int
+        + set_travel_note(travel_note: str): int
+        + set_visibility(visibility: Visibility): int
+    }
+
+    class City {
+        __ private data __
+        - city_id: int     {readonly,frozen}
+        - city_name: str   {readonly,frozen}
+        - latitude: float  {readonly,frozen}
+        - longitude: float {readonly,frozen}
+        __ methods __
+        .. getters ..
+        + get_city_id(): int     {query}
+        + get_city_name(): str   {query}
+        + get_latitude(): float  {query}
+        + get_longitude(): float {query}
+    }
+
+    class Time {
+        __ private data __
+        - year: int
+        - month: int
+        - day: int
+        __ methods __
+        .. getters ..
+        + get_time(): int[3..3] {query}
+        .. setters ..
+        + set_time(year: int, month: int, day: int): int
+    }
+
+    User         "1"    *-down-  "1"    UserInfo
+    User         "1"    *-down-  "0..*" FriendInfo
+    User         "1"    *-right- "0..*" TravelGroup : "     "
+    UserInfo            -down-|>        UserInfoBase
+    FriendInfo          -down-|>        UserInfoBase
+    UserInfoBase "1"    o-right- "1"    City : "     "
+    TravelGroup  "1"    *-right- "0..*" Travel : "     "
+    Travel       "1"    *-down-  "1"    TravelInfo
+    User         "0..*" -right-> "1"    Travel : "     "
+    FriendInfo   "0..*" -up->    "0..*" Travel
+    TravelInfo   "1"    o-down-  "1"    City
+    TravelInfo   "1"    *-down-  "2..2" Time
+
+    UserInfo -[hidden] FriendInfo
+}
+
+@enduml
