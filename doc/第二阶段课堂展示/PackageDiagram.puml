@@ -1,6 +1,6 @@
 @startuml PackageDiagram
 
-skinparam Dpi 200
+skinparam Dpi 100
 skinparam DefaultFont {
     Name Menlo
     Size 13
@@ -66,12 +66,12 @@ namespace Frontend {
     }
 
     package _components {
-        package _login {
+        package _logincomponents {
             class BackgroundComponent
             class RegisterComponent
             class LoginComponent
         }
-        package _main {
+        package _maincomponents {
             class HeaderComponent
             class NavigationComponent
             class MapComponent
@@ -105,9 +105,9 @@ MainBasicView     <|-down- FriendView
 MainBasicView     <|-down- MapView
 
 _loginview -[hidden]  _mainview
-_login     -[hidden]  _main
-_mainview  --[hidden] _main
-_loginview --[hidden] _login
+_logincomponents     -[hidden]  _maincomponents
+_mainview  --[hidden] _maincomponents
+_loginview --[hidden] _logincomponents
 EntranceBasicView .down.> BackgroundComponent
 LoginView         .down.> LoginComponent
 RegisterView      .down.> RegisterComponent
