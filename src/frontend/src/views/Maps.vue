@@ -28,6 +28,21 @@ var travel = [
     ["北京", "2019", "116.30", "39.95"],
     ["上海", "2019", "121.47", "31.23"]
 ]
+
+function mountMap(map, travel){
+  var lastLoc = [parseFloat(travel[0][3]), parseFloat(travel[0][2])];
+  travel.forEach(element => {
+    var nowLoc = [parseFloat(element[3]), parseFloat(element[2])];
+    L.marker(nowLoc).addTo(map).bindPopup("你在"+element[1]+"来过这里").openPopup();
+    var latlngs = [
+          lastLoc,
+          nowLoc
+      ];
+    L.polyline(latlngs, { color: '#1e90ff' }).addTo(map);
+    lastLoc = nowLoc;
+  });
+}
+
 export default {
     data(){
       return {
@@ -47,33 +62,13 @@ export default {
             subdomains: 'abcd',
             maxZoom: 19
         }).addTo(this.mymap);
-      var lastLoc = [parseFloat(travel[0][3]), parseFloat(travel[0][2])];
-      travel.forEach(element => {
-        var nowLoc = [parseFloat(element[3]), parseFloat(element[2])];
-        L.marker(nowLoc).addTo(this.mymap).bindPopup("你在"+element[1]+"来过这里").openPopup();
-        var latlngs = [
-              lastLoc,
-              nowLoc
-          ];
-        L.polyline(latlngs, { color: '#1e90ff' }).addTo(this.mymap);
-        lastLoc = nowLoc;
-      });
+      mountMap(this.mymap, this.travel);
     },
     methods:{
       // 保存
       save: function(){
         // 提交表单到数据库
-        var lastLoc = [parseFloat(travel[0][3]), parseFloat(travel[0][2])];
-        travel.forEach(element => {
-          var nowLoc = [parseFloat(element[3]), parseFloat(element[2])];
-          L.marker(nowLoc).addTo(this.mymap).bindPopup("你在"+element[1]+"来过这里").openPopup();
-          var latlngs = [
-                lastLoc,
-                nowLoc
-            ];
-          L.polyline(latlngs, { color: '#1e90ff' }).addTo(this.mymap);
-          lastLoc = nowLoc;
-        });
+        mountMap(this.mymap, this.travel);
       }
     }
 }
