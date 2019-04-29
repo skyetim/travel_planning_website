@@ -3,7 +3,10 @@
     <div class="card-header border-0" :class="type === 'dark' ? 'bg-transparent': ''">
       <div class="row align-items-center">
         <div class="col">
-          <h3 class="mb-0" :class="type === 'dark' ? 'text-white': ''">{{title}}</h3>
+          <h3 class="mb-0" :class="type === 'dark' ? 'text-white': ''">
+            {{title}} 
+            <small padding-left="5px" class="text-muted">{{!edit.loc?"点击编辑表格": "按Enter退出编辑"}}</small>
+            </h3>
         </div>
         <div class="col text-right">
           <base-button type="primary" size="sm" @click="addBox()">添加新的行程</base-button>
@@ -35,8 +38,9 @@
             <div class="media align-items-center">
               <div class="media-body">
                 <span
+                  :type="statusType[row.status]"
                   v-show="!edit.loc"
-                  class="name mb-0 text-sm"
+                  class="name mb-0 text-sm "
                   @click="edit.loc=true"
                 >{{row.location}}</span>
                 <base-input 
