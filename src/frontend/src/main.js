@@ -21,7 +21,6 @@ Vue.prototype.getCookie = (name) => {
 Vue.prototype.setCookie = (c_name, value, expiredays) => {
   var expire_time = new Date();　　　　
   expire_time.setTime(expire_time.getTime() + expiredays);
-  console.log(expiredays==null);
   document.cookie = c_name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + expire_time.toUTCString());
 }
 
