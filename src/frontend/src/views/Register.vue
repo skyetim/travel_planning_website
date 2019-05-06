@@ -95,7 +95,26 @@
     }, 
     methods: {
         register(){
-            // if 
+            if (this.name=='' || this.email=='' || this.password=='' || this.resident_city==''){
+                // TODO
+                // return;
+            }
+
+            let loginParam = {
+                email: this.email,
+                pswd: this.password
+            }
+
+            // TODO: POST
+
+            // END
+
+            // TODO: Notify successful register
+
+            // END
+
+            this.$router.push('/login');
+
         }
     }
   }

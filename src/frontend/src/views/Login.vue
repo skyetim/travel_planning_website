@@ -68,7 +68,7 @@
         login() {
             if(this.account=='' || this.password!=''){
                 // TODO
-                return;
+                // return;
             }
             let expireDays = 1000 * 60 * 60 * 24 * 1;
 
