@@ -37,7 +37,7 @@
                                 <span class="text-muted">Remember me</span>
                             </base-checkbox>
                             <div class="text-center">
-                                <base-button type="primary" class="my-4">Sign in</base-button>
+                                <base-button type="primary" class="my-4" @click='login'>Sign in</base-button>
                             </div>
                         </form>
                     </div>
@@ -63,6 +63,27 @@
           password: ''
         }
       }
+    }, 
+    methods: {
+        login() {
+            if(this.account=='' || this.password!=''){
+                // TODO
+                return;
+            }
+            let expireDays = 1000 * 60 * 60 * 24 * 1;
+
+            let loginParam = {
+                email: this.email,
+                pswd: this.password
+            }
+
+            // TODO: POST
+
+            // END
+            let session = 'test'; 
+            this.setCookie('session', session, expireDays);
+            this.$router.push('/dashboard');
+        }
     }
   }
 </script>
