@@ -30,19 +30,19 @@
                 </div>
                 <!-- Navbar items -->
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <router-link class="nav-link nav-link-icon" to="/">
                             <i class="ni ni-planet"></i>
                             <span class="nav-link-inner--text">Dashboard</span>
                         </router-link>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
                         <router-link class="nav-link nav-link-icon" to="/register">
                             <i class="ni ni-circle-08"></i>
                             <span class="nav-link-inner--text">Register</span>
                         </router-link>
                     </li>
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <router-link class="nav-link nav-link-icon" to="/login">
                             <i class="ni ni-key-25"></i>
                             <span class="nav-link-inner--text">Login</span>
@@ -53,7 +53,7 @@
                             <i class="ni ni-single-02"></i>
                             <span class="nav-link-inner--text">Profile</span>
                         </router-link>
-                    </li>
+                    </li> -->
                 </ul>
             </template>
         </base-nav>
@@ -88,27 +88,8 @@
                 <div class="row align-items-center justify-content-xl-between">
                     <div class="col-xl-6">
                         <div class="copyright text-center text-xl-left text-muted">
-                            &copy; {{year}} <a href="https://www.creative-tim.com" class="font-weight-bold ml-1"
-                                               target="_blank">Creative Tim</a>
+                            &copy; {{year}} Final Project for Software Engineering, Group 1
                         </div>
-                    </div>
-                    <div class="col-xl-6">
-                        <ul class="nav nav-footer justify-content-center justify-content-xl-end">
-                            <li class="nav-item">
-                                <a href="https://www.creative-tim.com" class="nav-link" target="_blank">Creative Tim</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="https://www.creative-tim.com/presentation" class="nav-link" target="_blank">About
-                                    Us</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="http://blog.creative-tim.com" class="nav-link" target="_blank">Blog</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="https://github.com/creativetimofficial/argon-dashboard/blob/master/LICENSE.md"
-                                   class="nav-link" target="_blank">MIT License</a>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
