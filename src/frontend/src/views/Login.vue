@@ -43,9 +43,9 @@
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <!-- <div class="col-6">
-                        <a href="#" class="text-light"><small>Forgot password?</small></a>
-                    </div> -->
+                    <div class="col-6">
+                        <a href="#" class="text-light"><small> </small></a>
+                    </div>
                     <div class="col-6 text-right">
                         <router-link to="/register" class="text-light"><small>Create new account</small></router-link>
                     </div>

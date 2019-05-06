@@ -66,11 +66,11 @@
                 </div>
             </div>
             <div class="row mt-3">
-                <!-- <div class="col-6">
+                <div class="col-6">
                     <a href="#" class="text-light">
-                        <small>Forgot password?</small>
+                        <small> </small>
                     </a>
-                </div> -->
+                </div>
                 <div class="col-6 text-right">
                     <router-link to="/login" class="text-light">
                         <small>Login into your account</small>
