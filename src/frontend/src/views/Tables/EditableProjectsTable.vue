@@ -4,13 +4,20 @@
       <div class="row align-items-center">
         <div class="col">
           <h3 class="mb-0" :class="type === 'dark' ? 'text-white': ''">
-            {{title}} 
-            <small padding-left="5px" class="text-muted">{{!edit.loc?"点击编辑表格": "按Enter退出编辑"}}</small>
-            </h3>
+            {{title}}
+            <small
+              padding-left="5px"
+              class="text-muted"
+            >点击编辑表格</small>
+          </h3>
         </div>
         <div class="col text-right">
           <base-button type="primary" size="sm" @click="addBox()">添加新的行程</base-button>
-          <base-button type="primary" size="sm" @click="edit.del=!edit.del">{{edit.del? "删除完成": "选择删除"}}</base-button>
+          <base-button
+            type="primary"
+            size="sm"
+            @click="edit.del=!edit.del"
+          >{{edit.del? "删除完成": "选择删除"}}</base-button>
         </div>
       </div>
     </div>
@@ -25,32 +32,33 @@
         :data="tableData"
       >
         <template slot="columns">
-          <th>地点</th>
+          <th>行迹</th>
           <th>时间</th>
-          <th>Status</th>
-          <th>Completion</th>
+          <th>计划</th>
+          <th>行程</th>
           <th></th>
-          <th>Users</th>
+          <th>{{edit.del? "": "同伴"}}</th>
         </template>
 
         <template slot-scope="{row}">
           <th scope="row">
             <div class="media align-items-center">
               <div class="media-body">
-                <span
-                  :type="statusType[row.status]"
-                  v-show="!edit.loc"
-                  class="name mb-0 text-sm "
-                  @click="edit.loc=true"
-                >{{row.location}}</span>
-                <base-input 
-                  class="inputclick"
-                  placeholder="row.location"
-                  input-classes="form-control-alternative"
-                  v-model="row.location"
-                  v-show="edit.loc"
-                  v-on:keyup.enter="edit.loc=false"
-                />
+                <base-dropdown :title="row.name">
+                  <li 
+                    v-for="(place,index) in row.travel" 
+                    :key="index"
+                    @mouseover="editNames[index]=true"
+                    @mouseleave="editNames[index]=false"
+                  >
+                    <a class="dropdown-item">
+                      <span>{{place.location}}</span>
+                    </a>
+                    <i class="ni ni-ruler-pencil icon-edit" v-show="editNames[index]" @click="editTravel(row)"></i>
+                    <i class="ni ni-fat-add icon-edit" v-show="editNames[index]" @click="editTravel(row)"></i>
+                    <i class="ni ni-ruler-pencil " v-show="editNames[index]" @click="editTravel(row)"></i>
+                  </li>
+                </base-dropdown>
               </div>
             </div>
           </th>
@@ -61,8 +69,8 @@
                 slot-scope="{focus, blur}"
                 @on-open="focus"
                 @on-close="blur"
-                :config="{allowInput: true, mode: 'range'}"
-                class="form-control datepicker" 
+                :config="{allowInput: false, mode: 'range'}"
+                class="form-control datepicker"
                 v-model="row.dates.range"
               ></flat-picker>
             </base-input>
@@ -86,21 +94,11 @@
           </td>
 
           <td>
-            <div class="d-flex align-items-center">
-              <span class="completion mr-2">{{row.completion}}%</span>
-              <div>
-                <base-progress
-                  :type="statusType[row.status]"
-                  :show-percentage="false"
-                  class="pt-0"
-                  :value="row.completion"
-                />
-              </div>
-            </div>
+            <div>{{displayStatus(row.dates.range)}}</div>
           </td>
 
-         <td class="text-right">
-              <i class="ni ni-fat-remove icon" v-show="edit.del" @click="del(row)"></i>
+          <td class="text-right">
+            <i class="ni ni-fat-remove icon-del" v-show="edit.del" @click="del(row)"></i>
           </td>
 
           <td>
@@ -139,7 +137,6 @@
               </a>
             </div>
           </td>
-
         </template>
       </editable>
     </div>
@@ -147,7 +144,7 @@
       class="card-footer d-flex justify-content-end"
       :class="type === 'dark' ? 'bg-transparent': ''"
     >
-    <base-pagination total="30"></base-pagination>
+      <base-pagination total="30"></base-pagination>
     </div>
     <div>{{tableData}}</div>
   </div>
@@ -159,13 +156,21 @@ import "flatpickr/dist/flatpickr.css";
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
+import moment from "moment";
 
 var statusType = ["success", "info", "warning", "danger"];
 var status = ["completed", "on schedule", "pending", "delayed"];
+
+var show = {
+  travel: false
+};
+
 var edit = {
-  loc: false,
+  name: [],
   budget: false,
-  del: false
+  del: false,
+  prog: false,
+  completion: 0
 };
 
 function compareRow(row1, row2) {
@@ -191,7 +196,8 @@ export default {
     return {
       statusType: statusType,
       status: status,
-      edit: edit
+      edit: edit,
+      show: show
     };
   },
   props: {
@@ -202,15 +208,42 @@ export default {
     location: String,
     tableData: Array
   },
+  computed: {
+    editNames: function(){
+      var names = [];
+      for(var i=0; i<this.tableData.travel.length; ++i){
+        names.push(false);
+      }
+      return(names);
+    }
+  },
   methods: {
     addBox: function() {
       var newLine = {
         location: "输入地点",
         dates: { range: "2018-07-17 to 2018-07-19" },
         status: 0,
-        completion: 0
+        coordinate: []
       };
       this.tableData.push(newLine);
+    },
+    displayStatus: function(range) {
+      var begin = moment(range.split(" ")[0]);
+      var end = begin;
+      if (range.split(" ").length == 3) {
+        end = moment(range.split(" ")[2]);
+      }
+      var today = moment(Date());
+      if (begin.isBefore(today) && today.isBefore(end)) {
+        return "行程中";
+      } else if (end.isBefore(today)) {
+        return "";
+      } else {
+        return "距离行程开始" + begin.diff(today, "days").toString() + "天";
+      }
+    },
+    editTravel: function(row){
+      alert(row);
     },
     changeStatus: function(n, row) {
       row.status = n;
@@ -228,25 +261,27 @@ export default {
 </script>
 
 <style>
-.inputclick
-{
-padding-top: 10px;
-width:240px;
-height:40px;
-align-self: center；
+.inputclick {
+  padding-top: 10px;
+  width: 240px;
+  height: 40px;
+  align-self: center；;
 }
 
-.icon
-{
+.icon-del {
   padding-top: 10px;
   font-size: 30px;
   color: #ff0000;
 }
 
-.icon:hover
-{
+.icon-del:hover {
   padding-top: 5px;
   font-size: 35px;
   color: #ff4d4d;
+}
+
+.icon-edit:hover{
+  padding-top: 5px;
+  font-size: 15px;
 }
 </style>

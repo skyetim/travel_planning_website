@@ -1,12 +1,6 @@
 <template>
   <div>
     <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
-      <div class="row">
-        <edit-projects-table title="我的行迹" :tableData="travel"></edit-projects-table>
-      </div>
-
-
-    <button class="btn btn-primary btn-sm addBox" @click="save()">保存</button>
     </base-header>
 
     <div class="container-fluid mt--7">
@@ -25,71 +19,63 @@
 <script>
 import L from 'leaflet';
 
-var headers = ["行迹", "时间", "经度", "纬度"];
-// var travel = [
-//     ["北京", "2019", "116.30", "39.95"],
-//     ["上海", "2019", "121.47", "31.23"]
-// ]
-
 var travel = [
         {
           location: '广州',
-          dates: {range: "2018-07-17 to 2018-07-19"},
+          dates: {range: "2019-05-01 to 2019-07-19"},
           status: 2,
-          completion: 60
+          coordinate: [23.16667, 113.23333]
         },
         {
           location: '深圳',
-          dates: {range: "2018-07-17 to 2018-07-19"},
+          dates: {range: "2019-07-17 to 2019-07-19"},
           status: 0,
-          completion: 100
+          coordinate: [22.61667, 114.06667]
         },
         {
           location: '北京',
           dates: {range: "2018-07-17 to 2018-07-19"},
           status: 3,
-          completion: 72
+          coordinate: [39.95, 116.30]
         },
         {
           location: '上海',
           dates: {range: "2018-07-17 to 2018-07-19"},
           status: 1,
-          completion: 90
+          coordinate: [31.23, 121.47]
         },
         {
           location: '南京',
           dates: {range: "2018-07-17 to 2018-07-19"},
           status: 0,
-          completion: 100
+          coordinate: [32.05000, 118.78333]
         }
       ]
       
 function mountMap(map, travel){
-  map;
-  travel;
-  // var lastLoc = [parseFloat(travel[0][3]), parseFloat(travel[0][2])];
-  // travel.forEach(element => {
-  //   var nowLoc = [parseFloat(element[3]), parseFloat(element[2])];
-  //   L.marker(nowLoc).addTo(map).bindPopup("你在"+element[1]+"来过这里").openPopup();
-  //   var latlngs = [
-  //         lastLoc,
-  //         nowLoc
-  //     ];
-  //   L.polyline(latlngs, { color: '#1e90ff' }).addTo(map);
-  //   lastLoc = nowLoc;
-  // });
+  var markers = [];
+
+  travel.forEach(element => {
+    var nowLoc = element.coordinate;
+    var marker = L.marker(nowLoc)
+                  .bindPopup("你在"+element.dates.range.replace('to', '至')+"来过这里")
+                  .addTo(map);
+    markers.push(marker);
+  });
+
+  return markers;
 }
 
 export default {
     data(){
       return {
         travel: travel,
-        headers: headers,
-        mymap: null
+        map: null,
+        markers: []
       }
     },
     mounted(){
-      this.mymap =  L.map('map-canvas').setView([39.9877, 116.3075], 4);
+      this.map =  L.map('map-canvas').setView([39.9877, 116.3075], 4);
 
       // tile
       L.tileLayer(
@@ -98,15 +84,18 @@ export default {
         {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
-            maxZoom: 19
-        }).addTo(this.mymap);
-      mountMap(this.mymap, this.travel);
+            maxZoom: 21
+        }).addTo(this.map);
+      this.markers = mountMap(this.map, this.travel);
     },
     methods:{
       // 保存
       save: function(){
         // 提交表单到数据库
-        mountMap(this.mymap, this.travel);
+        for(var i = 0; i < this.markers.length; i++){
+            this.map.removeLayer(this.markers[i]);
+        }
+        this.markers = mountMap(this.map, this.travel);
       }
     }
 }
