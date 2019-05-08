@@ -3,7 +3,6 @@
     <table class="table tablesorter" :class="tableClass">
       <thead :class="theadClasses">
         <tr>
-          
           <slot name="columns" :columns="columns">
             <th v-for="(column, index) in columns" :key="index">{{column}}</th>
           </slot>
@@ -12,14 +11,11 @@
       <tbody class="tbodyClasses">
         <tr v-for="(item,index) in data" :key="index">
           <slot :row="item" :index="index">
-            <td v-for="(column, key) in item" :key="key">
-              {{item[key]}}
-            </td>
+            <td v-for="(column, key) in item" :key="key">{{item[key]}}</td>
           </slot>
         </tr>
       </tbody>
     </table>
-    <div>{{this.travel}}</div>
   </div>
 </template>
 
@@ -44,13 +40,13 @@ export default {
     },
     theadClasses: {
       type: String,
-      default: '',
-      description: '<thead> css classes'
+      default: "",
+      description: "<thead> css classes"
     },
     tbodyClasses: {
       type: String,
-      default: '',
-      description: '<tbody> css classes'
+      default: "",
+      description: "<tbody> css classes"
     }
   },
   computed: {
@@ -61,5 +57,5 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 </style>

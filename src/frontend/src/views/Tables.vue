@@ -89,7 +89,7 @@ var travelGroup = [
             {location: "北京", coordinate: [39.95, 116.3]},
             {location: "上海", coordinate: [31.23, 121.47]},
             {location: "南京", coordinate: [32.05, 118.78333]}],
-    dates: { range: "2019-05-01 to 2019-07-19" },
+    dates: { start: "2019-05-01" , end: "2019-07-19" },
     status: 2,
   },
   {
@@ -99,7 +99,7 @@ var travelGroup = [
             {location: "北京", coordinate: [39.95, 116.3]},
             {location: "上海", coordinate: [31.23, 121.47]},
             {location: "南京", coordinate: [32.05, 118.78333]}],
-    dates: { range: "2019-07-17 to 2019-07-19" },
+    dates: { start: "2019-07-17", end: "2019-07-19" },
     status: 0
   },
   {
@@ -109,7 +109,7 @@ var travelGroup = [
             {location: "北京", coordinate: [39.95, 116.3]},
             {location: "上海", coordinate: [31.23, 121.47]},
             {location: "南京", coordinate: [32.05, 118.78333]}],
-    dates: { range: "2018-07-17 to 2018-07-19" },
+    dates: { start: "2018-07-17", end: "2018-07-19" },
     status: 3
   },
   {
@@ -119,7 +119,7 @@ var travelGroup = [
             {location: "北京", coordinate: [39.95, 116.3]},
             {location: "上海", coordinate: [31.23, 121.47]},
             {location: "南京", coordinate: [32.05, 118.78333]}],
-    dates: { range: "2018-07-17 to 2018-07-19" },
+    dates: { start: "2018-07-17", end: "2018-07-19" },
     status: 1
   },
   {
@@ -129,7 +129,7 @@ var travelGroup = [
             {location: "北京", coordinate: [39.95, 116.3]},
             {location: "上海", coordinate: [31.23, 121.47]},
             {location: "南京", coordinate: [32.05, 118.78333]}],
-    dates: { range: "2018-07-17 to 2018-07-19" },
+    dates: { start: "2018-07-17", end: "2018-07-19" },
     status: 0  
   }
 ];

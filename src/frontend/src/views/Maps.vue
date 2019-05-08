@@ -20,37 +20,57 @@
 import L from 'leaflet';
 
 var travel = [
-        {
-          location: '广州',
-          dates: {range: "2019-05-01 to 2019-07-19"},
-          status: 2,
-          coordinate: [23.16667, 113.23333]
-        },
-        {
-          location: '深圳',
-          dates: {range: "2019-07-17 to 2019-07-19"},
-          status: 0,
-          coordinate: [22.61667, 114.06667]
-        },
-        {
-          location: '北京',
-          dates: {range: "2018-07-17 to 2018-07-19"},
-          status: 3,
-          coordinate: [39.95, 116.30]
-        },
-        {
-          location: '上海',
-          dates: {range: "2018-07-17 to 2018-07-19"},
-          status: 1,
-          coordinate: [31.23, 121.47]
-        },
-        {
-          location: '南京',
-          dates: {range: "2018-07-17 to 2018-07-19"},
-          status: 0,
-          coordinate: [32.05000, 118.78333]
-        }
-      ]
+  {
+    name: "balabala之旅",
+    travel: [{location: "广州", coordinate: [23.16667, 113.23333]},
+            {location: "深圳", coordinate: [22.61667, 114.06667]},
+            {location: "北京", coordinate: [39.95, 116.3]},
+            {location: "上海", coordinate: [31.23, 121.47]},
+            {location: "南京", coordinate: [32.05, 118.78333]}],
+    dates: { start: "2019-05-01", end: "2019-07-19" },
+    status: 2,
+  },
+  {
+    name: "开心之旅",
+    travel: [{location: "广州", coordinate: [23.16667, 113.23333]},
+            {location: "深圳", coordinate: [22.61667, 114.06667]},
+            {location: "北京", coordinate: [39.95, 116.3]},
+            {location: "上海", coordinate: [31.23, 121.47]},
+            {location: "南京", coordinate: [32.05, 118.78333]}],
+    dates: { start: "2019-07-17", end: "2019-07-19" },
+    status: 0
+  },
+  {
+    name: "LOL之旅",
+    travel: [{location: "广州", coordinate: [23.16667, 113.23333]},
+            {location: "深圳", coordinate: [22.61667, 114.06667]},
+            {location: "北京", coordinate: [39.95, 116.3]},
+            {location: "上海", coordinate: [31.23, 121.47]},
+            {location: "南京", coordinate: [32.05, 118.78333]}],
+    dates: { start: "2018-07-17", end: "2018-07-19" },
+    status: 3
+  },
+  {
+    name: "有意思的行程",
+    travel: [{location: "广州", coordinate: [23.16667, 113.23333]},
+            {location: "深圳", coordinate: [22.61667, 114.06667]},
+            {location: "北京", coordinate: [39.95, 116.3]},
+            {location: "上海", coordinate: [31.23, 121.47]},
+            {location: "南京", coordinate: [32.05, 118.78333]}],
+    dates: { start: "2018-07-17", end: "2018-07-19" },
+    status: 1
+  },
+  {
+    name: "Go to Hell!",
+    travel: [{location: "广州", coordinate: [23.16667, 113.23333]},
+            {location: "深圳", coordinate: [22.61667, 114.06667]},
+            {location: "北京", coordinate: [39.95, 116.3]},
+            {location: "上海", coordinate: [31.23, 121.47]},
+            {location: "南京", coordinate: [32.05, 118.78333]}],
+    dates: { start: "2018-07-17", end: "2018-07-19" },
+    status: 0  
+  }
+];
       
 function mountMap(map, travel){
   var markers = [];
