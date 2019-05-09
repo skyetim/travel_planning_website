@@ -70,7 +70,7 @@
       </div>
     </base-header>
 
-    <div class="container-fluid mt--7">
+    <div class="container-fluid mt--7 div-table">
       <div class="row">
         <div class="col">
           <edit-projects-table title="我的行迹" :tableData="travelGroup"></edit-projects-table>
@@ -143,4 +143,8 @@ export default {
   }
 };
 </script>
-<style></style>
+<style>
+.div-table{
+  overflow-y: hidden;
+}
+</style>
