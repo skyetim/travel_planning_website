@@ -11,11 +11,6 @@
         </div>
         <div class="col text-right">
           <base-button type="primary" size="sm" @click="addBox()">添加新的行程</base-button>
-          <base-button
-            type="primary"
-            size="sm"
-            @click="edit.del=!edit.del"
-          >{{edit.del? "删除完成": "选择删除"}}</base-button>
         </div>
       </div>
     </div>
@@ -28,24 +23,26 @@
         :data="tableData"
       >
         <template slot="columns">
+          <th></th>
           <th>行迹</th>
           <th>开始</th>
           <th>结束</th>
           <th>计划</th>
           <th>行程</th>
-          <th>{{edit.del? "": "同伴"}}</th>
-          <th></th>
+          <th>同伴</th>
         </template>
 
         <template slot-scope="{row}">
-          <th scope="row" class="show-edit">
-            <div>
-              <div>
-                {{row.name}}
-                <i class="ni ni-settings-gear-65 icon-edit" @click="editTravel(row)"></i>
-              </div>
-            </div>
+          <th scope="row">
+            <i class="ni ni-settings-gear-65 icon-edit" @click="editTravel(row)"></i>
+            <i class="ni ni-fat-remove icon-del" @click="del(row)"></i>
           </th>
+
+          <td>
+            <div>
+              <div>{{row.name}}</div>
+            </div>
+          </td>
 
           <td>
             <div>{{row.dates.start}}</div>
@@ -70,7 +67,7 @@
           </td>
 
           <td>
-            <div class="avatar-group" v-show="!edit.del">
+            <div class="avatar-group">
               <a
                 href="#"
                 class="avatar avatar-sm rounded-circle"
@@ -105,10 +102,6 @@
               </a>
             </div>
           </td>
-
-          <td class="text-right">
-            <i class="ni ni-fat-remove icon-del" v-show="edit.del" @click="del(row)"></i>
-          </td>
         </template>
       </editable>
     </div>
@@ -117,48 +110,62 @@
       <template slot="header">
         <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
       </template>
-      <form role="form">
+      <div>
         <div class="row">
-        <base-input alternative class="mb-3 name-input" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
-          <i :class="['ni', edit.collapsed ? 'ni-bold-down': 'ni-bold-up', 'icon-expand']" @click="edit.collapsed=!edit.collapsed"></i>        
-        </div>
-        <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
-          <flat-picker
-            slot-scope="{focus, blur}"
-            @on-open="focus"
-            @on-close="blur"
-            :config="{allowInput: true}"
-            class="form-control datepicker"
-            v-model="editRow.dates.start"
-          ></flat-picker>
-        </base-input>
-        <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
-          <flat-picker
-            slot-scope="{focus, blur}"
-            @on-open="focus"
-            @on-close="blur"
-            :config="{allowInput: true}"
-            class="form-control datepicker"
-            v-model="editRow.dates.end"
-          ></flat-picker>
-        </base-input>
-        <div class="dropdown">
-          <base-input
-            alternative
-            class="mb-3"
-            v-model="status[editRow.status]"
-            addon-left-icon="ni ni-tag"
-          ></base-input>
-          <div class="dropdown-content">
-            <li v-for="(n,index) in [0, 1, 2, 3]" :key="index" @click="changeStatus(n, editRow)">
-              <a class="dropdown-item">
-                <span class="status">{{status[n]}}</span>
-              </a>
-            </li>
+          <base-input alternative class="mb-3" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
+          <i
+            :class="['ni', edit.collapsed ? 'ni-bold-down': 'ni-bold-up', 'icon-expand']"
+            @click="edit.collapsed=!edit.collapsed"
+          ></i>
+          <div :class="[edit.collapsed?'collapse': 'expand']">
+            <p>Lorem ipsum...</p>
           </div>
         </div>
-        <base-input alternative class="mb-3" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
-      </form>
+        <div class="row">
+          <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
+            <flat-picker
+              slot-scope="{focus, blur}"
+              @on-open="focus"
+              @on-close="blur"
+              :config="{allowInput: true}"
+              class="form-control datepicker"
+              v-model="editRow.dates.start"
+            ></flat-picker>
+          </base-input>
+        </div>
+        <div class="row">
+          <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
+            <flat-picker
+              slot-scope="{focus, blur}"
+              @on-open="focus"
+              @on-close="blur"
+              :config="{allowInput: true}"
+              class="form-control datepicker"
+              v-model="editRow.dates.end"
+            ></flat-picker>
+          </base-input>
+        </div>
+        <div class="row">
+          <div class="dropdown">
+            <base-input
+              alternative
+              class="mb-3"
+              v-model="status[editRow.status]"
+              addon-left-icon="ni ni-tag"
+            ></base-input>
+            <div class="dropdown-content">
+              <li v-for="(n,index) in [0, 1, 2, 3]" :key="index" @click="changeStatus(n, editRow)">
+                <a class="dropdown-item">
+                  <span class="status">{{status[n]}}</span>
+                </a>
+              </li>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <base-input alternative class="mb-3" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
+        </div>
+      </div>
       <template slot="footer">
         <base-button type="secondary" @click="edit.modal = false">Close</base-button>
         <base-button type="primary">Save changes</base-button>
@@ -180,7 +187,6 @@ var status = ["completed", "on schedule", "pending", "delayed"];
 
 var edit = {
   modal: false,
-  del: false,
   collapsed: true
 };
 
@@ -250,47 +256,60 @@ export default {
 </script>
 
 <style>
-.name-input{
-  width: 90%;
+.mb-3 {
+  width: 400px;
 }
 
-.icon-expand{
-  margin-top: 10px;
+/* icons */
+.icon-expand {
+  position: relative;
+  margin: 10px;
   font-size: 150%;
+  transition: transform 0.2s;
+}
+
+.icon-expand:hover {
+  transform: scale(1.2);
 }
 
 .icon-del {
-  padding-top: 10px;
-  font-size: 30px;
+  font-size: 150%;
   color: #ff0000;
   transition: transform 0.2s;
 }
 
 .icon-del:hover {
-  transform: scale(1.5);
+  transform: scale(1.2);
   color: #ff4d4d;
 }
 
 .icon-edit {
-  position: absolute;
-  font-size: 90%;
-  display: none;
+  font-size: 120%;
   transition: transform 0.2s;
 }
 
 .icon-edit:hover {
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
-
-.show-edit:hover .icon-edit {
+/* .show-edit:hover .icon-edit {
   display: inline-block;
   margin-left: 10px;
   margin-top: 5px;
+} */
+
+/* collapse and expand */
+.collapse {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
 }
 
-/* table fiexed */
-.fixed {
-  width: 80px;
+.expand{
+  padding: 0 18px;
+  display: block;
+  overflow: hidden;
+  background-color: #f1f1f1;
 }
 
 /* Dropdown Button */
