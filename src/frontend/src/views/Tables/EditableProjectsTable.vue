@@ -118,7 +118,33 @@
             @click="edit.collapsed=!edit.collapsed"
           ></i>
           <div :class="[edit.collapsed?'collapse': 'expand']">
-            <p>Lorem ipsum...</p>
+            <ul class="list-group">
+              <li
+                class="list-group-item show-rm"
+                v-for="(location, index) in editRow.travel"
+                :key="index"
+              >
+                <div class="col">
+                  <base-input
+                    alternative
+                    class="mb-3"
+                    v-model="editRow.travel[index].location"
+                    addon-left-icon="ni ni-send"
+                  ></base-input>
+                  <div class="mb-3" align="center">
+                    <i class="ni ni-fat-delete icon-rm" @click="editRow.travel.splice(index, 1)"></i>
+                  </div>
+                </div>
+              </li>
+              <li class="list-group-item" align="center">
+                <div class="mb-3">
+                  <i
+                    class="ni ni-fat-add icon-edit"
+                    @click="editRow.travel.push({location: '输入地点', coordinate:''})"
+                  ></i>
+                </div>
+              </li>
+            </ul>
           </div>
         </div>
         <div class="row">
@@ -223,6 +249,7 @@ export default {
         status: 0
       };
       this.tableData.push(newLine);
+      this.edit.modal = true;
     },
     displayStatus: function(dates) {
       var begin = moment(dates.start);
@@ -291,11 +318,20 @@ export default {
 .icon-edit:hover {
   transform: scale(1.2);
 }
-/* .show-edit:hover .icon-edit {
+
+.icon-rm {
+  display: none;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.icon-rm:hover {
+  transform: scale(1.2);
+}
+
+.show-rm:hover .icon-rm {
   display: inline-block;
-  margin-left: 10px;
-  margin-top: 5px;
-} */
+}
 
 /* collapse and expand */
 .collapse {
@@ -305,7 +341,7 @@ export default {
   background-color: #f1f1f1;
 }
 
-.expand{
+.expand {
   padding: 0 18px;
   display: block;
   overflow: hidden;
