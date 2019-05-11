@@ -13,6 +13,7 @@ import BaseSwitch from "../components/BaseSwitch";
 import BaseTable from "../components/BaseTable";
 import BaseHeader from "../components/BaseHeader";
 import Card from "../components/Card";
+import Draggable from "../components/Draggable";
 import Editable from "../components/Editable";
 import StatsCard from "../components/StatsCard";
 import Modal from "../components/Modal";
@@ -37,6 +38,7 @@ export default {
     Vue.component(BaseTable.name, BaseTable);
     Vue.component(BaseHeader.name, BaseHeader);
     Vue.component(Card.name, Card);
+    Vue.component(Draggable.name, Draggable);
     Vue.component(Editable.name, Editable);
     Vue.component(EditableProjectsTable.name, EditableProjectsTable);
     Vue.component(StatsCard.name, StatsCard);

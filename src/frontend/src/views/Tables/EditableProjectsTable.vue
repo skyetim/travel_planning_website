@@ -118,33 +118,9 @@
             @click="edit.collapsed=!edit.collapsed"
           ></i>
           <div :class="[edit.collapsed?'collapse': 'expand']">
-            <ul class="list-group">
-              <li
-                class="list-group-item show-rm"
-                v-for="(location, index) in editRow.travel"
-                :key="index"
-              >
-                <div class="col">
-                  <base-input
-                    alternative
-                    class="mb-3"
-                    v-model="editRow.travel[index].location"
-                    addon-left-icon="ni ni-send"
-                  ></base-input>
-                  <div class="mb-3" align="center">
-                    <i class="ni ni-fat-delete icon-rm" @click="editRow.travel.splice(index, 1)"></i>
-                  </div>
-                </div>
-              </li>
-              <li class="list-group-item" align="center">
-                <div class="mb-3">
-                  <i
-                    class="ni ni-fat-add icon-edit"
-                    @click="editRow.travel.push({location: '输入地点', coordinate:''})"
-                  ></i>
-                </div>
-              </li>
-            </ul>
+            <div class="col">
+            <draggablelist :travel="editRow.travel"></draggablelist>
+            </div>
           </div>
         </div>
         <div class="row">
@@ -249,6 +225,7 @@ export default {
         status: 0
       };
       this.tableData.push(newLine);
+      this.editRow = this.tableData[this.tableData.length - 1];
       this.edit.modal = true;
     },
     displayStatus: function(dates) {
@@ -286,6 +263,9 @@ export default {
 .mb-3 {
   width: 400px;
 }
+.col {
+  width: 400px;
+}
 
 /* icons */
 .icon-expand {
@@ -317,20 +297,6 @@ export default {
 
 .icon-edit:hover {
   transform: scale(1.2);
-}
-
-.icon-rm {
-  display: none;
-  position: relative;
-  transition: transform 0.2s;
-}
-
-.icon-rm:hover {
-  transform: scale(1.2);
-}
-
-.show-rm:hover .icon-rm {
-  display: inline-block;
 }
 
 /* collapse and expand */
@@ -382,4 +348,6 @@ export default {
 .dropdown:hover .dropdown-content {
   display: block;
 }
+
+/* modal input*/
 </style>

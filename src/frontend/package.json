@@ -27,7 +27,8 @@
     "vue-flatpickr-component": "8.1.2",
     "vue-router": "3.0.1",
     "vue2-leaflet": "^2.1.1",
-    "vue2-transitions": "0.3.0"
+    "vue2-transitions": "0.3.0",
+    "vuedraggable": "^2.20.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.0",
