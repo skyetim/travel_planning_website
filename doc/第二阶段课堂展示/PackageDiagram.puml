@@ -1,6 +1,6 @@
 @startuml PackageDiagram
 
-skinparam Dpi 200
+skinparam Dpi 100
 skinparam DefaultFont {
     Name Menlo
     Size 13
@@ -29,7 +29,7 @@ namespace Backend {
     package _utilities {
         ' method gps_to_location()
         class City
-        class Time
+        class Date
         class Message
         class Utilities
         enum Gender
@@ -66,12 +66,12 @@ namespace Frontend {
     }
 
     package _components {
-        package _login {
+        package _logincomponents {
             class BackgroundComponent
             class RegisterComponent
             class LoginComponent
         }
-        package _main {
+        package _maincomponents {
             class HeaderComponent
             class NavigationComponent
             class MapComponent
@@ -104,10 +104,10 @@ MainBasicView     <|-down- ProfileView
 MainBasicView     <|-down- FriendView
 MainBasicView     <|-down- MapView
 
-_loginview -[hidden]  _mainview
-_login     -[hidden]  _main
-_mainview  --[hidden] _main
-_loginview --[hidden] _login
+_loginview       -[hidden]  _mainview
+_logincomponents -[hidden]  _maincomponents
+_mainview        --[hidden] _maincomponents
+_loginview       --[hidden] _logincomponents
 EntranceBasicView .down.> BackgroundComponent
 LoginView         .down.> LoginComponent
 RegisterView      .down.> RegisterComponent
@@ -130,8 +130,7 @@ Travel       *-down-   TravelInfo
 User         -down->   Travel
 FriendInfo   -right->  Travel
 TravelInfo   o-down-   City
-TravelInfo   *-down-   Time
-UserInfo -[hidden] FriendInfo
+TravelInfo   *-down-   Date
 
 _view   .down.> _components : <<import>>
 _server .down.> _user       : <<import>>
