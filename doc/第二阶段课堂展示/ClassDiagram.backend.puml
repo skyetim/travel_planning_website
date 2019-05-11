@@ -9,13 +9,22 @@ skinparam DefaultFont {
 skinparam ClassAttributeIconSize 0
 
 namespace Backend {
+    class Server {
+        __ private data __
+        - user_dict: dict
+        __ methods __
+        + get_user(user_id: int): User
+    }
+
     class User {
         __ private data __
         - user_id: int {readonly,frozen}
+        - session_id: int {readonly,frozen}
         - user_info: UserInfo
         - friend_info_list: FriendInfo[0..*]
         - travel_group_list: TravelGroup[0..*]
         __ methods __
+        + reset_password(old_pswd_hash: byte[16..16], new_pswd_hash: byte[16..16]): int
         + add_friend(friend_user_id: int): int
         + del_friend(friend_user_id: int): int
         + add_travel_group(): int
@@ -127,8 +136,8 @@ namespace Backend {
         - travel_id: int {readonly,frozen}
         - travel_note: str
         - city: City
-        - time_start: Time
-        - time_end: Time
+        - date_start: Date
+        - date_end: Date
         - visibility: Visibility
         __ methods __
         .. getters ..
@@ -136,13 +145,13 @@ namespace Backend {
         + get_travel_id(): int         {query}
         + get_travel_note(): str       {query}
         + get_city(): City             {query}
-        + get_time_start(): Time       {query}
-        + get_time_end(): Time         {query}
+        + get_date_start(): Date       {query}
+        + get_date_end(): Date         {query}
         + get_visibility(): Visibility {query}
         .. setters ..
         + set_city(city_id: int): int
-        + set_time_start(year: int, month: int, day: int): int
-        + set_time_end(year: int, month: int, day: int): int
+        + set_date_start(year: int, month: int, day: int): int
+        + set_date_end(year: int, month: int, day: int): int
         + set_travel_note(travel_note: str): int
         + set_visibility(visibility: Visibility): int
     }
@@ -161,18 +170,19 @@ namespace Backend {
         + get_longitude(): float {query}
     }
 
-    class Time {
+    class Date {
         __ private data __
         - year: int
         - month: int
         - day: int
         __ methods __
         .. getters ..
-        + get_time(): int[3..3] {query}
+        + get_date(): int[3..3] {query}
         .. setters ..
-        + set_time(year: int, month: int, day: int): int
+        + set_date(year: int, month: int, day: int): int
     }
 
+    Server       "1"    *-down-  "0..*" User
     User         "1"    *-down-  "1"    UserInfo
     User         "1"    *-down-  "0..*" FriendInfo
     User         "1"    *-right- "0..*" TravelGroup : "     "
@@ -184,7 +194,7 @@ namespace Backend {
     User         "0..*" -right-> "1"    Travel : "     "
     FriendInfo   "0..*" -up->    "0..*" Travel
     TravelInfo   "1"    o-down-  "1"    City
-    TravelInfo   "1"    *-down-  "2..2" Time
+    TravelInfo   "1"    *-down-  "2..2" Date
 
     UserInfo -[hidden] FriendInfo
 }

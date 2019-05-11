@@ -29,7 +29,7 @@ namespace Backend {
     package _utilities {
         ' method gps_to_location()
         class City
-        class Time
+        class Date
         class Message
         class Utilities
         enum Gender
@@ -104,10 +104,10 @@ MainBasicView     <|-down- ProfileView
 MainBasicView     <|-down- FriendView
 MainBasicView     <|-down- MapView
 
-_loginview -[hidden]  _mainview
-_logincomponents     -[hidden]  _maincomponents
-_mainview  --[hidden] _maincomponents
-_loginview --[hidden] _logincomponents
+_loginview       -[hidden]  _mainview
+_logincomponents -[hidden]  _maincomponents
+_mainview        --[hidden] _maincomponents
+_loginview       --[hidden] _logincomponents
 EntranceBasicView .down.> BackgroundComponent
 LoginView         .down.> LoginComponent
 RegisterView      .down.> RegisterComponent
@@ -130,8 +130,7 @@ Travel       *-down-   TravelInfo
 User         -down->   Travel
 FriendInfo   -right->  Travel
 TravelInfo   o-down-   City
-TravelInfo   *-down-   Time
-UserInfo -[hidden] FriendInfo
+TravelInfo   *-down-   Date
 
 _view   .down.> _components : <<import>>
 _server .down.> _user       : <<import>>
