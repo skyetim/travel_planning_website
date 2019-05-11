@@ -26,9 +26,9 @@ namespace Backend {
         __ methods __
         + reset_password(old_pswd_hash: byte[16..16], new_pswd_hash: byte[16..16]): int
         + add_friend(friend_user_id: int): int
-        + del_friend(friend_user_id: int): int
+        + remove_friend(friend_user_id: int): int
         + add_travel_group(): int
-        + del_travel_group(travel_group_id: int): int
+        + remove_travel_group(travel_group_id: int): int
         .. getters ..
         + get_user_id(): int                         {query}
         + get_user_info(): UserInfo                  {query}
@@ -103,7 +103,7 @@ namespace Backend {
         - travel_list: Travel[0..*]
         __ methods __
         + add_travel(): int
-        + del_travel(travel_id: int): int
+        + remove_travel(travel_id: int): int
         .. getters ..
         + get_user_id(): int
         + get_travel_group_id(): int
@@ -117,17 +117,20 @@ namespace Backend {
         __ private data __
         - user_id: int   {readonly,frozen}
         - travel_id: int {readonly,frozen}
+        - travel_group_id: int
         - travel_info: TravelInfo
         - company_user_id_list: int[0..*]
         __ methods __
         + add_company(company_user_id: int): int
-        + del_company(company_user_id: int): int
+        + remove_company(company_user_id: int): int
         + move_to_travel_group(travel_group_id: int): int
         + move_to_new_travel_group(): int[2..2]
         .. getters ..
-        + get_user_id(): int            {query}
-        + get_travel_id(): int          {query}
-        + get_travel_info(): TravelInfo {query}
+        + get_user_id(): int                    {query}
+        + get_travel_id(): int                  {query}
+        + get_travel_group_id(): int            {query}
+        + get_travel_info(): TravelInfo         {query}
+        + get_company_user_id_list(): int[0..*] {query}
     }
 
     class TravelInfo {
