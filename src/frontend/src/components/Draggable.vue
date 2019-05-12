@@ -1,6 +1,6 @@
 <template>
   <div class="row">
-    <div class="col-8">
+    <div class="col-16">
       <draggable
         tag="transition-group"
         :componentData="componentData"
@@ -12,11 +12,11 @@
         @end="dragging = false"
       >
         <div class="list-group-item item show-rm" v-for="(element,index) in travel" :key="index">
-          <div width="400px">
-          <base-input v-model="travel[index].location" class="input-list"></base-input>
-          <base-input v-model="travel[index].location" class="input-list"></base-input>
-          <base-input v-model="travel[index].location" class="input-list"></base-input>
-          <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
+          <div class="col-16">
+            <beautinput name="城市" :element="travel[index].location" class="input-list"></beautinput>
+            <beautinput name="开始" :element="element.start" class="input-list"></beautinput>
+            <beautinput name="结束" :element="element.end" class="input-list"></beautinput>
+            <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
           </div>
         </div>
 
@@ -36,6 +36,7 @@
 
 <script>
 import draggable from "vuedraggable";
+
 export default {
   name: "draggablelist",
   display: "Footer slot",
@@ -65,8 +66,10 @@ export default {
 };
 </script>
 <style scoped>
-.input-list{
-  width: 50%;
+.input-list {
+  width: 30%;
+  display: inline-block;
+  position: relative;
 }
 
 .flip-list-move {
@@ -78,9 +81,9 @@ export default {
 
 .icon-rm {
   display: none;
-  position: relative;
-  margin-top: 10px;
-  margin-left: 10px;
+  position: absolute;
+  padding-top: 10px;
+  padding-left: 10px;
   font-size: 150%;
   transition: transform 0.2s;
 }
