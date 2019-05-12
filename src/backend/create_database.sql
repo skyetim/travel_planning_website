@@ -1,19 +1,10 @@
--- Create database
-create database if not exists SoftwareEngineeringProject;
-
+-- Create schema
+create schema if not exists SoftwareEngineeringProject;
 
 use SoftwareEngineeringProject;
 
-
--- Create schemas
-create schema if not exists Cities;
-create schema if not exists Users;
-create schema if not exists Travels;
-create schema if not exists Messages;
-
-
 -- Create tables
-create table if not exists Cities.Cities
+create table if not exists Cities
 (
     city_id       int          not null auto_increment,
     country_name  nvarchar(20) not null,
@@ -27,7 +18,7 @@ create table if not exists Cities.Cities
         primary key (city_id, country_name, province_name, city_name)
 );
 
-create table if not exists Users.Users
+create table if not exists Users
 (
     user_id          int                 not null auto_increment,
     user_name        nvarchar(20)        not null,
@@ -42,7 +33,7 @@ create table if not exists Users.Users
     
     constraint FK_Users_Cities
         foreign key (resident_city_id)
-            references Cities.Cities (city_id),
+            references Cities (city_id),
     constraint CHK_Email
         check (email like '%@%'),
     constraint CHK_Gender
@@ -53,7 +44,7 @@ create table if not exists Users.Users
             ))
 );
 
-create table if not exists Users.FriendRelations
+create table if not exists FriendRelations
 (
     user_id          int not null,
     friend_user_id   int not null,
@@ -65,13 +56,13 @@ create table if not exists Users.FriendRelations
     
     constraint FK_FriendRelations_User
         foreign key (user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint FK_FriendRelations_Friend
         foreign key (friend_user_id)
-            references Users.Users (user_id)
+            references Users (user_id)
 );
 
-create table if not exists Travels.TravelGroups
+create table if not exists TravelGroups
 (
     travel_groups_id   int           not null auto_increment,
     travel_groups_note nvarchar(140) not null,
@@ -81,7 +72,7 @@ create table if not exists Travels.TravelGroups
         primary key (travel_groups_id)
 );
 
-create table if not exists Travels.TravelGroupOwnership
+create table if not exists TravelGroupOwnership
 (
     user_id          int not null,
     travel_groups_id int not null,
@@ -92,13 +83,13 @@ create table if not exists Travels.TravelGroupOwnership
     
     constraint FK_TravelGroupOwnership_Users
         foreign key (user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint FK_TravelGroupOwnership_TravelGroups
         foreign key (travel_groups_id)
-            references Travels.TravelGroups (travel_groups_id)
+            references TravelGroups (travel_groups_id)
 );
 
-create table if not exists Travels.Travels
+create table if not exists Travels
 (
     travel_id   int                 not null auto_increment,
     date_start  date                not null,
@@ -113,7 +104,7 @@ create table if not exists Travels.Travels
     
     constraint FK_Travels_Cities
         foreign key (city_id)
-            references Cities.Cities (city_id),
+            references Cities (city_id),
     constraint CHK_Visibility
         check (visibility in ('M', -- only me
                               'F', -- friends
@@ -121,12 +112,12 @@ create table if not exists Travels.Travels
             ))
 );
 
-alter table Travels.Travels
+alter table Travels
     add index (date_start, date_end);
-alter table Travels.Travels
+alter table Travels
     add index (city_id);
 
-create table if not exists Travels.TravelGrouping
+create table if not exists TravelGrouping
 (
     travel_id        int not null,
     travel_groups_id int not null,
@@ -137,13 +128,13 @@ create table if not exists Travels.TravelGrouping
     
     constraint FK_TravelGrouping_Travels
         foreign key (travel_id)
-            references Travels.Travels (travel_id),
+            references Travels (travel_id),
     constraint FK_TravelGrouping_TravelGroups
         foreign key (travel_groups_id)
-            references Travels.TravelGroups (travel_groups_id)
+            references TravelGroups (travel_groups_id)
 );
 
-create table if not exists Travels.TravelAssociation
+create table if not exists TravelAssociation
 (
     travel_id       int not null,
     company_user_id int not null,
@@ -154,13 +145,13 @@ create table if not exists Travels.TravelAssociation
     
     constraint FK_TravelAssociation_Travels
         foreign key (travel_id)
-            references Travels.Travels (travel_id),
+            references Travels (travel_id),
     constraint FK_TravelAssociation_Users
         foreign key (company_user_id)
-            references Users.Users (user_id)
+            references Users (user_id)
 );
 
-create table if not exists Messages.FriendRequests
+create table if not exists FriendRequests
 (
     msg_id         int                 not null auto_increment,
     user_id        int                 not null,
@@ -174,17 +165,17 @@ create table if not exists Messages.FriendRequests
     
     constraint FK_FriendRequests_User
         foreign key (user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint FK_FriendRequests_Friend
         foreign key (friend_user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint CHK_FriendRequests_Msg_Type
         check (msg_type in ('A', -- add
                             'D'  -- delete
             ))
 );
 
-create table if not exists Messages.TravelAssociation
+create table if not exists TravelAssociation
 (
     msg_id         int           not null auto_increment,
     user_id        int           not null,
@@ -199,10 +190,10 @@ create table if not exists Messages.TravelAssociation
     
     constraint FK_TravelAssociation_User
         foreign key (user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint FK_TravelAssociation_Friend
         foreign key (friend_user_id)
-            references Users.Users (user_id),
+            references Users (user_id),
     constraint CHK_TravelAssociation_Msg_Type
         check (msg_type in ('I', -- invite
                             'A', -- add

@@ -25,7 +25,7 @@ SECRET_KEY = '*j4cylsozen#(a_%v(+j=i3$xs9@#$0#x5d2_*y(%!-d4)x&_v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -74,12 +74,12 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydatabase',
-        'USER': 'mydatabaseuser',
-        'PASSWORD': 'mypassword',
+        'NAME': 'SoftwareEngineeringProject',
+        'USER': 'root',
+        'PASSWORD': 'MySQLPSWD',
         'HOST': '127.0.0.1',
         'PORT': '3306'
-    }
+    },
 }
 
 # Password validation
