@@ -1,5 +1,6 @@
 python>=3.6,<3.7
-django
+openssl==1.0.2r
 mysqlclient
+django
 autopep8
 pylint
