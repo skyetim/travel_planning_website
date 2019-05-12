@@ -209,20 +209,20 @@ td, th {
     clear: both
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .mobile-only {
         display: none
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .desktop-only {
         display: none
     }
 }
 
 .hidden {
-    display: none!important
+    display: none !important
 }
 
 .hidden-opacity {
@@ -290,13 +290,13 @@ td, th {
 }
 
 .ui-font {
-    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"!important;
-    font-weight: 400!important
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+    font-weight: 400 !important
 }
 
 .ui-font h1, .ui-font h2, .ui-font h3, .ui-font h4, .ui-font h5, .ui-font h6 {
-    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"!important;
-    font-weight: 700!important
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+    font-weight: 700 !important
 }
 
 html {
@@ -593,73 +593,85 @@ ol {
     padding: 0 40px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-home .menu-inner {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-home .menu-inner {
         margin-left: 40px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-home {
         height: 50px;
         line-height: 50px
     }
+
     .menu-home .menu-user-icon-img {
         padding-top: 10px
     }
+
     .menu-home #menu-pages-icon {
         height: 50px;
         width: 50px;
         padding: 16px 14px 0
     }
+
     .menu-home #menu-pages-icon div {
         margin-bottom: 5px
     }
+
     .menu-home #menu-user-items {
         top: 50px
     }
+
     .menu-home #menu-pages {
         background: rgba(0, 0, 0, .7);
         top: 50px
     }
+
     .menu-home #menu-cover {
         top: 50px
     }
+
     .menu-home .menu-logo-beta {
         opacity: 1
     }
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .menu-home {
         height: 80px;
         line-height: 80px
     }
+
     .menu-home .menu-logo-big {
         font-family: latolight, sans-serif;
         font-weight: 400;
         font-size: 34px
     }
+
     .menu-home .menu-logo-beta {
         font-family: latolight, sans-serif;
         font-weight: 400;
         margin-top: -8px
     }
+
     .menu-home .menu-user-icon-img {
         padding-top: 25px
     }
+
     .menu-home #menu-user-items {
         top: 60px
     }
+
     .menu-home #menu-cover {
-        display: none!important
+        display: none !important
     }
 }
 
@@ -681,14 +693,14 @@ ol {
     padding: 0 40px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-page .menu-inner {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-page .menu-inner {
         margin-left: 40px
     }
@@ -708,7 +720,7 @@ ol {
     padding: 0 10px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-map .menu-inner {
         margin-left: 40px
     }
@@ -752,10 +764,11 @@ ol {
     padding: 0 10px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .menu-user-icon {
         padding: 0 5px
     }
+
     .menu-user-icon:last-child {
         padding-right: 10px
     }
@@ -779,7 +792,7 @@ ol {
     padding: 13px
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     #menu-pages-icon {
         display: none
     }
@@ -805,18 +818,21 @@ ol {
     border-color: #fff
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     #menu-pages {
-        display: block!important;
+        display: block !important;
         float: right
     }
+
     #menu-pages li {
         display: inline-block;
         padding: 0 10px
     }
+
     #menu-pages li.menu-pages-button {
         padding: 0 7px
     }
+
     #menu-pages li.menu-pages-button a {
         border: 1px solid #fff;
         border-radius: 3px;
@@ -825,17 +841,19 @@ ol {
         -o-transition: background-color .5s, color .5s;
         transition: background-color .5s, color .5s
     }
+
     #menu-pages li.menu-pages-button a:hover {
         text-decoration: none;
         background-color: #fff;
         color: #17b585
     }
+
     .menu-home #menu-pages li.menu-pages-button a:hover {
         color: #22565a
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #menu-pages {
         display: none;
         position: absolute;
@@ -846,6 +864,7 @@ ol {
         line-height: 30px;
         background: #17b585
     }
+
     #menu-pages li {
         display: block;
         padding: 10px 0;
@@ -884,7 +903,7 @@ ol {
     overflow: hidden
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #menu-user-items li {
         font-size: 20px
     }
@@ -919,14 +938,14 @@ ol {
     min-height: calc(100% - 119px)
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page {
         padding-top: 10px;
         padding-bottom: 10px
@@ -937,7 +956,7 @@ ol {
     margin-bottom: 20px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page h1 {
         margin-bottom: 10px
     }
@@ -955,14 +974,14 @@ ol {
     min-height: calc(100% - 119px)
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page-narrow {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page-narrow {
         padding-top: 10px;
         padding-bottom: 10px
@@ -973,7 +992,7 @@ ol {
     margin-bottom: 20px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .page-narrow h1 {
         margin-bottom: 10px
     }
@@ -998,13 +1017,15 @@ ol {
     line-height: 1.3
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .page-map-super {
         margin-bottom: 40px
     }
+
     .page-map-super .mapview {
         height: 400px
     }
+
     .page-map-super h2 {
         font-size: 24px
     }
@@ -1029,13 +1050,14 @@ ol {
     line-height: 1.3
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .page-map-small {
         margin-right: 12px;
-        width: calc((100% - 24px)/ 3 - .3px);
+        width: calc((100% - 24px) / 3 - .3px);
         display: inline-block;
         vertical-align: top
     }
+
     .page-map-small:nth-child(3n) {
         margin-right: 0
     }
@@ -1056,7 +1078,7 @@ footer li {
     margin: 0 10px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     footer li {
         margin: 0 5px
     }
@@ -1142,10 +1164,11 @@ footer li {
     background-color: #eee
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .map-bar a.maphub-save-icon {
         width: 30px
     }
+
     .map-bar a.maphub-save-icon .icon {
         font-size: 18px;
         line-height: 30px;
@@ -1175,7 +1198,7 @@ footer li {
     right: 38px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .maphub-save-control {
         top: 65px;
         right: 0
@@ -1202,7 +1225,7 @@ footer li {
     white-space: normal
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .mapboxgl-ctrl.mapboxgl-ctrl-attrib {
         max-width: 60vw
     }
@@ -1231,12 +1254,12 @@ footer li {
 }
 
 .ctrl-scale-top {
-    margin: 0 0 0 5px!important;
+    margin: 0 0 0 5px !important;
     border-top: 0
 }
 
 .ctrl-scale-bottom {
-    margin: 0 0 5px 5px!important;
+    margin: 0 0 5px 5px !important;
     border-top: 0;
     border-bottom: 0
 }
@@ -1317,7 +1340,7 @@ footer li {
     background: #fff
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #panel-meta-div {
         padding: 5px 5px 30px
     }
@@ -1379,7 +1402,7 @@ footer li {
     margin-bottom: 5px
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .panel-meta-div-coords-label {
         width: 50%
     }
@@ -1396,7 +1419,7 @@ footer li {
     font-size: 14px
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .panel-meta-div-coords-input {
         text-align: right;
         width: 100px;
@@ -1404,7 +1427,7 @@ footer li {
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .panel-meta-div-coords-input {
         width: 100%
     }
@@ -1662,7 +1685,7 @@ footer li {
     user-select: none
 }
 
-.panel-itemtree-node>span {
+.panel-itemtree-node > span {
     -ms-flex: none;
     flex: none
 }
@@ -1766,7 +1789,7 @@ footer li {
     border-color: #c8c7cc
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #panel-items-list {
         bottom: 0
     }
@@ -1796,7 +1819,7 @@ footer li {
     padding: 0 3px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .panel-middle-buttons {
         padding: 0
     }
@@ -1810,7 +1833,7 @@ footer li {
     flex: 0 0 auto
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .panel-middle-buttons .button {
         padding-left: 5px;
         padding-right: 5px;
@@ -1836,22 +1859,24 @@ footer li {
     background: rgba(60, 119, 212, .15)
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .panel-bottom-buttons {
         right: 0
     }
+
     .panel-bottom-buttons .button {
         float: left;
         margin-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .panel-bottom-buttons {
         width: 100%;
         min-width: 188px;
         text-align: center
     }
+
     .panel-bottom-buttons .button {
         float: left;
         margin: 0 5px
@@ -1956,10 +1981,11 @@ footer li {
     background-image: url(/static/images/search/loading.gif)
 }
 
-@media (-webkit-min-device-pixel-ratio:1.25), (-o-min-device-pixel-ratio:5/4), (min-resolution:120dpi) {
+@media (-webkit-min-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5/4), (min-resolution: 120dpi) {
     .map-search-search-icon {
         background-image: url(/static/images/search/search@2x.png)
     }
+
     .map-search-search-icon.map-search-loading {
         background-image: url(/static/images/search/loading@2x.gif)
     }
@@ -2097,7 +2123,7 @@ footer li {
     z-index: 10
 }
 
-@media (-webkit-min-device-pixel-ratio:1.25), (-o-min-device-pixel-ratio:5/4), (min-resolution:120dpi) {
+@media (-webkit-min-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5/4), (min-resolution: 120dpi) {
     .map-filter-filter-icon {
         background-image: url(/static/images/search/search@2x.png)
     }
@@ -2131,7 +2157,7 @@ footer li {
 }
 
 .ps {
-    overflow: hidden!important;
+    overflow: hidden !important;
     overflow-anchor: none;
     -ms-overflow-style: none;
     touch-action: auto;
@@ -2160,12 +2186,12 @@ footer li {
     position: absolute
 }
 
-.ps--active-x>.ps__rail-x, .ps--active-y>.ps__rail-y {
+.ps--active-x > .ps__rail-x, .ps--active-y > .ps__rail-y {
     display: block;
     background-color: transparent
 }
 
-.ps--focus>.ps__rail-x, .ps--focus>.ps__rail-y, .ps--scrolling-x>.ps__rail-x, .ps--scrolling-y>.ps__rail-y, .ps:hover>.ps__rail-x, .ps:hover>.ps__rail-y {
+.ps--focus > .ps__rail-x, .ps--focus > .ps__rail-y, .ps--scrolling-x > .ps__rail-x, .ps--scrolling-y > .ps__rail-y, .ps:hover > .ps__rail-x, .ps:hover > .ps__rail-y {
     opacity: .6
 }
 
@@ -2196,25 +2222,25 @@ footer li {
     position: absolute
 }
 
-.ps__rail-x.ps--clicking .ps__thumb-x, .ps__rail-x:focus>.ps__thumb-x, .ps__rail-x:hover>.ps__thumb-x {
+.ps__rail-x.ps--clicking .ps__thumb-x, .ps__rail-x:focus > .ps__thumb-x, .ps__rail-x:hover > .ps__thumb-x {
     background-color: #999;
     height: 11px
 }
 
-.ps__rail-y.ps--clicking .ps__thumb-y, .ps__rail-y:focus>.ps__thumb-y, .ps__rail-y:hover>.ps__thumb-y {
+.ps__rail-y.ps--clicking .ps__thumb-y, .ps__rail-y:focus > .ps__thumb-y, .ps__rail-y:hover > .ps__thumb-y {
     background-color: #999;
     width: 11px
 }
 
 @supports (-ms-overflow-style:none) {
     .ps {
-        overflow: auto!important
+        overflow: auto !important
     }
 }
 
-@media screen and (-ms-high-contrast:active), (-ms-high-contrast:none) {
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
     .ps {
-        overflow: auto!important
+        overflow: auto !important
     }
 }
 
@@ -2390,7 +2416,7 @@ footer li {
     border-color: rgba(27, 31, 35, .35)
 }
 
-.btn.selected, .btn:active, [open]>.btn {
+.btn.selected, .btn:active, [open] > .btn {
     background-color: #e9ecef;
     background-image: none;
     border-color: rgba(27, 31, 35, .35);
@@ -2431,7 +2457,7 @@ footer li {
     border-color: rgba(27, 31, 35, .5)
 }
 
-.btn-primary.selected, .btn-primary:active, [open]>.btn-primary {
+.btn-primary.selected, .btn-primary:active, [open] > .btn-primary {
     background-color: #279f43;
     background-image: none;
     border-color: rgba(27, 31, 35, .5);
@@ -2477,7 +2503,7 @@ footer li {
     border-color: rgba(27, 31, 35, .5)
 }
 
-.btn-purple.selected, .btn-purple:active, [open]>.btn-purple {
+.btn-purple.selected, .btn-purple:active, [open] > .btn-purple {
     background-color: #613ca4;
     background-image: none;
     border-color: rgba(27, 31, 35, .5);
@@ -2523,7 +2549,7 @@ footer li {
     border-color: rgba(27, 31, 35, .5)
 }
 
-.btn-blue.selected, .btn-blue:active, [open]>.btn-blue {
+.btn-blue.selected, .btn-blue:active, [open] > .btn-blue {
     background-color: #045cc1;
     background-image: none;
     border-color: rgba(27, 31, 35, .5);
@@ -2573,7 +2599,7 @@ footer li {
     color: #fff
 }
 
-.btn-danger.selected, .btn-danger:active, [open]>.btn-danger {
+.btn-danger.selected, .btn-danger:active, [open] > .btn-danger {
     color: #fff;
     background-color: #b5202c;
     background-image: none;
@@ -2601,14 +2627,14 @@ footer li {
     background-color: rgba(27, 31, 35, .07)
 }
 
-.btn-outline.selected, .btn-outline:active, .btn-outline:hover, [open]>.btn-outline {
+.btn-outline.selected, .btn-outline:active, .btn-outline:hover, [open] > .btn-outline {
     color: #fff;
     background-color: #0366d6;
     background-image: none;
     border-color: #0366d6
 }
 
-.btn-outline.selected .Counter, .btn-outline:active .Counter, .btn-outline:hover .Counter, [open]>.btn-outline .Counter {
+.btn-outline.selected .Counter, .btn-outline:active .Counter, .btn-outline:hover .Counter, [open] > .btn-outline .Counter {
     color: #0366d6;
     background-color: #fff
 }
@@ -2740,15 +2766,15 @@ footer li {
     cursor: default
 }
 
-.details-reset>summary {
+.details-reset > summary {
     list-style: none
 }
 
-.details-reset>summary::before {
+.details-reset > summary::before {
     display: none
 }
 
-.details-reset>summary::-webkit-details-marker {
+.details-reset > summary::-webkit-details-marker {
     display: none
 }
 
@@ -2768,7 +2794,7 @@ footer li {
     content: ""
 }
 
-.BtnGroup+.BtnGroup, .BtnGroup+.btn {
+.BtnGroup + .BtnGroup, .BtnGroup + .btn {
     margin-left: 4px
 }
 
@@ -2794,7 +2820,7 @@ footer li {
     border-right-width: 1px
 }
 
-.BtnGroup-item.selected+.BtnGroup-form .BtnGroup-item, .BtnGroup-item.selected+.BtnGroup-item, .BtnGroup-item.selected+.BtnGroup-parent .BtnGroup-item, .BtnGroup-item:active+.BtnGroup-form .BtnGroup-item, .BtnGroup-item:active+.BtnGroup-item, .BtnGroup-item:active+.BtnGroup-parent .BtnGroup-item, .BtnGroup-item:focus+.BtnGroup-form .BtnGroup-item, .BtnGroup-item:focus+.BtnGroup-item, .BtnGroup-item:focus+.BtnGroup-parent .BtnGroup-item, .BtnGroup-item:hover+.BtnGroup-form .BtnGroup-item, .BtnGroup-item:hover+.BtnGroup-item, .BtnGroup-item:hover+.BtnGroup-parent .BtnGroup-item {
+.BtnGroup-item.selected + .BtnGroup-form .BtnGroup-item, .BtnGroup-item.selected + .BtnGroup-item, .BtnGroup-item.selected + .BtnGroup-parent .BtnGroup-item, .BtnGroup-item:active + .BtnGroup-form .BtnGroup-item, .BtnGroup-item:active + .BtnGroup-item, .BtnGroup-item:active + .BtnGroup-parent .BtnGroup-item, .BtnGroup-item:focus + .BtnGroup-form .BtnGroup-item, .BtnGroup-item:focus + .BtnGroup-item, .BtnGroup-item:focus + .BtnGroup-parent .BtnGroup-item, .BtnGroup-item:hover + .BtnGroup-form .BtnGroup-item, .BtnGroup-item:hover + .BtnGroup-item, .BtnGroup-item:hover + .BtnGroup-parent .BtnGroup-item {
     border-left-width: 0
 }
 
@@ -2822,7 +2848,7 @@ footer li {
     border-right-width: 1px
 }
 
-.BtnGroup-form.selected+.BtnGroup-form .BtnGroup-item, .BtnGroup-form.selected+.BtnGroup-item, .BtnGroup-form.selected+.BtnGroup-parent .BtnGroup-item, .BtnGroup-form:active+.BtnGroup-form .BtnGroup-item, .BtnGroup-form:active+.BtnGroup-item, .BtnGroup-form:active+.BtnGroup-parent .BtnGroup-item, .BtnGroup-form:focus+.BtnGroup-form .BtnGroup-item, .BtnGroup-form:focus+.BtnGroup-item, .BtnGroup-form:focus+.BtnGroup-parent .BtnGroup-item, .BtnGroup-form:hover+.BtnGroup-form .BtnGroup-item, .BtnGroup-form:hover+.BtnGroup-item, .BtnGroup-form:hover+.BtnGroup-parent .BtnGroup-item, .BtnGroup-parent.selected+.BtnGroup-form .BtnGroup-item, .BtnGroup-parent.selected+.BtnGroup-item, .BtnGroup-parent.selected+.BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:active+.BtnGroup-form .BtnGroup-item, .BtnGroup-parent:active+.BtnGroup-item, .BtnGroup-parent:active+.BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:focus+.BtnGroup-form .BtnGroup-item, .BtnGroup-parent:focus+.BtnGroup-item, .BtnGroup-parent:focus+.BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:hover+.BtnGroup-form .BtnGroup-item, .BtnGroup-parent:hover+.BtnGroup-item, .BtnGroup-parent:hover+.BtnGroup-parent .BtnGroup-item {
+.BtnGroup-form.selected + .BtnGroup-form .BtnGroup-item, .BtnGroup-form.selected + .BtnGroup-item, .BtnGroup-form.selected + .BtnGroup-parent .BtnGroup-item, .BtnGroup-form:active + .BtnGroup-form .BtnGroup-item, .BtnGroup-form:active + .BtnGroup-item, .BtnGroup-form:active + .BtnGroup-parent .BtnGroup-item, .BtnGroup-form:focus + .BtnGroup-form .BtnGroup-item, .BtnGroup-form:focus + .BtnGroup-item, .BtnGroup-form:focus + .BtnGroup-parent .BtnGroup-item, .BtnGroup-form:hover + .BtnGroup-form .BtnGroup-item, .BtnGroup-form:hover + .BtnGroup-item, .BtnGroup-form:hover + .BtnGroup-parent .BtnGroup-item, .BtnGroup-parent.selected + .BtnGroup-form .BtnGroup-item, .BtnGroup-parent.selected + .BtnGroup-item, .BtnGroup-parent.selected + .BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:active + .BtnGroup-form .BtnGroup-item, .BtnGroup-parent:active + .BtnGroup-item, .BtnGroup-parent:active + .BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:focus + .BtnGroup-form .BtnGroup-item, .BtnGroup-parent:focus + .BtnGroup-item, .BtnGroup-parent:focus + .BtnGroup-parent .BtnGroup-item, .BtnGroup-parent:hover + .BtnGroup-form .BtnGroup-item, .BtnGroup-parent:hover + .BtnGroup-item, .BtnGroup-parent:hover + .BtnGroup-parent .BtnGroup-item {
     border-left-width: 0
 }
 
@@ -2923,7 +2949,7 @@ footer li {
 }
 
 .button-red {
-    color: #ff3b30!important;
+    color: #ff3b30 !important;
     border-color: #ff3b30
 }
 
@@ -3008,28 +3034,28 @@ footer li {
     overflow-y: scroll
 }
 
-.admin-menu>ul {
+.admin-menu > ul {
     padding: 15px 15px 0
 }
 
-.admin-menu>ul.second_nav {
+.admin-menu > ul.second_nav {
     padding-top: 0
 }
 
-.admin-menu>ul>li.active {
+.admin-menu > ul > li.active {
     font-weight: 700
 }
 
-.admin-menu>ul>li.active li {
+.admin-menu > ul > li.active li {
     font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     font-weight: 400
 }
 
-.admin-menu>ul>li li {
+.admin-menu > ul > li li {
     padding-left: 10px
 }
 
-.admin-menu>ul>li li.active {
+.admin-menu > ul > li li.active {
     font-weight: 700
 }
 
@@ -3123,7 +3149,7 @@ footer li {
     background: #081931
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     #home-header-background {
         background: url(/static/images/home/top.jpg), #081931;
         background-position: center;
@@ -3131,7 +3157,7 @@ footer li {
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #home-header-background {
         background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, .5)), color-stop(15%, transparent)), url(/static/images/home/top_mobile.jpg), #081931;
         background: -webkit-linear-gradient(top, rgba(0, 0, 0, .5) 0, transparent 15%), url(/static/images/home/top_mobile.jpg), #081931;
@@ -3150,7 +3176,7 @@ footer li {
     height: 520px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #home-header {
         height: 400px
     }
@@ -3161,7 +3187,7 @@ footer li {
     width: 100%
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #home-messages {
         top: 30px
     }
@@ -3176,7 +3202,7 @@ footer li {
     padding-top: 90px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #header-text {
         padding: 20px
     }
@@ -3191,7 +3217,7 @@ footer li {
     font-variant-ligatures: no-common-ligatures
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #header-text h1 {
         font-size: 35px;
         margin-bottom: 17px;
@@ -3208,7 +3234,7 @@ footer li {
     max-width: 600px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #header-text h2 {
         font-size: 22px;
         font-family: latoregular, sans-serif;
@@ -3229,7 +3255,7 @@ footer li {
     transition: background-color .5s, color .5s
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .try-button {
         font-size: 20px
     }
@@ -3251,14 +3277,14 @@ footer li {
     padding-right: 30px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .promo-inner {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .promo-inner {
         text-align: center;
         padding: 0
@@ -3274,13 +3300,13 @@ footer li {
     direction: ltr
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .promo-text {
         padding: 60px 30px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .promo-text {
         width: 100%;
         padding: 30px
@@ -3310,13 +3336,13 @@ footer li {
     text-align: center
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .promo-img {
         padding: 60px 30px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .promo-img {
         width: 100%;
         padding: 30px
@@ -3362,7 +3388,7 @@ footer li {
     background-position: center
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #home-try {
         padding-top: 30px;
         padding-bottom: 58px;
@@ -3378,7 +3404,7 @@ footer li {
     margin-bottom: 70px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     #home-try h2 {
         margin-bottom: 28px;
         font-family: latoregular, sans-serif;
@@ -3403,7 +3429,7 @@ footer li {
     text-decoration: underline
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .home-image-license {
         font-size: 10px
     }
@@ -3480,14 +3506,14 @@ footer li {
     max-width: 400px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .login {
         padding-left: 10px;
         padding-right: 10px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .login {
         padding-top: 10px;
         padding-bottom: 10px
@@ -3498,7 +3524,7 @@ footer li {
     margin-bottom: 20px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .login h1 {
         margin-bottom: 10px
     }
@@ -3684,7 +3710,7 @@ label {
     box-shadow: inset 0 1px 2px rgba(27, 31, 35, .075), 0 0 0 .2em rgba(3, 102, 214, .3)
 }
 
-@media (min-width:768px) {
+@media (min-width: 768px) {
     .form-control, .form-select {
         font-size: 14px
     }
@@ -3735,7 +3761,7 @@ label {
 .input-hide-webkit-autofill::-webkit-contacts-auto-fill-button {
     position: absolute;
     right: 0;
-    display: none!important;
+    display: none !important;
     pointer-events: none;
     visibility: hidden
 }
@@ -3773,7 +3799,7 @@ label {
     display: none
 }
 
-.form-checkbox-details-trigger:checked~* .form-checkbox-details, .form-checkbox-details-trigger:checked~.form-checkbox-details {
+.form-checkbox-details-trigger:checked ~ * .form-checkbox-details, .form-checkbox-details-trigger:checked ~ .form-checkbox-details {
     display: block
 }
 
@@ -3838,7 +3864,7 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
     float: right
 }
 
-.form-actions .btn+.btn {
+.form-actions .btn + .btn {
     margin-right: 5px
 }
 
@@ -3962,7 +3988,7 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
     color: #28a745
 }
 
-.form-group dd h4+.note {
+.form-group dd h4 + .note {
     margin-top: 0
 }
 
@@ -4075,33 +4101,36 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
     vertical-align: middle
 }
 
-dl.form-group>dd .form-control.is-autocheck-errored, dl.form-group>dd .form-control.is-autocheck-loading, dl.form-group>dd .form-control.is-autocheck-successful {
+dl.form-group > dd .form-control.is-autocheck-errored, dl.form-group > dd .form-control.is-autocheck-loading, dl.form-group > dd .form-control.is-autocheck-successful {
     padding-right: 30px
 }
 
-dl.form-group>dd .form-control.is-autocheck-loading {
+dl.form-group > dd .form-control.is-autocheck-loading {
     background-image: url(/images/spinners/octocat-spinner-16px.gif)
 }
 
-dl.form-group>dd .form-control.is-autocheck-successful {
+dl.form-group > dd .form-control.is-autocheck-successful {
     background-image: url(/images/modules/ajax/success.png)
 }
 
-dl.form-group>dd .form-control.is-autocheck-errored {
+dl.form-group > dd .form-control.is-autocheck-errored {
     background-image: url(/images/modules/ajax/error.png)
 }
 
-@media only screen and (-webkit-min-device-pixel-ratio:2), only screen and (min--moz-device-pixel-ratio:2), only screen and (-moz-min-device-pixel-ratio:2), only screen and (-o-min-device-pixel-ratio:2 / 1), only screen and (min-device-pixel-ratio:2), only screen and (-o-min-device-pixel-ratio:2/1), only screen and (min-resolution:192dpi), only screen and (min-resolution:2dppx) {
-    dl.form-group>dd .form-control.is-autocheck-errored, dl.form-group>dd .form-control.is-autocheck-loading, dl.form-group>dd .form-control.is-autocheck-successful {
+@media only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min--moz-device-pixel-ratio: 2), only screen and (-moz-min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2 / 1), only screen and (min-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (min-resolution: 192dpi), only screen and (min-resolution: 2dppx) {
+    dl.form-group > dd .form-control.is-autocheck-errored, dl.form-group > dd .form-control.is-autocheck-loading, dl.form-group > dd .form-control.is-autocheck-successful {
         background-size: 16px 16px
     }
-    dl.form-group>dd .form-control.is-autocheck-loading {
+
+    dl.form-group > dd .form-control.is-autocheck-loading {
         background-image: url(/images/spinners/octocat-spinner-32.gif)
     }
-    dl.form-group>dd .form-control.is-autocheck-successful {
+
+    dl.form-group > dd .form-control.is-autocheck-successful {
         background-image: url(/images/modules/ajax/success@2x.png)
     }
-    dl.form-group>dd .form-control.is-autocheck-errored {
+
+    dl.form-group > dd .form-control.is-autocheck-errored {
         background-image: url(/images/modules/ajax/error@2x.png)
     }
 }
@@ -4243,7 +4272,7 @@ dl.form-group>dd .form-control.is-autocheck-errored {
     opacity: .0001
 }
 
-.manual-file-chooser:hover+.manual-file-chooser-text {
+.manual-file-chooser:hover + .manual-file-chooser-text {
     text-decoration: underline
 }
 
@@ -4381,7 +4410,7 @@ p.explain .minibutton {
     z-index: 2
 }
 
-.input-group .form-control+.btn {
+.input-group .form-control + .btn {
     margin-left: 0
 }
 
@@ -4452,12 +4481,13 @@ label {
     font-weight: 400
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .profile-userbox {
         float: left;
         width: 20%;
         padding-right: 20px
     }
+
     .profile-userbox h1, .profile-userbox li {
         white-space: nowrap;
         -o-text-overflow: ellipsis;
@@ -4466,7 +4496,7 @@ label {
     }
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .profile-maps {
         float: left;
         width: 80%
@@ -4508,13 +4538,13 @@ label {
     margin: 0 auto
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .settings-flex {
         display: block
     }
 }
 
-@media (min-width:670px) {
+@media (min-width: 670px) {
     .settings-flex {
         width: 700px
     }
@@ -4529,13 +4559,13 @@ label {
     margin-bottom: 40px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .setting-nav h1 {
         margin-bottom: 20px
     }
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .setting-nav {
         padding: 10px
     }
@@ -4549,7 +4579,7 @@ label {
     margin-bottom: 10px
 }
 
-@media (max-width:669px) {
+@media (max-width: 669px) {
     .setting-nav .settings-link {
         margin-bottom: 5px
     }
