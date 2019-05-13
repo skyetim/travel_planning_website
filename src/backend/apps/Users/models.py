@@ -1,6 +1,6 @@
 from django.db import models
 
-import apps.Cities.models as cities
+import apps.Cities.models as Cities
 
 
 # Create your models here.
@@ -33,21 +33,21 @@ class Users(models.Model):
                               choices=GENDER_CHOICES,
                               null=False,
                               editable=True)
-    resident_city_id = models.ForeignKey(cities.Cities,
+    resident_city_id = models.ForeignKey(Cities.Cities,
                                          to_field='city_id',
                                          related_name='resident_city_id',
-                                         on_delete=False)
+                                         on_delete=models.PROTECT)
 
 
 class FriendRelations(models.Model):
     user_id = models.ForeignKey(Users,
                                 to_field='user_id',
                                 related_name='my_user_id',
-                                on_delete=False)
+                                on_delete=models.CASCADE)
     friend_user_id = models.ForeignKey(Users,
                                        to_field='user_id',
                                        related_name='friend_user_id',
-                                       on_delete=False)
+                                       on_delete=models.CASCADE)
     friend_user_note = models.CharField(max_length=20,
                                         null=False,
                                         editable=True)

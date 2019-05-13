@@ -240,7 +240,7 @@ fabric.properties
 # !.vscode/extensions.json
 
 
-### Vim template
+### Vim
 # Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
