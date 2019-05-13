@@ -257,3 +257,6 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+
+# GoogleMaps API
+*.gapi
