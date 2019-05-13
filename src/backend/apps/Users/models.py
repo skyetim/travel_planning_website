@@ -1,6 +1,6 @@
 from django.db import models
 
-import Cities.models as cities
+import apps.Cities.models as cities
 
 
 # Create your models here.
