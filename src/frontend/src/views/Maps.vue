@@ -1,5 +1,11 @@
 <template>
   <div>
+    <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
+      <div>
+        <swatches v-model="colors"></swatches>
+      </div>
+    </base-header>
+
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
@@ -13,7 +19,7 @@
 </template>
 <script>
 import L from "leaflet";
-import { swatches } from 'vue-color';
+import swatches from 'vue-color/src/components/Swatches.vue'
 
 var color_picker = ["#f5365c", "#172b4d", "#fb6340", "#11cdef", "#2dce89"];
 
@@ -117,17 +123,6 @@ function mountMap(map, travelGroup) {
         });
       });
 
-      var template =
-        ' <div class="color-picker">\
-          <swatches-picker v-model="colors"></swatches-picker>\
-          <h2>Swatches</h2>\
-        </div>';
-      marker.on("click", function(e) {
-        var popup = L.popup()
-          .setLatLng(e.latlng)
-          .setContent(template);
-        popup.openOn(map);
-      });
       marker.addTo(map);
       markers.push(marker);
     });
@@ -160,8 +155,8 @@ var colors = {
   a: 0.9
 };
 export default {
-  components:{
-    'swatches-picker': swatches
+  components: {
+    swatches
   },
   data() {
     return {
@@ -201,7 +196,7 @@ export default {
 </script>
 <style>
 .color-picker {
-  position: relative;
+  position: absolute;
   margin-bottom: 10px;
   margin: 0 10px 0 10px;
   z-index: 2;
