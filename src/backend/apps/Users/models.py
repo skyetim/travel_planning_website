@@ -15,11 +15,9 @@ class Users(models.Model):
                       (OTHER, 'Other'))
 
     user_id = models.AutoField(primary_key=True,
-                               db_index=True,
                                null=False,
                                editable=False)
-    email = models.EmailField(db_index=True,
-                              null=False,
+    email = models.EmailField(null=False,
                               unique=True,
                               editable=True)
     user_name = models.CharField(max_length=20,
@@ -38,6 +36,14 @@ class Users(models.Model):
                                          related_name='resident_city_id',
                                          on_delete=models.PROTECT)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user_id'],
+                         name='U_userid_idx'),
+            models.Index(fields=['email'],
+                         name='U_email_idx')
+        ]
+
 
 class FriendRelations(models.Model):
     user_id = models.ForeignKey(Users,
@@ -53,4 +59,10 @@ class FriendRelations(models.Model):
                                         editable=True)
 
     class Meta:
+        indexes = [
+            models.Index(fields=['user_id'],
+                         name='FR_userid_idx'),
+            models.Index(fields=['user_id', 'friend_user_id'],
+                         name='FR_idx'),
+        ]
         unique_together = (('user_id', 'friend_user_id'),)
