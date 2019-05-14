@@ -1,7 +1,6 @@
 import json
 import os
 from urllib import parse
-
 import googlemaps
 import urllib3
 
