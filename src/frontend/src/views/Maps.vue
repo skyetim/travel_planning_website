@@ -1,15 +1,23 @@
 <template>
   <div>
-    <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
-      <div>
-        <swatches v-model="colors"></swatches>
-      </div>
-    </base-header>
+    <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8"></base-header>
 
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
           <div class="card shadow border-0">
+            <div class="color-picker">
+              <base-dropdown v-for="(travel, index) in travelGroup" :key="index">
+                <button
+                  slot="title"
+                  class="btn dropdown-toggle button-text"
+                  :style="{backgroundColor:travel.color.hex, opacity:travel.color.a}"
+                >{{travel.name}}</button>
+                <div @click="changeColor()">
+                  <swatches v-model="travel.color"></swatches>
+                </div>
+              </base-dropdown>
+            </div>
             <div id="map-canvas" class="map-canvas" style="height: 600px;"></div>
           </div>
         </div>
@@ -19,9 +27,7 @@
 </template>
 <script>
 import L from "leaflet";
-import swatches from 'vue-color/src/components/Swatches.vue'
-
-var color_picker = ["#f5365c", "#172b4d", "#fb6340", "#11cdef", "#2dce89"];
+import swatches from "vue-color/src/components/Swatches.vue";
 
 var travelGroup = [
   {
@@ -32,7 +38,7 @@ var travelGroup = [
       { location: "海陵岛", coordinate: [21.85, 111.95] }
     ],
     dates: { start: "2019-05-01", end: "2019-07-19" },
-    status: 0
+    color: { hex: "#f5365c", a: 0.8 }
   },
   {
     name: "云南穷游",
@@ -43,7 +49,7 @@ var travelGroup = [
       { location: "大理", coordinate: [25.69, 100.19] }
     ],
     dates: { start: "2019-07-17", end: "2019-07-19" },
-    status: 1
+    color: { hex: "#172b4d", a: 0.8 }
   },
   {
     name: "江南之旅",
@@ -54,7 +60,7 @@ var travelGroup = [
       { location: "上海", coordinate: [31.22, 121.48] }
     ],
     dates: { start: "2018-07-17", end: "2018-07-19" },
-    status: 2
+    color: { hex: "#fb6340", a: 0.8 }
   },
   {
     name: "北方之旅",
@@ -64,7 +70,7 @@ var travelGroup = [
       { location: "赤峰", coordinate: [42.28, 118.87] }
     ],
     dates: { start: "2018-07-17", end: "2018-07-19" },
-    status: 3
+    color: { hex: "#2dce89", a: 0.8 }
   }
 ];
 
@@ -88,40 +94,28 @@ function mountMap(map, travelGroup) {
 
   travelGroup.forEach(travel => {
     var markers = [];
-    var myCustomColour = color_picker[travel.status];
+    var myCustomColour = travel.color.hex;
     const markerHtmlStyles = makeColorStyle(myCustomColour);
     const myicon = L.divIcon({
       iconUrl: "",
       className: "",
       iconAnchor: [0, 24],
       labelAnchor: [-6, 0],
-      popupAnchor: [12, 12],
+      popupAnchor: [1, -12],
       html: `<span style="${markerHtmlStyles}" />`
     });
     travel.travel.forEach(element => {
       var marker = L.marker(element.coordinate, {
         icon: myicon
       });
-
-      marker.on("mouseover", function(e) {
-        //open popup;
-        var popup = L.popup()
-          .setLatLng(e.latlng)
-          .setContent(
-            "你在" +
-              travel.dates.start +
-              "至" +
-              travel.dates.end +
-              "来过" +
-              element.location +
-              " " +
-              "点击编辑..."
-          );
-        popup.openOn(map);
-        marker.on("mouseout", function() {
-          map.closePopup(popup);
-        });
-      });
+      marker.bindPopup(
+        "你在" +
+          travel.dates.start +
+          "至" +
+          travel.dates.end +
+          "来过" +
+          element.location
+      );
 
       marker.addTo(map);
       markers.push(marker);
@@ -133,26 +127,26 @@ function mountMap(map, travelGroup) {
 }
 
 var colors = {
-  hex: "#194d33e6",
-  hsl: {
-    h: 150,
-    s: 0.5,
-    l: 0.2,
-    a: 0.9
-  },
-  hsv: {
-    h: 150,
-    s: 0.66,
-    v: 0.3,
-    a: 0.9
-  },
-  rgba: {
-    r: 25,
-    g: 77,
-    b: 51,
-    a: 0.9
-  },
-  a: 0.9
+  hex: "#194d33"
+  // hsl: {
+  //   h: 150,
+  //   s: 0.5,
+  //   l: 0.2,
+  //   a: 0.9
+  // },
+  // hsv: {
+  //   h: 150,
+  //   s: 0.66,
+  //   v: 0.3,
+  //   a: 0.9
+  // },
+  // rgba: {
+  //   r: 25,
+  //   g: 77,
+  //   b: 51,
+  //   a: 0.9
+  // },
+  // a: 0.9
 };
 export default {
   components: {
@@ -183,13 +177,14 @@ export default {
     this.markersGroup = mountMap(this.map, this.travelGroup);
   },
   methods: {
-    // 保存
-    save: function() {
+    changeColor: function() {
       // 提交表单到数据库
       for (var i = 0; i < this.markersGroup.length; i++) {
-        this.map.removeLayer(this.markers[i]);
+        for (var j = 0; j < this.markersGroup[i].length; j++) {
+          this.map.removeLayer(this.markersGroup[i][j]);
+        }
       }
-      this.markersGroup = mountMap(this.map, this.travel);
+      this.markersGroup = mountMap(this.map, this.travelGroup);
     }
   }
 };
@@ -197,8 +192,18 @@ export default {
 <style>
 .color-picker {
   position: absolute;
-  margin-bottom: 10px;
-  margin: 0 10px 0 10px;
-  z-index: 2;
+  margin-top: 20px;
+  margin-left: 20px;
+  padding: 20px;
+  /* width: 100px;
+  height: 100px; */
+  z-index: 9999;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.button-text {
+  font-weight: 550;
+  padding: 8px;
+  color: rgba(255, 255, 255);
 }
 </style>
