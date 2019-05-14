@@ -13,9 +13,27 @@
       >
         <div class="list-group-item item show-rm" v-for="(element,index) in travel" :key="index">
           <div class="col-16">
-            <beautinput name="城市" :element="travel[index].location" class="input-list"></beautinput>
-            <beautinput name="开始" :element="element.start" class="input-list"></beautinput>
-            <beautinput name="结束" :element="element.end" class="input-list"></beautinput>
+            <base-input v-model="travel[index].location" class="input-list"></base-input>
+            <base-input class="input-list">
+              <flat-picker
+                slot-scope="{focus, blur}"
+                @on-open="focus"
+                @on-close="blur"
+                :config="{allowInput: true}"
+                class="form-control datepicker"
+                v-model="travel[index].start"
+              ></flat-picker>
+            </base-input>
+            <base-input class="input-list">
+              <flat-picker
+                slot-scope="{focus, blur}"
+                @on-open="focus"
+                @on-close="blur"
+                :config="{allowInput: true}"
+                class="form-control datepicker"
+                v-model="travel[index].end"
+              ></flat-picker>
+            </base-input>
             <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
           </div>
         </div>
@@ -35,6 +53,7 @@
 </template>
 
 <script>
+import flatPicker from "vue-flatpickr-component";
 import draggable from "vuedraggable";
 
 export default {
@@ -42,7 +61,8 @@ export default {
   display: "Footer slot",
   order: 12,
   components: {
-    draggable
+    draggable,
+    flatPicker
   },
   props: {
     travel: Array
@@ -60,13 +80,18 @@ export default {
   },
   methods: {
     add: function() {
-      this.travel.push({ location: "", coordinate: "" });
+      this.travel.push({ location: "", coordinate: "", start: "", end: "" });
     }
   }
 };
 </script>
 <style scoped>
+.item {
+  padding: 10px;
+}
+
 .input-list {
+  margin: 5px;
   width: 30%;
   display: inline-block;
   position: relative;

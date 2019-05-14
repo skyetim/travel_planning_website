@@ -118,7 +118,7 @@
           ></i>
           <div :class="[edit.collapsed?'collapse': 'expand']">
             <div class="col">
-            <draggablelist :travel="editRow.travel"></draggablelist>
+              <draggablelist :travel="editRow.travel"></draggablelist>
             </div>
           </div>
         </div>
@@ -172,6 +172,7 @@
         <base-button type="primary">Save changes</base-button>
       </template>
     </modal>
+    <div>{{editRow}}</div>
   </div>
 </template>
 
@@ -240,8 +241,8 @@ export default {
       }
     },
     editTravel: function(row) {
-      this.edit.modal = true;
       this.editRow = row;
+      this.edit.modal = true;
     },
     changeStatus: function(n, row) {
       row.status = n;
@@ -300,17 +301,17 @@ export default {
 
 /* collapse and expand */
 .collapse {
-  padding: 0 18px;
+  padding: 18px;
   display: none;
   overflow: hidden;
-  background-color: #f1f1f1;
+  background-color: #ffffff;
 }
 
 .expand {
-  padding: 0 18px;
+  padding: 18px;
   display: block;
   overflow: hidden;
-  background-color: #f1f1f1;
+  background-color: #ffffff;
 }
 
 /* Dropdown Button */
