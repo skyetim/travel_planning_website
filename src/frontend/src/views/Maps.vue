@@ -1,73 +1,7 @@
 <template>
   <div>
     <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
-      <!-- Card stats -->
-      <div class="row">
-        <div class="col-xl-3 col-lg-6">
-          <stats-card
-            title="Total traffic"
-            type="gradient-red"
-            sub-title="350,897"
-            icon="ni ni-active-40"
-            class="mb-4 mb-xl-0"
-          >
-            <template slot="footer">
-              <span class="text-success mr-2">
-                <i class="fa fa-arrow-up"></i> 3.48%
-              </span>
-              <span class="text-nowrap">Since last month</span>
-            </template>
-          </stats-card>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-          <stats-card
-            title="Total traffic"
-            type="gradient-orange"
-            sub-title="2,356"
-            icon="ni ni-chart-pie-35"
-            class="mb-4 mb-xl-0"
-          >
-            <template slot="footer">
-              <span class="text-success mr-2">
-                <i class="fa fa-arrow-up"></i> 12.18%
-              </span>
-              <span class="text-nowrap">Since last month</span>
-            </template>
-          </stats-card>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-          <stats-card
-            title="Sales"
-            type="gradient-green"
-            sub-title="924"
-            icon="ni ni-money-coins"
-            class="mb-4 mb-xl-0"
-          >
-            <template slot="footer">
-              <span class="text-danger mr-2">
-                <i class="fa fa-arrow-down"></i> 5.72%
-              </span>
-              <span class="text-nowrap">Since last month</span>
-            </template>
-          </stats-card>
-        </div>
-        <div class="col-xl-3 col-lg-6">
-          <stats-card
-            title="Performance"
-            type="gradient-info"
-            sub-title="49,65%"
-            icon="ni ni-chart-bar-32"
-            class="mb-4 mb-xl-0"
-          >
-            <template slot="footer">
-              <span class="text-success mr-2">
-                <i class="fa fa-arrow-up"></i> 54.8%
-              </span>
-              <span class="text-nowrap">Since last month</span>
-            </template>
-          </stats-card>
-        </div>
-      </div>
+      <travel-stats :travelGroup="travelGroup"/>
     </base-header>
 
     <div class="container-fluid mt--7">
@@ -101,44 +35,48 @@ var travelGroup = [
   {
     name: "广州自驾游",
     travel: [
-      { location: "广州", coordinate: [23.16667, 113.23333] },
-      { location: "深圳", coordinate: [22.61667, 114.06667] },
-      { location: "海陵岛", coordinate: [21.85, 111.95] }
+      { location: "广州", coordinate: [23.16667, 113.23333], start: "2019-05-12", end: "2019-06-15" },
+      { location: "深圳", coordinate: [22.61667, 114.06667], start: "2019-05-12", end: "2019-06-15" },
+      { location: "海陵岛", coordinate: [21.85, 111.95], start: "2019-05-12", end: "2019-06-15" }
     ],
     dates: { start: "2019-05-01", end: "2019-07-19" },
-    color: { hex: "#f5365c", a: 0.8 }
+    color: { hex: "#f5365c", a: 0.8 },
+    status: 3
   },
   {
     name: "云南穷游",
     travel: [
-      { location: "丽江", coordinate: [26.86, 100.25] },
-      { location: "昆明", coordinate: [25.04, 102.73] },
-      { location: "普洱", coordinate: [23.07, 101.03] },
-      { location: "大理", coordinate: [25.69, 100.19] }
+      { location: "丽江", coordinate: [26.86, 100.25], start: "2019-05-12", end: "2019-06-15" },
+      { location: "昆明", coordinate: [25.04, 102.73], start: "2019-05-12", end: "2019-06-15" },
+      { location: "普洱", coordinate: [23.07, 101.03], start: "2019-05-12", end: "2019-06-15" },
+      { location: "大理", coordinate: [25.69, 100.19], start: "2019-05-12", end: "2019-06-15" }
     ],
     dates: { start: "2019-07-17", end: "2019-07-19" },
-    color: { hex: "#172b4d", a: 0.8 }
+    color: { hex: "#172b4d", a: 0.8 },
+    status: 2
   },
   {
     name: "江南之旅",
     travel: [
-      { location: "南京", coordinate: [32.05, 118.78333] },
-      { location: "苏州", coordinate: [31.32, 120.62] },
-      { location: "周庄", coordinate: [31.13, 120.9] },
-      { location: "上海", coordinate: [31.22, 121.48] }
+      { location: "南京", coordinate: [32.05, 118.78333], start: "2019-05-12", end: "2019-06-15" },
+      { location: "苏州", coordinate: [31.32, 120.62], start: "2019-05-12", end: "2019-06-15" },
+      { location: "周庄", coordinate: [31.13, 120.9], start: "2019-05-12", end: "2019-06-15" },
+      { location: "上海", coordinate: [31.22, 121.48], start: "2019-05-12", end: "2019-06-15" }
     ],
     dates: { start: "2018-07-17", end: "2018-07-19" },
-    color: { hex: "#fb6340", a: 0.8 }
+    color: { hex: "#fb6340", a: 0.8 },
+    status: 1
   },
   {
     name: "北方之旅",
     travel: [
-      { location: "北京", coordinate: [39.92, 116.46] },
-      { location: "承德", coordinate: [40.97, 117.93] },
-      { location: "赤峰", coordinate: [42.28, 118.87] }
+      { location: "北京", coordinate: [39.92, 116.46], start: "2019-05-12", end: "2019-06-15" },
+      { location: "承德", coordinate: [40.97, 117.93], start: "2019-05-12", end: "2019-06-15" },
+      { location: "赤峰", coordinate: [42.28, 118.87], start: "2019-05-12", end: "2019-06-15" }
     ],
     dates: { start: "2018-07-17", end: "2018-07-19" },
-    color: { hex: "#2dce89", a: 0.8 }
+    color: { hex: "#2dce89", a: 0.8 },
+    status: 0
   }
 ];
 
@@ -194,28 +132,6 @@ function mountMap(map, travelGroup) {
   return markersGroup;
 }
 
-var colors = {
-  hex: "#194d33"
-  // hsl: {
-  //   h: 150,
-  //   s: 0.5,
-  //   l: 0.2,
-  //   a: 0.9
-  // },
-  // hsv: {
-  //   h: 150,
-  //   s: 0.66,
-  //   v: 0.3,
-  //   a: 0.9
-  // },
-  // rgba: {
-  //   r: 25,
-  //   g: 77,
-  //   b: 51,
-  //   a: 0.9
-  // },
-  // a: 0.9
-};
 export default {
   components: {
     swatches
@@ -224,8 +140,7 @@ export default {
     return {
       travelGroup: travelGroup,
       map: null,
-      markersGroup: [],
-      colors: colors
+      markersGroup: []
     };
   },
   mounted() {

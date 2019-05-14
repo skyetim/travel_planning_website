@@ -20,6 +20,7 @@ import StatsCard from "../components/StatsCard";
 import Modal from "../components/Modal";
 import TabPane from "../components/Tabs/TabPane";
 import Tabs from "../components/Tabs/Tabs";
+import TravelStats from "../components/TravelStats";
 import EditableProjectsTable from "../views/Tables/EditableProjectsTable"
 
 export default {
@@ -47,5 +48,6 @@ export default {
     Vue.component(Modal.name, Modal);
     Vue.component(TabPane.name, TabPane);
     Vue.component(Tabs.name, Tabs);
+    Vue.component(TravelStats.name, TravelStats);
   }
 };
