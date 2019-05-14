@@ -77,7 +77,6 @@
         </div>
       </div>
     </div>
-    <button class="btn btn-primary btn-sm addBox" @click="save()">保存</button>
   </div>
 </template>
 <script>
@@ -143,7 +142,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .div-table{
   overflow-y: hidden;
 }
