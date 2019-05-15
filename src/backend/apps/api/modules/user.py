@@ -1,4 +1,4 @@
-from modules.travel import Travel, TravelGroup
+from apps.api.modules.travel import Travel, TravelGroup
 
 
 class User(object):

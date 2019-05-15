@@ -1,4 +1,4 @@
-from modules.user import User, FriendInfo
+from apps.api.modules.user import User, FriendInfo
 
 
 class Travel(object):

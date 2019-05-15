@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.db.User',
     'apps.db.Travel',
     'apps.db.Message',
+    'apps.api',
 ]
 
 MIDDLEWARE = [
