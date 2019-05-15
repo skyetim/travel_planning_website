@@ -20,6 +20,7 @@ namespace Backend {
         __ private data __
         - user_id: int {readonly,frozen}
         - session_id: int {readonly,frozen}
+        - email: str
         - user_info: UserInfo
         - friend_info_list: FriendInfo[0..*]
         - travel_group_list: TravelGroup[0..*]
@@ -31,10 +32,12 @@ namespace Backend {
         + remove_travel_group(travel_group_id: int): int
         .. getters ..
         + get_user_id(): int                         {query}
+        + get_email(): str                           {query}
         + get_user_info(): UserInfo                  {query}
         + get_friend_info_list(): FriendInfo[0..*]   {query}
         + get_travel_group_list(): TravelGroup[0..*] {query}
         .. setters ..
+        + set_email(email: str): int
         + set_friend_note(friend_user_id: int, friend_note: str): int
     }
 
@@ -42,14 +45,12 @@ namespace Backend {
         __ protected data __
         # user_id: int {readonly,frozen}
         # user_name: str
-        # email: str
         # gender: Gender
         # resident_city: City
         __ methods __
         .. getters ..
         # get_user_id(): int        {query}
         # get_user_name(): str      {query}
-        # get_email(): str          {query}
         # get_gender(): Gender      {query}
         # get_resident_city(): City {query}
     }
@@ -58,19 +59,16 @@ namespace Backend {
         __ private data __
         - user_id: int {readonly,frozen}
         - user_name: str
-        - email: str
         - gender: Gender
         - resident_city: City
         __ methods __
         .. getters ..
         + get_user_id(): int        {query}
         + get_user_name(): str      {query}
-        + get_email(): str          {query}
         + get_gender(): Gender      {query}
         + get_resident_city(): City {query}
         .. setters ..
         + set_user_name(user_name: str): int
-        + set_email(email: str): int
         + set_gender(gender: Gender): int
         + set_resident_city(city_id: int): int
     }
@@ -80,7 +78,6 @@ namespace Backend {
         - user_id: int        {readonly,frozen}
         - user_name: str      {readonly,frozen}
         - user_note: str
-        - email: str          {readonly,frozen}
         - gender: Gender      {readonly,frozen}
         - resident_city: City {readonly,frozen}
         __ methods __
@@ -88,7 +85,6 @@ namespace Backend {
         + get_user_id(): int        {query}
         + get_user_name(): str      {query}
         + get_user_note(): str      {query}
-        + get_email(): str          {query}
         + get_gender(): Gender      {query}
         + get_resident_city(): City {query}
         .. setters ..

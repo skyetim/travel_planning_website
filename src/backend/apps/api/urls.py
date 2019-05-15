@@ -1,4 +1,4 @@
-"""backend URL Configuration
+"""Api URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -14,15 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
 from django.urls import path
 
-from backend import views
+from apps.api import views
 
 
-urlpatterns = [
-    path(r'', views.site_home, name='site home'),
-    path(r'admin/', admin.site.urls, name='admin'),
-    path(r'login/', views.login, name='login'),
-    path(r'home/', views.user_home, name='user home'),
-]
+urlpatterns = []
+
+for view in views.__all__:
+    if callable(getattr(views, view)):
+        urlpatterns.append(path(rf'{view}/', getattr(views, view), name=view))
