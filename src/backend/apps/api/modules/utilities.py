@@ -78,21 +78,24 @@ class GeoCoder(object):
         if not res:
             return dict()
         add_com = res[0]['address_components']
-        res = {'country': '', 'admin_area_1': '', 'locality': ''}
+        # print(res)
+        city = {'country': '', 'admin_area_1': '', 'locality': ''}
         for x in add_com:
             if 'country' in x['types']:
-                res['country'] = x['long_name']
+                city['country'] = x['long_name']
             if 'administrative_area_level_1' in x['types']:
-                res['admin_area_1'] = x['long_name']
+                city['admin_area_1'] = x['long_name']
             if 'locality' in x['types']:
-                res['locality'] = x['long_name']
+                city['locality'] = x['long_name']
 
-        if res['admin_area_1'] == '':
-            res['admin_area_1'] = res['country']
-        if res['locality'] == '':
-            res['locality'] = res['admin_area_1']
+        if city['admin_area_1'] == '':
+            city['admin_area_1'] = city['country']
+        if city['locality'] == '':
+            city['locality'] = city['admin_area_1']
+        city["latitude"] = res[0]['geometry']['location']['lat']
+        city["longitude"] = res[0]['geometry']['location']['lng']
 
-        return res
+        return city
 
     def address_to_city(self, address, version=1):
         res = self.geocode(address, version=version)
