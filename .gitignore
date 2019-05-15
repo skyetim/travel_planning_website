@@ -1,3 +1,11 @@
+### Project Specific
+# Django migrations
+migrations/
+
+# GoogleMaps API
+*.gapi
+
+
 ### macOS
 # General
 .DS_Store
@@ -257,6 +265,3 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
-
-# GoogleMaps API
-*.gapi
