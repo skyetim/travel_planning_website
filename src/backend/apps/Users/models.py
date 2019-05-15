@@ -33,26 +33,26 @@ class Users(models.Model):
                               editable=True)
     resident_city_id = models.ForeignKey(Cities.Cities,
                                          to_field='city_id',
-                                         related_name='resident_city_id',
+                                         related_name='U_U_residentcityid',
                                          on_delete=models.PROTECT)
 
     class Meta:
         indexes = [
             models.Index(fields=['user_id'],
-                         name='U_userid_idx'),
+                         name='U_U_userid_idx'),
             models.Index(fields=['email'],
-                         name='U_email_idx')
+                         name='U_U_email_idx')
         ]
 
 
 class FriendRelations(models.Model):
     user_id = models.ForeignKey(Users,
                                 to_field='user_id',
-                                related_name='my_user_id',
+                                related_name='U_FR_userid',
                                 on_delete=models.CASCADE)
     friend_user_id = models.ForeignKey(Users,
                                        to_field='user_id',
-                                       related_name='friend_user_id',
+                                       related_name='U_FR_frienduserid',
                                        on_delete=models.CASCADE)
     friend_user_note = models.CharField(max_length=20,
                                         null=False,
@@ -61,8 +61,8 @@ class FriendRelations(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['user_id'],
-                         name='FR_userid_idx'),
+                         name='U_FR_userid_idx'),
             models.Index(fields=['user_id', 'friend_user_id'],
-                         name='FR_idx'),
+                         name='U_FR_idx'),
         ]
         unique_together = (('user_id', 'friend_user_id'),)

@@ -17,25 +17,27 @@ class TravelGroups(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['travel_group_id'],
-                         name='TG_idx')
+                         name='T_TG_idx')
         ]
 
 
 class TravelGroupOwnership(models.Model):
     user_id = models.ForeignKey(Users.Users,
                                 to_field='user_id',
+                                related_name='T_TGO_userid',
                                 on_delete=models.CASCADE)
     travel_group_id = models.OneToOneField(TravelGroups,
                                            to_field='travel_group_id',
+                                           related_name='T_TGO_travelgroupid',
                                            unique=True,
                                            on_delete=models.CASCADE)
 
     class Meta:
         indexes = [
             models.Index(fields=['user_id'],
-                         name='TGO_userid_idx'),
+                         name='T_TGO_userid_idx'),
             models.Index(fields=['travel_group_id'],
-                         name='TGO_travelgroupid_idx')
+                         name='T_TGO_travelgroupid_idx')
         ]
 
 
@@ -57,6 +59,7 @@ class Travels(models.Model):
                                 editable=True)
     city_id = models.ForeignKey(Cities.Cities,
                                 to_field='city_id',
+                                related_name='T_T_cityid',
                                 on_delete=models.PROTECT)
     visibility = models.CharField(max_length=1,
                                   default=FRIEND,
@@ -70,51 +73,54 @@ class Travels(models.Model):
     class Meta:
         indexes = [
             models.Index(fields=['travel_id'],
-                         name='T_travelid_idx'),
+                         name='T_T_travelid_idx'),
             models.Index(fields=['date_start'],
-                         name='T_datestart_idx'),
+                         name='T_T_datestart_idx'),
             models.Index(fields=['date_end'],
-                         name='T_dateend_idx'),
+                         name='T_T_dateend_idx'),
             models.Index(fields=['city_id'],
-                         name='T_cityid_idx'),
+                         name='T_T_cityid_idx'),
             models.Index(fields=['visibility'],
-                         name='T_visibility_idx')
+                         name='T_T_visibility_idx')
         ]
 
 
 class TravelGrouping(models.Model):
     travel_id = models.OneToOneField(Travels,
                                      to_field='travel_id',
+                                     related_name='T_TG_travelid',
                                      unique=True,
                                      on_delete=models.CASCADE)
     travel_group_id = models.OneToOneField(TravelGroups,
                                            to_field='travel_group_id',
+                                           related_name='T_TG_travelgroupid',
                                            unique=True,
                                            on_delete=models.CASCADE)
 
     class Meta:
         indexes = [
             models.Index(fields=['travel_id'],
-                         name='TG_travelid_idx'),
+                         name='T_TG_travelid_idx'),
             models.Index(fields=['travel_group_id'],
-                         name='TG_travelgroupid_idx')
+                         name='T_TG_travelgroupid_idx')
         ]
 
 
 class TravelAssociation(models.Model):
     travel_id = models.ForeignKey(Travels,
                                   to_field='travel_id',
+                                  related_name='T_TA_travelid',
                                   on_delete=models.CASCADE)
     company_user_id = models.ForeignKey(Users.Users,
                                         to_field='user_id',
-                                        related_name='company_user_id',
+                                        related_name='T_TA_companyuserid',
                                         on_delete=models.CASCADE)
 
     class Meta:
         indexes = [
             models.Index(fields=['travel_id'],
-                         name='TA_travelid_idx'),
+                         name='T_TA_travelid_idx'),
             models.Index(fields=['company_user_id'],
-                         name='TA_companyuserid_idx')
+                         name='T_TA_companyuserid_idx')
         ]
         unique_together = (('travel_id', 'company_user_id'),)
