@@ -10,7 +10,7 @@ from apps.api.modules.exceptions import *
 
 __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
-__all__.extend(['address_to_city'])
+__all__.extend(['address_to_city', 'gps_to_city'])
 
 logged_in_users = {}
 
@@ -104,6 +104,22 @@ def reset_password(request):
 def address_to_city(request):
     city = mod_city.get_city_instance(address=request.GET.get('address'))
 
+    response = {
+        'city_id': city.city_id,
+        'country_name': city.country_name,
+        'province_name': city.province_name,
+        'city_name': city.city_name,
+        'status': 0
+    }
+    return response
+
+
+@require_http_methods(["GET"])
+@pack_response
+@check_authentication
+def gps_to_city(request):
+    city = mod_city.get_city_instance(latitude=float(request.GET.get('latitude')),
+                                      longitude=float(request.GET.get('longitude')))
     response = {
         'city_id': city.city_id,
         'country_name': city.country_name,
