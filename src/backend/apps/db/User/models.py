@@ -23,9 +23,9 @@ class User(models.Model):
     user_name = models.CharField(max_length=20,
                                  null=False,
                                  editable=True)
-    pswd_hash = models.BinaryField(max_length=16,
-                                   null=False,
-                                   editable=True)
+    pswd_hash = models.CharField(max_length=32,
+                                 null=False,
+                                 editable=True)
     gender = models.CharField(max_length=1,
                               default=UNKNOWN,
                               choices=GENDER_CHOICES,

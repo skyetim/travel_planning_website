@@ -1,4 +1,4 @@
-"""Server URL Configuration
+"""Api URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.1/topics/http/urls/
@@ -14,19 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from django.contrib import admin
-from django.urls import path, include
-from django.views.generic import TemplateView
+from django.urls import path
 
-from Server import views
-from apps.api import urls as api_urls
+from apps.api import views
 
 
-urlpatterns = [
-    # path(r'', views.site_home, name='site home'),
-    path(r'', TemplateView.as_view(template_name="index.html")),
-    path(r'admin/', admin.site.urls, name='admin'),
-    path(r'login/', views.login, name='login'),
-    path(r'home/', views.user_home, name='user home'),
-    path(r'api/', include(api_urls), name='api'),
-]
+urlpatterns = []
+
+for view in views.__all__:
+    if callable(getattr(views, view)):
+        urlpatterns.append(path(rf'{view}/', getattr(views, view), name=view))
