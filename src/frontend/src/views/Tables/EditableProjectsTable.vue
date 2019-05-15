@@ -146,7 +146,6 @@
         <base-button type="primary">Save changes</base-button>
       </template>
     </modal>
-    <div>{{editRow}}</div>
   </div>
 </template>
 
