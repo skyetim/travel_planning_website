@@ -60,7 +60,9 @@ def pack_response(api_func):
                 'status': e.CODE,
                 'error_message': str(e)
             }
-        return JsonResponse(response)
+        return JsonResponse(data=response,
+                            json_dumps_params={'ensure_ascii': False},
+                            safe=False)
 
     return wrapper
 
