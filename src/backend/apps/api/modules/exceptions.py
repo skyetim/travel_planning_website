@@ -16,3 +16,15 @@ class UserAlreadyExistsException(BackendBaseException):
 
 class UserAuthorizationException(BackendBaseException):
     CODE = 5
+
+
+class FriendDoNotExistException(BackendBaseException):
+    CODE = 6
+
+
+class CityIdDoNotExistException(BackendBaseException):
+    CODE = 7
+
+
+class GenderDoNotExistException(BackendBaseException):
+    CODE = 8
