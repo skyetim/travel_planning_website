@@ -10,6 +10,7 @@ from apps.api.modules.exceptions import *
 
 __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
+__all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['address_to_city', 'gps_to_city'])
 
 logged_in_users = {}
@@ -43,7 +44,10 @@ def pack_response(func):
         try:
             response = func(request=request)
         except BackendBaseException as e:
-            response = {'status': e.CODE, 'error_message': str(e)}
+            response = {
+                'status': e.CODE,
+                'error_message': str(e)
+            }
         return JsonResponse(response)
 
     return wrapper
@@ -91,6 +95,43 @@ def reset_password(request):
     user = logged_in_users[request.GET.get('user_id')]
     user.reset_password(old_pswd_hash=request.GET.get('old_pswd_hash'),
                         new_pswd_hash=request.GET.get('new_pswd_hash'))
+
+    response = {
+        'status': 0
+    }
+    return response
+
+
+@require_http_methods(["GET"])
+@pack_response
+@check_token
+@check_authentication
+def get_user_info(request):
+    user = logged_in_users[request.GET.get('user_id')]
+    user_info = user.get_user_info()
+
+    response = {
+        'user_name': user_info.get_user_name(),
+        'email': user.get_email(),
+        'gender': user_info.get_gender(),
+        'resident_city_id': user_info.get_resident_city_id(),
+        'status': 0
+    }
+    return response
+
+
+@require_http_methods(["GET"])
+@pack_response
+@check_token
+@check_authentication
+def set_user_info(request):
+    user = logged_in_users[request.GET.get('user_id')]
+    user_info = user.get_user_info()
+
+    user.set_email(email=request.GET.get('email'))
+    user_info.set_user_name(user_name=request.GET.get('user_name'))
+    user_info.set_gender(gender=request.GET.get('gender'))
+    user_info.set_resident_city_id(gender=request.GET.get('resident_city_id'))
 
     response = {
         'status': 0
