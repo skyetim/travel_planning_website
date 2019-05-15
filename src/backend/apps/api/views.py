@@ -17,6 +17,7 @@ def login(request):
         user = user_mod.User(email=request.GET.get('email'),
                              pswd_hash=request.GET.get('pswd_hash'))
         response['user_id'] = user.get_user_id()
+        response['session_id'] = user.get_session_id()
         response['status'] = 0
     except BackendBaseException as e:
         response['status'] = e.CODE
@@ -31,6 +32,7 @@ def register(request):
     try:
         user = user_mod.User.new_user(email=request.GET.get('email'),
                                       pswd_hash=request.GET.get('pswd_hash'),
+                                      user_name=request.GET.get('user_name'),
                                       gender=request.GET.get('gender'),
                                       resident_city_id=int(request.GET.get('resident_city_id')))
         response['user_id'] = user.get_user_id()
