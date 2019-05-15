@@ -16,33 +16,45 @@ __all__.extend(['address_to_city', 'gps_to_city'])
 logged_in_users = {}
 
 
-def check_authentication(func):
+def check_authentication(api_func):
     def wrapper(request):
-        # check_authentication
+        # check authentication
+        # some code here
 
-        return func(request=request)
+        # import hashlib
+        # md5 = hashlib.md5()
+        # for arg in sorted(request.GET.dict().keys()):
+        #     if arg != 'key':
+        #         continue
+        #     md5.update(arg.encode(encoding='UTF-8'))
+        #     md5.update(str(request.GET.get(arg)).encode(encoding='UTF-8'))
+        # encoded_key = md5.hexdigest()
+        # if request.GET.get('key') != encoded_key:
+        #     raise
+
+        return api_func(request=request)
 
     return wrapper
 
 
-def check_token(func):
+def check_token(api_func):
     def wrapper(request):
         try:
-            user_session = db_user.UserSession.objects.get(user_id=request.GET.get('user_id'),
+            user_session = db_user.UserSession.objects.get(user_id=int(request.GET.get('user_id')),
                                                            session_id=request.GET.get('session_id'))
         except ObjectDoesNotExist:
             db_user.UserSession.objects.filter(user_id=request.GET.get('user_id')).delete()
             raise UserAuthorizationException('Authorization error.')
         else:
-            return func(request=request)
+            return api_func(request=request)
 
     return wrapper
 
 
-def pack_response(func):
+def pack_response(api_func):
     def wrapper(request):
         try:
-            response = func(request=request)
+            response = api_func(request=request)
         except BackendBaseException as e:
             response = {
                 'status': e.CODE,
@@ -58,8 +70,8 @@ def pack_response(func):
 @pack_response
 @check_authentication
 def login(request):
-    user = mod_user.User(email=request.GET.get('email'),
-                         pswd_hash=request.GET.get('pswd_hash'))
+    user = mod_user.User(email=str(request.GET.get('email')).lower(),
+                         pswd_hash=str(request.GET.get('pswd_hash')).upper())
     logged_in_users[user.get_user_id()] = user
 
     response = {
@@ -74,10 +86,10 @@ def login(request):
 @pack_response
 @check_authentication
 def register(request):
-    user = mod_user.User.new_user(email=request.GET.get('email'),
-                                  pswd_hash=request.GET.get('pswd_hash'),
+    user = mod_user.User.new_user(email=str(request.GET.get('email')).lower(),
+                                  pswd_hash=str(request.GET.get('pswd_hash')).upper(),
                                   user_name=request.GET.get('user_name'),
-                                  gender=request.GET.get('gender'),
+                                  gender=str(request.GET.get('gender')).upper(),
                                   resident_city_id=int(request.GET.get('resident_city_id')))
 
     response = {
@@ -92,9 +104,9 @@ def register(request):
 @check_token
 @check_authentication
 def reset_password(request):
-    user = logged_in_users[request.GET.get('user_id')]
-    user.reset_password(old_pswd_hash=request.GET.get('old_pswd_hash'),
-                        new_pswd_hash=request.GET.get('new_pswd_hash'))
+    user = logged_in_users[int(request.GET.get('user_id'))]
+    user.reset_password(old_pswd_hash=str(request.GET.get('old_pswd_hash')).upper(),
+                        new_pswd_hash=str(request.GET.get('new_pswd_hash')).upper())
 
     response = {
         'status': 0
@@ -107,7 +119,7 @@ def reset_password(request):
 @check_token
 @check_authentication
 def get_user_info(request):
-    user = logged_in_users[request.GET.get('user_id')]
+    user = logged_in_users[int(request.GET.get('user_id'))]
     user_info = user.get_user_info()
 
     response = {
@@ -125,13 +137,13 @@ def get_user_info(request):
 @check_token
 @check_authentication
 def set_user_info(request):
-    user = logged_in_users[request.GET.get('user_id')]
+    user = logged_in_users[int(request.GET.get('user_id'))]
     user_info = user.get_user_info()
 
-    user.set_email(email=request.GET.get('email'))
+    user.set_email(email=str(request.GET.get('email')).lower())
     user_info.set_user_name(user_name=request.GET.get('user_name'))
-    user_info.set_gender(gender=request.GET.get('gender'))
-    user_info.set_resident_city_id(gender=request.GET.get('resident_city_id'))
+    user_info.set_gender(gender=str(request.GET.get('gender')).upper())
+    user_info.set_resident_city_id(resident_city_id=int(request.GET.get('resident_city_id')))
 
     response = {
         'status': 0
