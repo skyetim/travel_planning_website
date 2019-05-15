@@ -13,27 +13,39 @@
       >
         <div class="list-group-item item show-rm" v-for="(element,index) in travel" :key="index">
           <div class="col-16">
-            <base-input v-model="travel[index].location" class="input-list"></base-input>
-            <base-input class="input-list">
-              <flat-picker
-                slot-scope="{focus, blur}"
-                @on-open="focus"
-                @on-close="blur"
-                :config="{allowInput: true}"
-                class="form-control datepicker"
-                v-model="travel[index].start"
-              ></flat-picker>
-            </base-input>
-            <base-input class="input-list">
-              <flat-picker
-                slot-scope="{focus, blur}"
-                @on-open="focus"
-                @on-close="blur"
-                :config="{allowInput: true}"
-                class="form-control datepicker"
-                v-model="travel[index].end"
-              ></flat-picker>
-            </base-input>
+            <div class="input-list">
+              <small class="text-muted text-center">地点</small>
+              <br>
+              <base-input v-model="travel[index].location"></base-input>
+            </div>
+            <div class="input-list">
+              <small class="text-muted text-center">开始</small>
+              <br>
+              <base-input>
+                <flat-picker
+                  slot-scope="{focus, blur}"
+                  @on-open="focus"
+                  @on-close="blur"
+                  :config="{allowInput: true}"
+                  class="form-control datepicker"
+                  v-model="travel[index].start"
+                ></flat-picker>
+              </base-input>
+            </div>
+            <div class="input-list">
+              <small class="text-muted text-center">结束</small>
+              <br>
+              <base-input>
+                <flat-picker
+                  slot-scope="{focus, blur}"
+                  @on-open="focus"
+                  @on-close="blur"
+                  :config="{allowInput: true}"
+                  class="form-control datepicker"
+                  v-model="travel[index].end"
+                ></flat-picker>
+              </base-input>
+            </div>
             <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
           </div>
         </div>
@@ -54,6 +66,7 @@
 
 <script>
 import flatPicker from "vue-flatpickr-component";
+import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
 
 export default {
@@ -91,8 +104,10 @@ export default {
 }
 
 .input-list {
-  margin: 5px;
   width: 30%;
+  margin-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 0px;
   display: inline-block;
   position: relative;
 }
@@ -107,8 +122,8 @@ export default {
 .icon-rm {
   display: none;
   position: absolute;
-  padding-top: 10px;
-  padding-left: 10px;
+  padding-top: 35px;
+  padding-left: 5px;
   font-size: 150%;
   transition: transform 0.2s;
 }

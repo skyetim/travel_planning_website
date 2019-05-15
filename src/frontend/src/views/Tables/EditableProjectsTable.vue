@@ -122,30 +122,7 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
-            <flat-picker
-              slot-scope="{focus, blur}"
-              @on-open="focus"
-              @on-close="blur"
-              :config="{allowInput: true}"
-              class="form-control datepicker"
-              v-model="editRow.dates.start"
-            ></flat-picker>
-          </base-input>
-        </div>
-        <div class="row">
-          <base-input alternative class="mb-3" addon-left-icon="ni ni-calendar-grid-58">
-            <flat-picker
-              slot-scope="{focus, blur}"
-              @on-open="focus"
-              @on-close="blur"
-              :config="{allowInput: true}"
-              class="form-control datepicker"
-              v-model="editRow.dates.end"
-            ></flat-picker>
-          </base-input>
-        </div>
+
         <div class="row">
           <div class="dropdown">
             <base-input
@@ -163,9 +140,6 @@
             </div>
           </div>
         </div>
-        <div class="row">
-          <base-input alternative class="mb-3" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
-        </div>
       </div>
       <template slot="footer">
         <base-button type="secondary" @click="edit.modal = false">Close</base-button>
@@ -177,8 +151,7 @@
 </template>
 
 <script>
-import flatPicker from "vue-flatpickr-component";
-import "flatpickr/dist/flatpickr.css";
+
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
@@ -194,7 +167,6 @@ var edit = {
 
 export default {
   name: "edit-projects-table",
-  components: { flatPicker },
   data() {
     return {
       statusType: statusType,
@@ -325,7 +297,7 @@ export default {
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #f1f1f1;
+  background-color: #ffffff;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 2;
