@@ -5,7 +5,6 @@
         <div class="col">
           <h3 class="mb-0">
             {{title}}
-            <small padding-left="5px" class="text-muted">点击编辑表格</small>
           </h3>
         </div>
         <div class="col text-right">
