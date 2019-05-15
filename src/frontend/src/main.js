@@ -29,7 +29,7 @@ Vue.prototype.getCookie = (name) => {
 }
 
 Vue.prototype.setCookie = (c_name, value, expiredays) => {
-  var expire_time = new Date();　　　　
+  var expire_time = new Date();　　
   expire_time.setTime(expire_time.getTime() + expiredays);
   document.cookie = c_name + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + expire_time.toUTCString());
 }
@@ -45,7 +45,7 @@ new Vue({
       if (!this.getCookie('session') && this.$route.name!='register') { // 如果没有login且不在register页自动跳转
         this.$router.push('/login');
       } else if (this.getCookie('session') && (this.$route.name=='login' || this.$route.name=='register')){ // 如果已经login进入login页自动跳转
-        this.$router.push('/dashboard');
+        this.$router.push('/');
       }
     }
   }, 

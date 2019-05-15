@@ -80,11 +80,11 @@
                     </slot>
                 </ul>
                 <!--Divider-->
-                <hr class="my-3">
+                <!-- <hr class="my-3"> -->
                 <!--Heading-->
-                <h6 class="navbar-heading text-muted">Documentation</h6>
+                <!-- <h6 class="navbar-heading text-muted">Documentation</h6> -->
                 <!--Navigation-->
-                <ul class="navbar-nav mb-md-3">
+                <!-- <ul class="navbar-nav mb-md-3">
                     <li class="nav-item">
                         <a class="nav-link"
                            href="https://demos.creative-tim.com/vue-argon-dashboard/documentation">
@@ -103,7 +103,7 @@
                             <i class="ni ni-ui-04"></i> Components
                         </a>
                     </li>
-                </ul>
+                </ul> -->
             </div>
             </div>
     </nav>
@@ -119,7 +119,7 @@
     props: {
       logo: {
         type: String,
-        default: 'img/brand/green.png',
+        default: 'img/brand/travel.svg',
         description: 'Sidebar app logo'
       },
       autoClose: {

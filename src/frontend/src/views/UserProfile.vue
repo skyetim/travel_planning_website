@@ -57,7 +57,7 @@
                             </div>
                             <div class="text-center">
                                 <h3>
-                                    Jessica Jones<span class="font-weight-light">, 27</span>
+                                    Tim Wang<span class="font-weight-light">, 27</span>
                                 </h3>
                                 <div class="h5 font-weight-300">
                                     <i class="ni location_pin mr-2"></i>Bucharest, Romania
