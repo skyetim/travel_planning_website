@@ -107,11 +107,12 @@
 
     <modal :show.sync="edit.modal">
       <template slot="header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">新建行迹</h5>
       </template>
       <div>
         <div class="row">
-          <base-input alternative class="mb-3" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
+          <!-- <small class="text-muted text-center">行迹名</small><br> -->
+          <base-input alternative class="mb-3" placeholder="行迹名" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
           <i
             :class="['ni', edit.collapsed ? 'ni-bold-down': 'ni-bold-up', 'icon-expand']"
             @click="edit.collapsed=!edit.collapsed"
@@ -124,6 +125,7 @@
         </div>
 
         <div class="row">
+          <!-- <small class="text-muted text-center">行程状态</small><br/> -->
           <div class="dropdown">
             <base-input
               alternative
@@ -142,8 +144,7 @@
         </div>
       </div>
       <template slot="footer">
-        <base-button type="secondary" @click="edit.modal = false">Close</base-button>
-        <base-button type="primary">Save changes</base-button>
+        <base-button type="primary"  @click="edit.modal = false">Save changes</base-button>
       </template>
     </modal>
   </div>
@@ -190,7 +191,7 @@ export default {
   methods: {
     addBox: function() {
       var newLine = {
-        name: "输入地点",
+        name: "",
         travel: [],
         dates: { start: "2019-01-01", end: "2019-01-01" },
         status: 0

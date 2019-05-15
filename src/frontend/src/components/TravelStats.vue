@@ -20,7 +20,7 @@
           </template>
         </stats-card>
       </div>
-      <div class="col-xl-3 col-lg-6">
+      <!-- <div class="col-xl-3 col-lg-6">
         <stats-card
           title="Total traffic"
           type="gradient-orange"
@@ -67,7 +67,7 @@
             <span class="text-nowrap">Since last month</span>
           </template>
         </stats-card>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
