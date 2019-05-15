@@ -109,6 +109,8 @@ def address_to_city(request):
         'country_name': city.country_name,
         'province_name': city.province_name,
         'city_name': city.city_name,
+        'latitude': city.latitude,
+        'longitude': city.longitude,
         'status': 0
     }
     return response
@@ -125,6 +127,8 @@ def gps_to_city(request):
         'country_name': city.country_name,
         'province_name': city.province_name,
         'city_name': city.city_name,
+        'latitude': city.latitude,
+        'longitude': city.longitude,
         'status': 0
     }
     return response
