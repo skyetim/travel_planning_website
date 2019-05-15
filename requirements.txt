@@ -6,3 +6,4 @@ autopep8
 pylint
 googlemaps
 urllib3
+uuid
