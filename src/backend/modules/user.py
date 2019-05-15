@@ -1,22 +1,21 @@
-from _travel import Travel, TravelGroup
-# import _travel
+from modules.travel import Travel, TravelGroup
 
 
-class User():
+class User(object):
     def __init__(self):
         pass
 
 
-class UserInfoBase():
+class UserInfoBase(object):
     def __init__(self):
         pass
 
 
 class UserInfo(UserInfoBase):
     def __init__(self):
-        super()
+        super().__init__()
 
 
 class FriendInfo(UserInfoBase):
     def __init__(self):
-        super()
+        super().__init__()
