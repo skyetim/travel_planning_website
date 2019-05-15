@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class Cities(models.Model):
+class City(models.Model):
     city_id = models.AutoField(primary_key=True,
                                null=False,
                                unique=True,

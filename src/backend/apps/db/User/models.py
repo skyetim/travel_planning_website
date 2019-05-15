@@ -1,10 +1,10 @@
 from django.db import models
 
-import apps.Cities.models as Cities
+import apps.db.City.models as city
 
 
 # Create your models here.
-class Users(models.Model):
+class User(models.Model):
     MALE = 'M'
     FEMALE = 'F'
     UNKNOWN = 'U'
@@ -31,7 +31,7 @@ class Users(models.Model):
                               choices=GENDER_CHOICES,
                               null=False,
                               editable=True)
-    resident_city_id = models.ForeignKey(Cities.Cities,
+    resident_city_id = models.ForeignKey(city.City,
                                          to_field='city_id',
                                          related_name='U_U_residentcityid',
                                          on_delete=models.PROTECT)
@@ -45,12 +45,12 @@ class Users(models.Model):
         ]
 
 
-class FriendRelations(models.Model):
-    user_id = models.ForeignKey(Users,
+class FriendRelation(models.Model):
+    user_id = models.ForeignKey(User,
                                 to_field='user_id',
                                 related_name='U_FR_userid',
                                 on_delete=models.CASCADE)
-    friend_user_id = models.ForeignKey(Users,
+    friend_user_id = models.ForeignKey(User,
                                        to_field='user_id',
                                        related_name='U_FR_frienduserid',
                                        on_delete=models.CASCADE)

@@ -1,11 +1,11 @@
 from django.db import models
 
-import apps.Users.models as Users
-import apps.Travels.models as Travels
+import apps.db.Travel.models as travel
+import apps.db.User.models as user
 
 
 # Create your models here.
-class FriendRequests(models.Model):
+class FriendRequest(models.Model):
     ADD = 'A'
     DELETE = 'D'
     MSG_TYPE_CHOICES = ((ADD, 'Add'),
@@ -14,11 +14,11 @@ class FriendRequests(models.Model):
     msg_id = models.AutoField(primary_key=True,
                               null=False,
                               editable=False)
-    user_id = models.ForeignKey(Users.Users,
+    user_id = models.ForeignKey(user.User,
                                 to_field='user_id',
                                 related_name='M_FR_userid',
                                 on_delete=models.CASCADE)
-    friend_user_id = models.ForeignKey(Users.Users,
+    friend_user_id = models.ForeignKey(user.User,
                                        to_field='user_id',
                                        related_name='M_FR_frienduserid',
                                        on_delete=models.CASCADE)
@@ -55,15 +55,15 @@ class TravelAssociation(models.Model):
     msg_id = models.AutoField(primary_key=True,
                               null=False,
                               editable=False)
-    user_id = models.ForeignKey(Users.Users,
+    user_id = models.ForeignKey(user.User,
                                 to_field='user_id',
                                 related_name='M_TA_userid',
                                 on_delete=models.CASCADE)
-    friend_user_id = models.ForeignKey(Users.Users,
+    friend_user_id = models.ForeignKey(user.User,
                                        to_field='user_id',
                                        related_name='M_TA_frienduserid',
                                        on_delete=models.CASCADE)
-    travel_id = models.ForeignKey(Travels.Travels,
+    travel_id = models.ForeignKey(travel.Travel,
                                   to_field='travel_id',
                                   related_name='M_TA_travelid',
                                   on_delete=models.CASCADE)
