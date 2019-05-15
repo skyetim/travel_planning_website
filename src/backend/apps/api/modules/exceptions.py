@@ -12,3 +12,7 @@ class UserDoNotExistException(BackendBaseException):
 
 class UserAlreadyExistsException(BackendBaseException):
     CODE = 4
+
+
+class UserAuthorizationException(BackendBaseException):
+    CODE = 5
