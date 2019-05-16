@@ -1,6 +1,7 @@
 import json
 import os
 from urllib import parse
+
 import googlemaps
 import urllib3
 
@@ -78,20 +79,19 @@ class GeoCoder(object):
         if not res:
             return dict()
         add_com = res[0]['address_components']
-        # print(res)
-        city = {'country': '', 'admin_area_1': '', 'locality': ''}
+        city = {'country': ''}
         for x in add_com:
             if 'country' in x['types']:
                 city['country'] = x['long_name']
             if 'administrative_area_level_1' in x['types']:
-                city['admin_area_1'] = x['long_name']
+                city['province'] = x['long_name']
             if 'locality' in x['types']:
-                city['locality'] = x['long_name']
+                city['city'] = x['long_name']
 
-        if city['admin_area_1'] == '':
-            city['admin_area_1'] = city['country']
-        if city['locality'] == '':
-            city['locality'] = city['admin_area_1']
+        if 'province' not in city:
+            city['province'] = city['country']
+        if 'city' not in city:
+            city['city'] = city['province']
         city["latitude"] = res[0]['geometry']['location']['lat']
         city["longitude"] = res[0]['geometry']['location']['lng']
 
@@ -103,7 +103,9 @@ class GeoCoder(object):
 
     def gps_to_city(self, latlng, version=1):
         res = self.rev_geocode(latlng, version=version)
-        return self.__geores_to_city(res)
+        res = self.__geores_to_city(res)
+        address = ' '.join([res['country'], res['province'], res['city']])
+        return self.address_to_city(address=address, version=version)
 
 
 if __name__ == '__main__':
