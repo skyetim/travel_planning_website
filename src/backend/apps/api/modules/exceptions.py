@@ -22,5 +22,9 @@ class FriendDoesNotExistException(UserDoesNotExistException):
     CODE = 6
 
 
-class CityIdDoesNotExistException(BackendBaseException):
+class NoCityFoundException(BackendBaseException):
     CODE = 7
+
+
+class CityIdDoesNotExistException(BackendBaseException):
+    CODE = 8
