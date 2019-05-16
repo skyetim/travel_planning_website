@@ -6,7 +6,7 @@ class WrongPasswordException(BackendBaseException):
     CODE = 2
 
 
-class UserDoNotExistException(BackendBaseException):
+class UserDoesNotExistException(BackendBaseException):
     CODE = 3
 
 
@@ -18,11 +18,11 @@ class UserAuthorizationException(BackendBaseException):
     CODE = 5
 
 
-class FriendDoNotExistException(BackendBaseException):
+class FriendDoesNotExistException(UserDoesNotExistException):
     CODE = 6
 
 
-class CityIdDoNotExistException(BackendBaseException):
+class CityIdDoesNotExistException(BackendBaseException):
     CODE = 7
 
 
