@@ -2,7 +2,7 @@ import os
 
 from django.core.exceptions import ObjectDoesNotExist
 
-import apps.db.City.models  as db_city
+import apps.db.City.models as db_city
 from apps.api.modules import utilities
 from apps.api.modules.exceptions import CityIdDoesNotExistException
 

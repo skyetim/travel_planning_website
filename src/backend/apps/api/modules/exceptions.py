@@ -24,7 +24,3 @@ class FriendDoesNotExistException(UserDoesNotExistException):
 
 class CityIdDoesNotExistException(BackendBaseException):
     CODE = 7
-
-
-class GenderDoNotExistException(BackendBaseException):
-    CODE = 8

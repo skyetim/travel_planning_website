@@ -16,8 +16,31 @@ __all__.extend(['address_to_city', 'gps_to_city'])
 logged_in_users = {}
 
 
+def prepare_request_data(api_func):
+    def prd_wrapper(request):
+        def cast(name, cast_func):
+            if name in request_data:
+                request_data[name] = cast_func(request_data[name])
+
+        request_data = request.GET.dict()
+        cast(name='user_id', cast_func=int)
+        cast(name='email', cast_func=str.lower)
+        cast(name='email', cast_func=str.lower)
+        cast(name='pswd_hash', cast_func=str.upper)
+        cast(name='old_pswd_hash', cast_func=str.upper)
+        cast(name='new_pswd_hash', cast_func=str.upper)
+        cast(name='city_id', cast_func=int)
+        cast(name='resident_city_id', cast_func=int)
+        cast(name='latitude', cast_func=float)
+        cast(name='longitude', cast_func=float)
+
+        return api_func(request_data=request_data)
+
+    return prd_wrapper
+
+
 def check_authentication(api_func):
-    def wrapper(request):
+    def ca_wrapper(request_data):
         # check authentication
         # some code here
 
@@ -32,29 +55,31 @@ def check_authentication(api_func):
         # if request.GET.get('key') != encoded_key:
         #     raise
 
-        return api_func(request=request)
+        return api_func(request_data=request_data)
 
-    return wrapper
+    return ca_wrapper
 
 
 def check_token(api_func):
-    def wrapper(request):
+    def ck_wrapper(request_data):
+        user_id = request_data['user_id'],
+        session_id = request_data['session_id']
         try:
-            user_session = db_user.UserSession.objects.get(user_id=int(request.GET.get('user_id')),
-                                                           session_id=request.GET.get('session_id'))
+            user_session = db_user.UserSession.objects.get(user_id=user_id,
+                                                           session_id=session_id)
         except ObjectDoesNotExist:
-            db_user.UserSession.objects.filter(user_id=request.GET.get('user_id')).delete()
-            raise UserAuthorizationException('Authorization error.')
+            db_user.UserSession.objects.filter(user_id=user_id).delete()
+            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match.')
         else:
-            return api_func(request=request)
+            return api_func(request_data=request_data)
 
-    return wrapper
+    return ck_wrapper
 
 
 def pack_response(api_func):
-    def wrapper(request):
+    def pr_wrapper(request_data):
         try:
-            response = api_func(request=request)
+            response = api_func(request_data=request_data)
         except BackendBaseException as e:
             response = {
                 'status': e.CODE,
@@ -64,16 +89,17 @@ def pack_response(api_func):
                             json_dumps_params={'ensure_ascii': False},
                             safe=False)
 
-    return wrapper
+    return pr_wrapper
 
 
 # Create your views here.
 @require_http_methods(["GET"])
-@pack_response
+@prepare_request_data
 @check_authentication
-def login(request):
-    user = mod_user.User(email=str(request.GET.get('email')).lower(),
-                         pswd_hash=str(request.GET.get('pswd_hash')).upper())
+@pack_response
+def login(request_data):
+    user = mod_user.User(email=request_data['email'],
+                         pswd_hash=request_data['pswd_hash'])
     logged_in_users[user.get_user_id()] = user
 
     response = {
@@ -85,14 +111,15 @@ def login(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
+@prepare_request_data
 @check_authentication
-def register(request):
-    user = mod_user.User.new_user(email=str(request.GET.get('email')).lower(),
-                                  pswd_hash=str(request.GET.get('pswd_hash')).upper(),
-                                  user_name=request.GET.get('user_name'),
-                                  gender=str(request.GET.get('gender')).upper(),
-                                  resident_city_id=int(request.GET.get('resident_city_id')))
+@pack_response
+def register(request_data):
+    user = mod_user.User.new_user(email=request_data['email'],
+                                  pswd_hash=request_data['pswd_hash'],
+                                  user_name=request_data['user_name'],
+                                  gender=request_data['gender'],
+                                  resident_city_id=request_data['resident_city_id'])
 
     response = {
         'user_id': user.get_user_id(),
@@ -102,13 +129,14 @@ def register(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
-@check_token
+@prepare_request_data
 @check_authentication
-def reset_password(request):
-    user = logged_in_users[int(request.GET.get('user_id'))]
-    user.reset_password(old_pswd_hash=str(request.GET.get('old_pswd_hash')).upper(),
-                        new_pswd_hash=str(request.GET.get('new_pswd_hash')).upper())
+@check_token
+@pack_response
+def reset_password(request_data):
+    user = logged_in_users[request_data['user_id']]
+    user.reset_password(old_pswd_hash=request_data['old_pswd_hash'],
+                        new_pswd_hash=request_data['new_pswd_hash'])
 
     response = {
         'status': 0
@@ -117,11 +145,12 @@ def reset_password(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
-@check_token
+@prepare_request_data
 @check_authentication
-def get_user_info(request):
-    user = logged_in_users[int(request.GET.get('user_id'))]
+@check_token
+@pack_response
+def get_user_info(request_data):
+    user = logged_in_users[request_data['user_id']]
     user_info = user.get_user_info()
 
     response = {
@@ -135,17 +164,18 @@ def get_user_info(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
-@check_token
+@prepare_request_data
 @check_authentication
-def set_user_info(request):
-    user = logged_in_users[int(request.GET.get('user_id'))]
+@check_token
+@pack_response
+def set_user_info(request_data):
+    user = logged_in_users[request_data['user_id']]
     user_info = user.get_user_info()
 
-    user.set_email(email=str(request.GET.get('email')).lower())
-    user_info.set_user_name(user_name=request.GET.get('user_name'))
-    user_info.set_gender(gender=str(request.GET.get('gender')).upper())
-    user_info.set_resident_city_id(resident_city_id=int(request.GET.get('resident_city_id')))
+    user.set_email(email=request_data['email'])
+    user_info.set_user_name(user_name=request_data['user_name'])
+    user_info.set_gender(gender=request_data['gender'])
+    user_info.set_resident_city_id(city_id=request_data['resident_city_id'])
 
     response = {
         'status': 0
@@ -154,10 +184,11 @@ def set_user_info(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
+@prepare_request_data
 @check_authentication
-def address_to_city(request):
-    city = mod_city.get_or_create_city_instance(address=request.GET.get('address'))
+@pack_response
+def address_to_city(request_data):
+    city = mod_city.get_or_create_city_instance(address=request_data['address'])
 
     response = {
         'city_id': city.city_id,
@@ -172,11 +203,12 @@ def address_to_city(request):
 
 
 @require_http_methods(["GET"])
-@pack_response
+@prepare_request_data
 @check_authentication
-def gps_to_city(request):
-    city = mod_city.get_or_create_city_instance(latitude=float(request.GET.get('latitude')),
-                                                longitude=float(request.GET.get('longitude')))
+@pack_response
+def gps_to_city(request_data):
+    city = mod_city.get_or_create_city_instance(latitude=request_data['latitude'],
+                                                longitude=request_data['longitude'])
     response = {
         'city_id': city.city_id,
         'country_name': city.country_name,

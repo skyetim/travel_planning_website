@@ -12,16 +12,14 @@ class User(object):
             if user.pswd_hash != pswd_hash:
                 raise WrongPasswordException('Wrong password.')
         except ObjectDoesNotExist:
-            raise UserDoesNotExistException(
-                    'User (Email=%s) do not exist.' % email)
+            raise UserDoesNotExistException(f'User (Email={email}) does not exist.')
 
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
 
         self.user_dbobj = user
         self.user_session_dbobj = db_user.UserSession.objects.create(user_id=user)
 
-        # some code ...
-        # self.user_info = UserInfo(...)
+        self.user_info = UserInfo(user_id=self.get_user_id())
 
     def get_user_id(self):
         return self.user_dbobj.user_id
@@ -29,10 +27,21 @@ class User(object):
     def get_session_id(self):
         return self.user_session_dbobj.session_id
 
+    def get_email(self):
+        return self.user_dbobj.email
+
+    def get_user_info(self):
+        return self.user_info
+
+    def set_email(self, email):
+        self.user_dbobj.email = email
+        self.user_dbobj.save()
+        return self.user_dbobj.email
+
     @classmethod
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):
         if db_user.User.objects.filter(email=email).exists():
-            raise UserAlreadyExistsException('User already exists, try to login.')
+            raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
         resident_city = mod_city.get_city_instance_by_id(city_id=resident_city_id)
         user = db_user.User.objects.create(email=email,
                                            pswd_hash=pswd_hash)
@@ -61,7 +70,7 @@ class UserInfoBase(object):
         return self.user_info_dbobj.gender
 
     def get_resident_city_id(self):
-        return self.user_info_dbobj.resident_city_id
+        return self.user_info_dbobj.resident_city_id.city_id
 
 
 class UserInfo(UserInfoBase):
