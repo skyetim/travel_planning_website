@@ -157,7 +157,7 @@ def set_user_info(request):
 @pack_response
 @check_authentication
 def address_to_city(request):
-    city = mod_city.get_city_instance(address=request.GET.get('address'))
+    city = mod_city.get_or_create_city_instance(address=request.GET.get('address'))
 
     response = {
         'city_id': city.city_id,
@@ -175,8 +175,8 @@ def address_to_city(request):
 @pack_response
 @check_authentication
 def gps_to_city(request):
-    city = mod_city.get_city_instance(latitude=float(request.GET.get('latitude')),
-                                      longitude=float(request.GET.get('longitude')))
+    city = mod_city.get_or_create_city_instance(latitude=float(request.GET.get('latitude')),
+                                                longitude=float(request.GET.get('longitude')))
     response = {
         'city_id': city.city_id,
         'country_name': city.country_name,

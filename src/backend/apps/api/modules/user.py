@@ -1,6 +1,6 @@
 from django.core.exceptions import *
 
-import apps.db.City.models as db_city
+import apps.api.modules.city as mod_city
 import apps.db.User.models as db_user
 from apps.api.modules.exceptions import *
 
@@ -33,7 +33,7 @@ class User(object):
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):
         if db_user.User.objects.filter(email=email).exists():
             raise UserAlreadyExistsException('User already exists, try to login.')
-        resident_city = db_city.City.objects.get(city_id=resident_city_id)
+        resident_city = mod_city.get_city_instance_by_id(city_id=resident_city_id)
         user = db_user.User.objects.create(email=email,
                                            pswd_hash=pswd_hash)
         user_info = db_user.UserInfo.objects.create(user_id=user,
@@ -61,12 +61,7 @@ class UserInfoBase(object):
         return self.user_info_dbobj.gender
 
     def get_resident_city_id(self):
-        try:
-            city = db_city.City.objects.get(city_id=self.user_info_dbobj.resident_city_id)
-        except ObjectDoesNotExist:
-            raise CityIdDoesNotExistException(f'City (ID={self.user_info_dbobj.resident_city_id})'
-                                              f' does not exist.')
-        return city
+        return self.user_info_dbobj.resident_city_id
 
 
 class UserInfo(UserInfoBase):
@@ -93,10 +88,9 @@ class UserInfo(UserInfoBase):
             return 1
 
     def set_resident_city_id(self, city_id):
-        if not db_user.City.objects.filter(city_id=city_id).exists():
-            raise CityIdDoesNotExistException(f'City (ID={city_id}) do not exist.')
         try:
-            self.user_info_dbobj.resident_city_id = city_id
+            city = mod_city.get_city_instance_by_id(city_id=city_id)
+            self.user_info_dbobj.resident_city_id = city
             self.user_info_dbobj.save()
             return 0
         except Exception as e:
@@ -107,21 +101,21 @@ class UserInfo(UserInfoBase):
 class FriendInfo(UserInfoBase):
     def __init__(self, user_id, friend_user_id):
         try:
-            self.friend_ralation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
+            self.friend_relation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
                                                                             friend_user_id=friend_user_id)
         except ObjectDoesNotExist:
             raise FriendDoesNotExistException(f'Friend relation between '
                                               f'user (ID={user_id}) and user (ID={friend_user_id})'
                                               f' does not exist.')
-        super().__init__(friend_user_id)
+        super().__init__(user_id=friend_user_id)
 
     def get_user_note(self):
-        return self.friend_ralation_dbobj.friend_user_note
+        return self.friend_relation_dbobj.friend_user_note
 
     def set_user_note(self, user_note):
         try:
-            self.friend_ralation_dbobj.friend_user_note = user_note
-            self.friend_ralation_dbobj.save()
+            self.friend_relation_dbobj.friend_user_note = user_note
+            self.friend_relation_dbobj.save()
             return 0
         except Exception as e:
             raise e
