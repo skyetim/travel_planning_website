@@ -25,14 +25,26 @@ class FriendDoesNotExistException(UserDoesNotExistException):
 class NoCityFoundException(BackendBaseException):
     CODE = 7
 
+
 class CityIdDoesNotExistException(BackendBaseException):
     CODE = 8
+
 
 class DateFormatError(BackendBaseException):
     CODE = 9
 
+
 class VisibilityError(BackendBaseException):
     CODE = 10
 
+
 class TravelDoesNotExistException(BackendBaseException):
     CODE = 11
+
+
+class TravelGroupDoseNotExistException(BackendBaseException):
+    CODE = 12
+
+
+class TravelGroupOwnershipMismatch(BackendBaseException):
+    CODE = 13

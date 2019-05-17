@@ -95,11 +95,54 @@ class TravelInfo(object):
         '''
         assert type(visibility) == str
         v = visibility.upper()
-        if not v in (db_travel.Travel.ONLY_ME,db_travel.Travel.FRIEND,db_travel.Travel.PUBLIC):
+        if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
             raise VisibilityError(f"Visibility {visibility} is illegal")
 
 
-
 class TravelGroup(object):
-    def __init__(self):
+    def __init__(self, user_id, travel_group_id):
+        if not db_user.User.objects.filter(user_id=user_id).exists():
+            raise UserDoesNotExistException(
+                f'User (ID={user_id}) does not exist.')
+        if not db_travel.TravelGroupOwnership.objects.filter(user_id=user_id, travel_group_id=travel_group_id).exists():
+            raise TravelGroupOwnershipMismatch(
+                f"TravelGroup (ID={travel_group_id}) doesn't belong to User (ID={user_id}).")
+        try:
+            travelgroup = db_travel.TravelGroup.objects.get(
+                travel_group_id=travel_group_id)
+        except ObjectDoesNotExist:
+            raise TravelGroupDoseNotExistException(
+                "Travel Group ID %d" % travel_group_id)
+        try:
+            travellist = db_travel.TravelGrouping.objects.get(
+                travel_group_id=travel_group_id)
+        except ObjectDoesNotExist:
+            raise TravelGroupDoseNotExistException(
+                "Travel Grouping ID %d" % travel_group_id)
+
+        # 是否应该判断这个travel_group_id是否属于user_id？
+
+        self.travelgroup_dbobj = travelgroup
+        self.travelgrouping_dbobj = travellist
+        self.user_id = user_id
+
+    def add_travel(self):
+        pass
+
+    def remove_travel(self):
+        pass
+
+    def get_user_id(self):
+        pass
+
+    def get_travel_group_id(self):
+        pass
+
+    def get_travel_note(self):
+        pass
+
+    def get_travel_list(self):
+        pass
+
+    def set_travel_group_note(self):
         pass
