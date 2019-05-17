@@ -48,3 +48,10 @@ class TravelGroupDoseNotExistException(BackendBaseException):
 
 class TravelGroupOwnershipMismatch(BackendBaseException):
     CODE = 13
+
+
+class TravelAlreadyExistsInTravelGroup(BackendBaseException):
+    CODE = 14
+
+class TravelDoesNotExistInTravelGroup(BackendBaseException):
+    CODE = 15

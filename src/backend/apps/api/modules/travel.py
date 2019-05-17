@@ -24,7 +24,8 @@ class TravelInfo(object):
         try:
             travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
-            raise TravelDoesNotExistException(f"Travel (ID={travel_id}) does not exist.")
+            raise TravelDoesNotExistException(
+                f"Travel (ID={travel_id}) does not exist.")
         # 是否应该判断这个travel_id是否属于user_id？
         self.travelinfo_dbobj = travelinfo
         self.user_id = user_id
@@ -114,7 +115,7 @@ class TravelGroup(object):
             raise TravelGroupDoseNotExistException(
                 f"Travel Group (ID={travel_group_id}) does not exist.")
         try:
-            travellist = db_travel.TravelGrouping.objects.get(
+            travellist = db_travel.TravelGrouping.objects.filter(
                 travel_group_id=travel_group_id)
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(
@@ -123,26 +124,58 @@ class TravelGroup(object):
         # 是否应该判断这个travel_group_id是否属于user_id？
 
         self.travelgroup_dbobj = travelgroup
-        self.travelgrouping_dbobj = travellist
+        self.travel_list = travellist
         self.user_id = user_id
 
-    def add_travel(self):
-        pass
+    def add_travel(self, travel_id):
+        try:
+            travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
+        except ObjectDoesNotExist:
+            raise TravelDoesNotExistException(
+                f"Travel (ID={travel_id}) does not exist.")
 
-    def remove_travel(self):
-        pass
+        if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
+            raise TravelAlreadyExistsInTravelGroup(
+                f'Travel (ID={travel_id}) already exists in the travelgrouping database.')
+
+        try:
+            tg = db_travel.TravelGrouping(
+                travel_id=travelinfo, travel_group_id=self.travelgroup_dbobj)
+            tg.save()
+            return 0
+        except Exception as e:
+            raise e
+            return 1
+
+    def remove_travel(self, travel_id):
+        try:
+            tg = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
+            tg.delete()
+            return 0
+        except ObjectDoesNotExist:
+            raise TravelDoesNotExistInTravelGroup(
+                f'Travel (ID={travel_id}) doesn\'t exist in the travelgrouping database.')
+            return 1
+        except Exception as e:
+            raise e
+            return 2
 
     def get_user_id(self):
-        pass
+        return self.user_id
 
     def get_travel_group_id(self):
-        pass
+        return self.travelgroup_dbobj.travel_group_id
 
-    def get_travel_note(self):
-        pass
+    def get_travel_group_note(self):
+        return self.travelgroup_dbobj.travel_group_note
 
     def get_travel_list(self):
-        pass
+        '''
+        Return the QuerySet of Model TravelGrouping.
+        '''
+        return self.travel_list
 
-    def set_travel_group_note(self):
-        pass
+    def set_travel_group_note(self, note):
+        self.travelgroup_dbobj.travel_group_note = note
+        self.travelgroup_dbobj.save()
+        return 0
