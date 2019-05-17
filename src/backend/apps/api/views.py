@@ -53,7 +53,7 @@ def check_authentication(api_func):
         #     md5.update(str(request.GET.get(arg)).encode(encoding='UTF-8'))
         # encoded_key = md5.hexdigest()
         # if request.GET.get('key') != encoded_key:
-        #     raise
+        #     raise AuthenticationException
 
         return api_func(request_data=request_data)
 

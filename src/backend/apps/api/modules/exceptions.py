@@ -22,16 +22,17 @@ class FriendDoesNotExistException(UserDoesNotExistException):
     CODE = 6
 
 
-class CityIdDoesNotExistException(BackendBaseException):
+class NoCityFoundException(BackendBaseException):
     CODE = 7
 
-
-class TravelDoesNotExistException(BackendBaseException):
+class CityIdDoesNotExistException(BackendBaseException):
     CODE = 8
-
 
 class DateFormatError(BackendBaseException):
     CODE = 9
 
 class VisibilityError(BackendBaseException):
     CODE = 10
+
+class TravelDoesNotExistException(BackendBaseException):
+    CODE = 11
