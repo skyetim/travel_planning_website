@@ -89,7 +89,7 @@ class TravelGrouping(models.Model):
     travel_id = models.OneToOneField(Travel,
                                      to_field='travel_id',
                                      related_name='T_TG_travelid',
-                                     unique=True,
+                                     unique=False,
                                      on_delete=models.CASCADE)
     travel_group_id = models.OneToOneField(TravelGroup,
                                            to_field='travel_group_id',

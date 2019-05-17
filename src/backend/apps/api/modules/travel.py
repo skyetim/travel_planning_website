@@ -71,7 +71,7 @@ class TravelInfo(object):
             return 0
         except ValueError:
             raise DateFormatError(
-                f'Illegal Start Date: Year={year}, Month={month}, date={date}')
+                f'Illegal Start Date: Year={year}, Month={month}, date={date}.')
             return 1
 
     def set_date_end(self, year, month, date):
@@ -82,7 +82,7 @@ class TravelInfo(object):
             return 0
         except ValueError:
             raise DateFormatError(
-                f'Illegal End Date: Year={year}, Month={month}, date={date}')
+                f'Illegal End Date: Year={year}, Month={month}, date={date}.')
             return 1
 
     def set_travel_note(self, note):
@@ -97,7 +97,7 @@ class TravelInfo(object):
         assert type(visibility) == str
         v = visibility.upper()
         if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
-            raise VisibilityError(f"Visibility {visibility} is illegal")
+            raise VisibilityError(f"Visibility {visibility} is illegal.")
 
 
 class TravelGroup(object):
