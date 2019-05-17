@@ -24,7 +24,7 @@ class TravelInfo(object):
         try:
             travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
-            raise TravelDoesNotExistException("Travel ID %d" % travel_id)
+            raise TravelDoesNotExistException(f"Travel (ID={travel_id}) does not exist.")
         # 是否应该判断这个travel_id是否属于user_id？
         self.travelinfo_dbobj = travelinfo
         self.user_id = user_id
@@ -112,13 +112,13 @@ class TravelGroup(object):
                 travel_group_id=travel_group_id)
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(
-                "Travel Group ID %d" % travel_group_id)
+                f"Travel Group (ID={travel_group_id}) does not exist.")
         try:
             travellist = db_travel.TravelGrouping.objects.get(
                 travel_group_id=travel_group_id)
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(
-                "Travel Grouping ID %d" % travel_group_id)
+                f"Travel Grouping (ID={travel_group_id}) does not exist.")
 
         # 是否应该判断这个travel_group_id是否属于user_id？
 
