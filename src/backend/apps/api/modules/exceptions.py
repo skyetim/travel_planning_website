@@ -24,3 +24,14 @@ class FriendDoesNotExistException(UserDoesNotExistException):
 
 class CityIdDoesNotExistException(BackendBaseException):
     CODE = 7
+
+
+class TravelDoesNotExistException(BackendBaseException):
+    CODE = 8
+
+
+class DateFormatError(BackendBaseException):
+    CODE = 9
+
+class VisibilityError(BackendBaseException):
+    CODE = 10
