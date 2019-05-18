@@ -12,12 +12,14 @@ class User(object):
             if user.pswd_hash != pswd_hash:
                 raise WrongPasswordException('Wrong password.')
         except ObjectDoesNotExist:
-            raise UserDoesNotExistException(f'User (Email={email}) does not exist.')
+            raise UserDoesNotExistException(
+                f'User (Email={email}) does not exist.')
 
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
 
         self.user_dbobj = user
-        self.user_session_dbobj = db_user.UserSession.objects.create(user_id=user)
+        self.user_session_dbobj = db_user.UserSession.objects.create(
+            user_id=user)
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
@@ -41,14 +43,14 @@ class User(object):
     @classmethod
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):
         if db_user.User.objects.filter(email=email).exists():
-            raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
-        resident_city = mod_city.get_city_instance_by_id(city_id=resident_city_id)
+            raise UserAlreadyExistsException(
+                f'User (Email={email}) already exists, try to login.')
+        resident_city = mod_city.get_city_instance_by_id(
+            city_id=resident_city_id)
         user = db_user.User.objects.create(email=email,
                                            pswd_hash=pswd_hash)
-        user_info = db_user.UserInfo.objects.create(user_id=user,
-                                                    user_name=user_name,
-                                                    gender=gender,
-                                                    resident_city_id=resident_city)
+        user_info = db_user.UserInfo.objects.create(
+            user_id=user, user_name=user_name, gender=gender, resident_city_id=resident_city)
         return cls(email=email, pswd_hash=pswd_hash)
 
 
@@ -57,7 +59,8 @@ class UserInfoBase(object):
         try:
             user_info = db_user.UserInfo.objects.get(user_id=user_id)
         except ObjectDoesNotExist:
-            raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
+            raise UserDoesNotExistException(
+                f'User (ID={user_id}) does not exist.')
         self.user_info_dbobj = user_info
 
     def get_user_id(self):
@@ -129,3 +132,24 @@ class FriendInfo(UserInfoBase):
         except Exception as e:
             raise e
             return 1
+
+
+def check_user_existance(user_id, existance="Y"):
+    '''
+        Check the existance of user_id in the database user.User. Raise exceptions when the target user_id exists (or not).
+            :param: existance, "Y" checks user_id in the database; "N" checks user_id not in the database.
+    '''
+    if existance == "Y":
+        if not db_user.User.objects.filter(user_id=user_id).exists():
+            raise UserDoesNotExistException(
+                f'User (ID={user_id}) does not exist.')
+    else:
+        if db_user.User.objects.filter(user_id=user_id).exists():
+            raise UserAlreadyExistsException(
+                f'User (ID={user_id}) already exist.')
+    return 0
+
+
+def get_user_instance_by_id(user_id):
+    check_user_existance(user_id)
+    return db_user.User.objects.get(user_id=user_id)
