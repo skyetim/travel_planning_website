@@ -10,9 +10,15 @@ class TravelGroup(models.Model):
                                        null=False,
                                        unique=True,
                                        editable=False)
+    travel_group_name = models.CharField(max_length=20,
+                                         default='未命名',
+                                         null=False,
+                                         editable=True)
     travel_group_note = models.TextField(max_length=140,
                                          null=False,
                                          editable=True)
+    travel_group_color = models.PositiveIntegerField(null=False,
+                                                     editable=True)
 
     class Meta:
         indexes = [
