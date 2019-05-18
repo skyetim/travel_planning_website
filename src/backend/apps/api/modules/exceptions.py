@@ -53,5 +53,14 @@ class TravelGroupOwnershipMismatch(BackendBaseException):
 class TravelAlreadyExistsInTravelGroup(BackendBaseException):
     CODE = 14
 
+
 class TravelDoesNotExistInTravelGroup(BackendBaseException):
     CODE = 15
+
+
+class TravelAlreadyExistsException(BackendBaseException):
+    CODE = 16
+
+
+class DateStartLaterThanDateEndError(BackendBaseException):
+    CODE = 17

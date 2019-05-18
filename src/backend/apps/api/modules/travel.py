@@ -1,10 +1,11 @@
-import datetime.date as ddate
+from datetime import date as ddate
 
 from apps.api.modules.user import User, FriendInfo
 
 import apps.db.User.models as db_user
 import apps.db.Travel.models as db_travel
 
+import apps.api.modules.user as mod_user
 import apps.api.modules.city as mod_city
 
 from django.core.exceptions import *
@@ -15,12 +16,15 @@ class Travel(object):
     def __init__(self):
         pass
 
+    @classmethod
+    def new_travel(cls, user_id, travel_group_id, travel_note, city_id, date_start, date_end, visibility, company_user_id_list):
+        mod_user.check_user_existance(user_id)
+        return cls()
+
 
 class TravelInfo(object):
     def __init__(self, user_id, travel_id):
-        if not db_user.User.objects.filter(user_id=user_id).exists():
-            raise UserDoesNotExistException(
-                f'User (ID={user_id}) does not exist.')
+        mod_user.check_user_existance(user_id)
         try:
             travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
@@ -29,6 +33,26 @@ class TravelInfo(object):
         # 是否应该判断这个travel_id是否属于user_id？
         self.travelinfo_dbobj = travelinfo
         self.user_id = user_id
+
+    @classmethod
+    def new_travelinfo(cls, user_id, travel_note, city_id, date_start, date_end, visbility):
+        if not db_user.User.objects.filter(user_id=user_id).exists():
+            raise UserDoesNotExistException(
+                f'User (ID={user_id}) does not exist.')
+        city = mod_city.get_city_instance_by_id(city_id)
+        try:
+            dstart, dend = ddate(date_start), ddate(date_end)
+        except Exception as e:
+            raise DateFormatError("Date Format Error.")
+        if dstart >= dend:
+            raise DateStartLaterThanDateEndError(
+                "The Date_Start should be earlier than Date_End.")
+        v = check_visibility(visbility)
+
+        travel_info = db_travel.Travel.objects.create(
+            date_start=dstart, date_end=dend, city_id=city, visbility=v, travel_note=travel_note)
+        travel_id = travel_info.travel_id
+        return cls(user_id, travel_id)
 
     def get_user_id(self):
         return self.user_id
@@ -94,10 +118,17 @@ class TravelInfo(object):
         '''
             Receive "M"(Only ME),"F" (Friend) or "P"(Public).
         '''
-        assert type(visibility) == str
-        v = visibility.upper()
-        if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
-            raise VisibilityError(f"Visibility {visibility} is illegal.")
+        v = check_visibility(visibility)
+        self.travelinfo_dbobj.visbility = v
+        self.travelinfo_dbobj.save()
+
+
+def check_visibility(visibility):
+    assert type(visibility) == str
+    v = visibility.upper()
+    if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
+        raise VisibilityError(f"Visibility {visibility} is illegal.")
+    return v
 
 
 class TravelGroup(object):
