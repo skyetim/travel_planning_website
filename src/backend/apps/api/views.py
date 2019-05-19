@@ -1,11 +1,15 @@
 from functools import wraps
 
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 import apps.api.modules.city as mod_city
 import apps.api.modules.user as mod_user
+import apps.db.City.models as db_city
+import apps.db.City.serializers as srl_city
 import apps.db.User.models as db_user
 from apps.api.modules.exceptions import *
 
@@ -20,81 +24,87 @@ request_method_list = ['GET']
 logged_in_users = {}
 
 
+def prepare_request_data(func):
+    @wraps(wrapped=func)
+    def prd_wrapper(request):
+        def cast(name, cast_func):
+            if name in request_data:
+                request_data[name] = cast_func(request_data[name])
+
+        request_data = request.GET.dict()
+        cast(name='user_id', cast_func=int)
+        cast(name='email', cast_func=str.lower)
+        cast(name='email', cast_func=str.lower)
+        cast(name='pswd_hash', cast_func=str.upper)
+        cast(name='old_pswd_hash', cast_func=str.upper)
+        cast(name='new_pswd_hash', cast_func=str.upper)
+        cast(name='city_id', cast_func=int)
+        cast(name='resident_city_id', cast_func=int)
+        cast(name='latitude', cast_func=float)
+        cast(name='longitude', cast_func=float)
+
+        return func(request_data=request_data)
+
+    return prd_wrapper
+
+
+def check_authentication(func):
+    @wraps(wrapped=func)
+    def ca_wrapper(request_data):
+        # check authentication
+        # some code here
+
+        # import hashlib
+        # md5 = hashlib.md5()
+        # for arg in sorted(request.GET.dict().keys()):
+        #     if arg != 'key':
+        #         continue
+        #     md5.update(arg.encode(encoding='UTF-8'))
+        #     md5.update(str(request.GET.get(arg)).encode(encoding='UTF-8'))
+        # encoded_key = md5.hexdigest()
+        # if request.GET.get('key') != encoded_key:
+        #     raise AuthenticationException
+
+        return func(request_data=request_data)
+
+    return ca_wrapper
+
+
+def check_token(func):
+    @wraps(wrapped=func)
+    def ck_wrapper(request_data):
+        user_id = request_data['user_id'],
+        session_id = request_data['session_id']
+        try:
+            db_user.UserSession.objects.get(user_id=user_id,
+                                            session_id=session_id)
+        except db_user.UserSession.DoesNotExist:
+            db_user.UserSession.objects.filter(user_id=user_id).delete()
+            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match.')
+        else:
+            return func(request_data=request_data)
+
+    return ck_wrapper
+
+
+def pack_response(func):
+    @wraps(wrapped=func)
+    def pr_wrapper(*args, **kwargs):
+        try:
+            response = func(*args, **kwargs)
+            response.setdefault('status', 0)
+        except BackendBaseException as e:
+            response = {
+                'status': e.CODE,
+                'error_message': str(e)
+            }
+        return Response(data=response)
+
+    return pr_wrapper
+
+
 def api(check_tokens):
     def decorator(api_func):
-        def prepare_request_data(func):
-            @wraps(wrapped=func)
-            def prd_wrapper(request):
-                def cast(name, cast_func):
-                    if name in request_data:
-                        request_data[name] = cast_func(request_data[name])
-
-                request_data = request.GET.dict()
-                cast(name='user_id', cast_func=int)
-                cast(name='email', cast_func=str.lower)
-                cast(name='email', cast_func=str.lower)
-                cast(name='pswd_hash', cast_func=str.upper)
-                cast(name='old_pswd_hash', cast_func=str.upper)
-                cast(name='new_pswd_hash', cast_func=str.upper)
-                cast(name='city_id', cast_func=int)
-                cast(name='resident_city_id', cast_func=int)
-                cast(name='latitude', cast_func=float)
-                cast(name='longitude', cast_func=float)
-
-                return func(request_data=request_data)
-
-            return prd_wrapper
-
-        def check_authentication(func):
-            @wraps(wrapped=func)
-            def ca_wrapper(request_data):
-                # check authentication
-                # some code here
-
-                # import hashlib
-                # md5 = hashlib.md5()
-                # for arg in sorted(request.GET.dict().keys()):
-                #     if arg != 'key':
-                #         continue
-                #     md5.update(arg.encode(encoding='UTF-8'))
-                #     md5.update(str(request.GET.get(arg)).encode(encoding='UTF-8'))
-                # encoded_key = md5.hexdigest()
-                # if request.GET.get('key') != encoded_key:
-                #     raise AuthenticationException
-
-                return func(request_data=request_data)
-
-            return ca_wrapper
-
-        def check_token(func):
-            @wraps(wrapped=func)
-            def ck_wrapper(request_data):
-                user_id = request_data['user_id'],
-                session_id = request_data['session_id']
-                try:
-                    db_user.UserSession.objects.get(user_id=user_id,
-                                                    session_id=session_id)
-                except db_user.UserSession.DoesNotExist:
-                    db_user.UserSession.objects.filter(user_id=user_id).delete()
-                    raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match.')
-                else:
-                    return func(request_data=request_data)
-
-            return ck_wrapper
-
-        def pack_response(func):
-            @wraps(wrapped=func)
-            def pr_wrapper(request_data):
-                try:
-                    response = func(request_data=request_data)
-                except BackendBaseException as e:
-                    response = {
-                        'status': e.CODE,
-                        'error_message': str(e)
-                    }
-                return Response(data=response)
-
-            return pr_wrapper
 
         wrapped_func = pack_response(func=api_func)
         wrapped_func = check_authentication(func=wrapped_func)
@@ -118,8 +128,7 @@ def login(request_data):
 
     response = {
         'user_id': user.get_user_id(),
-        'session_id': user.get_session_id(),
-        'status': 0
+        'session_id': user.get_session_id()
     }
     return response
 
@@ -133,8 +142,7 @@ def register(request_data):
                                   resident_city_id=request_data['resident_city_id'])
 
     response = {
-        'user_id': user.get_user_id(),
-        'status': 0
+        'user_id': user.get_user_id()
     }
     return response
 
@@ -145,9 +153,7 @@ def reset_password(request_data):
     user.reset_password(old_pswd_hash=request_data['old_pswd_hash'],
                         new_pswd_hash=request_data['new_pswd_hash'])
 
-    response = {
-        'status': 0
-    }
+    response = {}
     return response
 
 
@@ -160,8 +166,7 @@ def get_user_info(request_data):
         'user_name': user_info.get_user_name(),
         'email': user.get_email(),
         'gender': user_info.get_gender(),
-        'resident_city_id': user_info.get_resident_city_id(),
-        'status': 0
+        'resident_city_id': user_info.get_resident_city_id()
     }
     return response
 
@@ -176,9 +181,7 @@ def set_user_info(request_data):
     user_info.set_gender(gender=request_data['gender'])
     user_info.set_resident_city_id(city_id=request_data['resident_city_id'])
 
-    response = {
-        'status': 0
-    }
+    response = {}
     return response
 
 
@@ -192,8 +195,7 @@ def address_to_city(request_data):
         'province_name': city.province_name,
         'city_name': city.city_name,
         'latitude': city.latitude,
-        'longitude': city.longitude,
-        'status': 0
+        'longitude': city.longitude
     }
     return response
 
@@ -208,8 +210,7 @@ def gps_to_city(request_data):
         'province_name': city.province_name,
         'city_name': city.city_name,
         'latitude': city.latitude,
-        'longitude': city.longitude,
-        'status': 0
+        'longitude': city.longitude
     }
     return response
 
@@ -223,7 +224,60 @@ def city_id_to_city(request_data):
         'province_name': city.province_name,
         'city_name': city.city_name,
         'latitude': city.latitude,
-        'longitude': city.longitude,
-        'status': 0
+        'longitude': city.longitude
     }
     return response
+
+
+@csrf_exempt
+@api_view(['GET', 'POST'])
+@pack_response
+def city_list(request):
+    """
+    List all cities, or create a new city.
+    """
+
+    if request.method == 'GET':
+        city = db_city.City.objects.all()
+        serializer = srl_city.CitySerializer(city, many=True)
+        response = {
+            'count': len(serializer.data),
+            'city_list': serializer.data
+        }
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = srl_city.CitySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            response = serializer.data
+        else:
+            response = serializer.errors
+    return response
+
+
+@csrf_exempt
+@api_view(['GET', 'PUT', 'DELETE'])
+@pack_response
+def city_detail(request, city_id):
+    """
+        Retrieve, update or delete a code snippet.
+        """
+    try:
+        city = db_city.City.objects.get(city_id=city_id)
+    except db_city.City.DoesNotExist:
+        raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
+
+    if request.method == 'GET':
+        serializer = srl_city.CitySerializer(city)
+        return serializer.data
+
+    elif request.method == 'PUT':
+        serializer = srl_city.CitySerializer(city, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return serializer.data
+        return serializer.errors
+
+    elif request.method == 'DELETE':
+        city.delete()
+        return {}

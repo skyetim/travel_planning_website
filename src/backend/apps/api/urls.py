@@ -24,3 +24,6 @@ urlpatterns = []
 for view in views.__all__:
     if callable(getattr(views, view)):
         urlpatterns.append(path(rf'{view}/', getattr(views, view), name=view))
+
+urlpatterns.append(path('cities/', views.city_list))
+urlpatterns.append(path('cities/<int:city_id>/', views.city_detail))
