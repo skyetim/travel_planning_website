@@ -13,7 +13,7 @@ from apps.api.modules.exceptions import *
 __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
-__all__.extend(['address_to_city', 'gps_to_city'])
+__all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['GET']
 
@@ -202,6 +202,21 @@ def address_to_city(request_data):
 def gps_to_city(request_data):
     city = mod_city.get_or_create_city_instance(latitude=request_data['latitude'],
                                                 longitude=request_data['longitude'])
+    response = {
+        'city_id': city.city_id,
+        'country_name': city.country_name,
+        'province_name': city.province_name,
+        'city_name': city.city_name,
+        'latitude': city.latitude,
+        'longitude': city.longitude,
+        'status': 0
+    }
+    return response
+
+
+@api(check_tokens=False)
+def city_id_to_city(request_data):
+    city = mod_city.get_city_instance_by_id(city_id=request_data['city_id'])
     response = {
         'city_id': city.city_id,
         'country_name': city.country_name,

@@ -1,7 +1,5 @@
 import os
 
-from django.core.exceptions import ObjectDoesNotExist
-
 import apps.db.City.models as db_city
 from apps.api.modules import utilities
 from apps.api.modules.exceptions import *
@@ -45,7 +43,7 @@ def get_or_create_city_instance(address=None,
         city = db_city.City.objects.get(country_name=country_name,
                                         province_name=province_name,
                                         city_name=city_name)
-    except ObjectDoesNotExist:
+    except db_city.City.DoesNotExist:
         city = db_city.City.objects.create(country_name=country_name,
                                            province_name=province_name,
                                            city_name=city_name,
@@ -57,6 +55,6 @@ def get_or_create_city_instance(address=None,
 def get_city_instance_by_id(city_id):
     try:
         city = db_city.City.objects.get(city_id=city_id)
-    except ObjectDoesNotExist:
+    except db_city.City.DoesNotExist:
         raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
     return city
