@@ -13,13 +13,58 @@ from apps.api.modules.exceptions import *
 
 
 class Travel(object):
-    def __init__(self):
-        pass
+    def __init__(self, user_id, travel_id):
+        mod_user.check_user_existance(user_id)
+        check_travel_existance(travel_id)
+        self.user_id = user_id
+        self.travel_id = travel_id
+        self.travel_dbobj = db_travel.Travel.objects.get(travel_id=travel_id)
+        self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
+        self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
+            travel_id=self.travel_dbobj)
 
     @classmethod
     def new_travel(cls, user_id, travel_group_id, travel_note, city_id, date_start, date_end, visibility, company_user_id_list):
-        mod_user.check_user_existance(user_id)
-        return cls()
+        # mod_user.check_user_existance(user_id)
+        user_id = mod_user.get_user_instance_by_id(user_id)
+        travel_id = TravelInfo.new_travelinfo(
+            user_id, travel_note, city_id, date_start, date_end, visibility)
+        travel_group_id = get_travel_group_instance_by_id(travel_group_id)
+        db_travel.TravelGrouping.objects.create(
+            travel_id=travel_id, travel_group_id=travel_group_id)
+        for c_user in company_user_id_list:
+            c_user_id = mod_user.get_user_instance_by_id(c_user)
+            db_travel.TravelAssociation.objects.create(
+                travel_id=travel_id, company_user_id=c_user_id)
+
+        return cls(user_id=user_id, travel_id=travel_id)
+
+    def add_company(self):
+        pass
+
+    def remove_company(self):
+        pass
+
+    def move_to_travel_group(self):
+        pass
+
+    def move_to_new_travel_group(self):
+        pass
+
+    def get_user_id(self):
+        return self.user_id
+
+    def get_travel_id(self):
+        return self.travel_dbobj.travel_id
+
+    def get_travel_group_id(self):
+        pass
+
+    def get_travel_info(self):
+        return self.travel_info
+
+    def get_company_list(self):
+        return self.company_user_id_list
 
 
 class TravelInfo(object):
@@ -210,3 +255,18 @@ class TravelGroup(object):
         self.travelgroup_dbobj.travel_group_note = note
         self.travelgroup_dbobj.save()
         return 0
+
+
+def check_travel_existance(travel_id):
+    if not db_travel.Travel.objects.filter(travel_id=travel_id).exists():
+        raise TravelDoesNotExistException(
+            f'Travel (ID={travel_id}) does not exist.')
+    return 0
+
+
+def get_travel_group_instance_by_id(travel_group_id):
+    if not db_travel.TravelGroup.objects.filter(travel_group_id).exists():
+        raise TravelGroupDoseNotExistException(
+            f'Travel Group (ID={travel_group_id}) does not exist.')
+    # check_travel_group_existance(user_id)
+    return db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
