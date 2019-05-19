@@ -7,13 +7,18 @@ from apps.db.User.models import User, UserInfo, FriendRelation
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInfo
-        fields = UserInfo._meta.get_fields()
+        fields = ['user_id',
+                  'user_name',
+                  'gender',
+                  'resident_city_id']
 
 
 class FriendRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRelation
-        fields = FriendRelation._meta.get_fields()
+        fields = ['user_id',
+                  'friend_user_id',
+                  'friend_user_note']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,7 +28,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = User._meta.get_fields()
-        fields.append('user_info')
-        fields.append('friend_relation')
-        fields.append('travel_groups')
+        fields = ['user_id',
+                  'email',
+                  'user_info',
+                  'friend_relation',
+                  'travel_groups']

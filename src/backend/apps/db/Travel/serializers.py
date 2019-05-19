@@ -6,7 +6,7 @@ from apps.db.Travel.models import TravelGroup, TravelGrouping, Travel, TravelAss
 class TravelAssociationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TravelAssociation
-        fields = TravelAssociation._meta.get_fields()
+        fields = [field.name for field in TravelAssociation._meta.get_fields()]
 
 
 class TravelSerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class TravelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Travel
-        fields = Travel._meta.get_fields()
+        fields = [field.name for field in Travel._meta.get_fields()]
         fields.append('travel_association')
 
 
@@ -23,7 +23,7 @@ class TravelGroupingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TravelGrouping
-        fields = TravelGrouping._meta.get_fields()
+        fields = [field.name for field in TravelGrouping._meta.get_fields()]
         fields.append('travels')
 
 
@@ -32,5 +32,5 @@ class TravelGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TravelGroup
-        fields = TravelGroup._meta.get_fields()
+        fields = [field.name for field in TravelGroup._meta.get_fields()]
         fields.append('travel_grouping')
