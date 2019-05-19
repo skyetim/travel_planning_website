@@ -2,6 +2,7 @@ python>=3.6,<3.7
 openssl==1.0.2r
 mysqlclient
 django
+djangorestframework
 autopep8
 pylint
 googlemaps
