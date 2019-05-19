@@ -3,7 +3,6 @@ from functools import wraps
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 import apps.api.modules.city as mod_city
@@ -11,6 +10,7 @@ import apps.api.modules.user as mod_user
 import apps.db.City.models as db_city
 import apps.db.City.serializers as srl_city
 import apps.db.User.models as db_user
+import apps.db.User.serializers as srl_user
 from apps.api.modules.exceptions import *
 
 
@@ -19,7 +19,7 @@ __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
-request_method_list = ['GET']
+request_method_list = ['GET', 'POST']
 
 logged_in_users = {}
 
@@ -31,7 +31,7 @@ def prepare_request_data(func):
             if name in request_data:
                 request_data[name] = cast_func(request_data[name])
 
-        request_data = request.GET.dict()
+        request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
         cast(name='email', cast_func=str.lower)
@@ -133,7 +133,7 @@ def login(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(check_tokens=False)
 def register(request_data):
     user = mod_user.User.new_user(email=request_data['email'],
                                   pswd_hash=request_data['pswd_hash'],
@@ -230,54 +230,72 @@ def city_id_to_city(request_data):
 
 
 @csrf_exempt
-@api_view(['GET', 'POST'])
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
 @pack_response
 def city_list(request):
     """
-    List all cities, or create a new city.
+    List all cities.
     """
 
-    if request.method == 'GET':
-        city = db_city.City.objects.all()
-        serializer = srl_city.CitySerializer(city, many=True)
-        response = {
-            'count': len(serializer.data),
-            'city_list': serializer.data
-        }
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = srl_city.CitySerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            response = serializer.data
-        else:
-            response = serializer.errors
+    cities = db_city.City.objects.all()
+    serializer = srl_city.CitySerializer(cities, many=True)
+    response = {
+        'count': len(serializer.data),
+        'city_list': serializer.data
+    }
     return response
 
 
 @csrf_exempt
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
 @pack_response
 def city_detail(request, city_id):
     """
-        Retrieve, update or delete a code snippet.
-        """
+    Retrieve a city.
+    """
     try:
         city = db_city.City.objects.get(city_id=city_id)
     except db_city.City.DoesNotExist:
         raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
 
-    if request.method == 'GET':
-        serializer = srl_city.CitySerializer(city)
-        return serializer.data
+    serializer = srl_city.CitySerializer(city)
+    response = serializer.data
+    return response
 
-    elif request.method == 'PUT':
-        serializer = srl_city.CitySerializer(city, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return serializer.data
-        return serializer.errors
 
-    elif request.method == 'DELETE':
-        city.delete()
-        return {}
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def user_list(request):
+    """
+    List all users.
+    """
+
+    users = db_user.User.objects.all()
+    serializer = srl_user.UserSerializer(users, many=True)
+    response = {
+        'count': len(serializer.data),
+        'user_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def user_detail(request, user_id):
+    """
+    Retrieve a user.
+    """
+    try:
+        user = db_user.User.objects.get(city_id=user_id)
+    except db_user.User.DoesNotExist:
+        raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
+
+    serializer = srl_user.UserSerializer(user)
+    response = serializer.data
+    return response

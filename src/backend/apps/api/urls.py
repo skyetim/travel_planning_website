@@ -27,3 +27,5 @@ for view in views.__all__:
 
 urlpatterns.append(path('cities/', views.city_list))
 urlpatterns.append(path('cities/<int:city_id>/', views.city_detail))
+urlpatterns.append(path('users/', views.user_list))
+urlpatterns.append(path('users/<int:user_id>/', views.user_detail))
