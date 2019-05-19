@@ -18,6 +18,14 @@ class Travel(object):
         check_travel_existance(travel_id)
         self.user_id = user_id
         self.travel_id = travel_id
+
+        if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
+            self.travel_group_id = db_travel.TravelGrouping.objects.get(
+                travel_id=travel_id)
+        else:
+            raise TravelDoesNotExistBelongToTravelGroup(
+                f"Travel (ID={travel_id}) doen't belong to any travel group.")
+
         self.travel_dbobj = db_travel.Travel.objects.get(travel_id=travel_id)
         self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
@@ -39,17 +47,39 @@ class Travel(object):
 
         return cls(user_id=user_id, travel_id=travel_id)
 
-    def add_company(self):
-        pass
+    def add_company(self, company_user_id):
+        cuser = mod_user.get_user_instance_by_id(company_user_id)
+        if db_travel.TravelAssociation.objects.filter(company_user_id=cuser, travel_id=self.travel_dbobj).exists():
+            raise TravelAssociationAlreadyExist(
+                f"Travel Association between User(ID={company_user_id} and Travel (ID={self.travel_id}) already exists.")
+        db_travel.TravelAssociation.objects.create(
+            company_user_id=cuser, travel_id=self.travel_dbobj)
+        self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
+            travel_id=self.travel_dbobj)
 
-    def remove_company(self):
-        pass
+    def remove_company(self, user_id):
+        cuser = mod_user.get_user_instance_by_id(company_user_id)
+        if not db_travel.TravelAssociation.objects.filter(company_user_id=cuser, travel_id=self.travel_dbobj).exists():
+            raise TravelAssociationDoesNotExist(
+                f"Travel Association between User(ID={company_user_id} and Travel (ID={self.travel_id}) does not exist.")
+        db_travel.TravelAssociation.objects.delete(
+            company_user_id=cuser, travel_id=self.travel_dbobj)
+        self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
+            travel_id=self.travel_dbobj)
 
-    def move_to_travel_group(self):
-        pass
+    def move_to_travel_group(self, travel_group_id):
+        old_travelgrouping = db_travel.TravelGrouping.objects.get(
+            travel_id=self.travel_dbobj)
+        old_travelgrouping.delete()
 
-    def move_to_new_travel_group(self):
-        pass
+        new_travel_group = get_travel_group_instance_by_id(travel_group_id)
+        old_travelgrouping = db_travel.TravelGrouping.objects.create(
+            travel_group_id=new_travel_group, travel_id=self.travel_dbobj)
+
+    def move_to_new_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
+        new_travel_group = TravelGroup.new_travelgroup(
+            user_id=self.user_id, travel_group_name=travel_group_name, travel_group_note=travel_group_note, travel_group_color=travel_group_color)
+        self.move_to_travel_group(new_travel_group)
 
     def get_user_id(self):
         return self.user_id
@@ -58,7 +88,7 @@ class Travel(object):
         return self.travel_dbobj.travel_id
 
     def get_travel_group_id(self):
-        pass
+        return self.travel_group_id
 
     def get_travel_info(self):
         return self.travel_info

@@ -64,3 +64,15 @@ class TravelAlreadyExistsException(BackendBaseException):
 
 class DateStartLaterThanDateEndError(BackendBaseException):
     CODE = 17
+
+
+class TravelDoesNotExistBelongToTravelGroup(BackendBaseException):
+    CODE = 18
+
+
+class TravelAssociationAlreadyExist(BackendBaseException):
+    CODE = 19
+
+
+class TravelAssociationDoseNotExist(BackendBaseException):
+    CODE = 20
