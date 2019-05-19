@@ -203,6 +203,16 @@ class TravelGroup(object):
         self.travel_list = travellist
         self.user_id = user_id
 
+    @classmethod
+    def new_travelgroup(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
+        # mod_user.check_user_existance(user_id)
+        user = mod_user.get_user_instance_by_id(user_id)
+        travel_group = db_travel.TravelGroup.objects.create(
+            travel_group_name=travel_group_name, travel_group_note=travel_group_note, travel_group_color=travel_group_color)
+        db_travel.TravelGroupOwnership.objects.create(
+            travel_group_id=travel_group, user_id=user)
+        return cls(user_id, travel_group)
+
     def add_travel(self, travel_id):
         try:
             travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
@@ -242,8 +252,14 @@ class TravelGroup(object):
     def get_travel_group_id(self):
         return self.travelgroup_dbobj.travel_group_id
 
+    def get_travel_group_name(self):
+        return self.travelgroup_dbobj.travel_group_name
+
     def get_travel_group_note(self):
         return self.travelgroup_dbobj.travel_group_note
+
+    def get_travel_group_color(self):
+        return self.travelgroup_dbobj.travel_group_color
 
     def get_travel_list(self):
         '''
@@ -251,8 +267,18 @@ class TravelGroup(object):
         '''
         return self.travel_list
 
+    def set_travel_group_name(self, name):
+        self.travelgroup_dbobj.travel_group_name = name
+        self.travelgroup_dbobj.save()
+        return 0
+
     def set_travel_group_note(self, note):
         self.travelgroup_dbobj.travel_group_note = note
+        self.travelgroup_dbobj.save()
+        return 0
+
+    def set_travel_group_color(self, color):
+        self.travelgroup_dbobj.travel_group_color = color
         self.travelgroup_dbobj.save()
         return 0
 
@@ -270,3 +296,11 @@ def get_travel_group_instance_by_id(travel_group_id):
             f'Travel Group (ID={travel_group_id}) does not exist.')
     # check_travel_group_existance(user_id)
     return db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
+
+
+def get_travel_instance_by_id(travel_id):
+    try:
+        travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
+    except ObjectDoesNotExist:
+        raise TravelDoesNotExistException(
+            f"Travel (ID={travel_id}) does not exist.")
