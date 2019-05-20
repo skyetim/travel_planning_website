@@ -87,8 +87,9 @@ class User(object):
     # 和类图定义不一致
 
     def add_friend(self, friend_user_id, friend_user_note):
-
-        pass
+        fr = FriendInfo.new_friendinfo(user_id=self.get_user_id(
+        ), friend_user_id=friend_user_id, friend_user_note=friend_user_note)
+        self.friend_info_list.append(fr)
 
     def remove_friend(self, friend_user_id):
         friend_exist = False
@@ -102,8 +103,8 @@ class User(object):
                 f"User (ID={self.get_user_id()}) doesn't have friendship with User (ID={friend_user_id})")
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
-        tg = mod_travel.TravelGroup.new_travelgroup(
-            travel_group_name=travel_group_name, travel_group_note=travel_group_note, travel_group_color=travel_group_color)
+        tg = mod_travel.TravelGroup.new_travelgroup(user_id=self.get_user_id(
+        ), travel_group_name=travel_group_name, travel_group_note=travel_group_note, travel_group_color=travel_group_color)
         self.travel_group_list.append(tg)
 
     def remove_travel_group(self, travel_group_id):
@@ -124,21 +125,19 @@ class User(object):
                 f'User (Email={email}) already exists, try to login.')
         resident_city = mod_city.get_city_instance_by_id(
             city_id=resident_city_id)
-        user = db_user.User.objects.create(email=email,
-                                           pswd_hash=pswd_hash)
-        user_info = db_user.UserInfo.objects.create(
+        user = db_user.User(email=email, pswd_hash=pswd_hash)
+        user.save()
+
+        user_info = db_user.UserInfo(
             user_id=user, user_name=user_name, gender=gender, resident_city_id=resident_city)
+        user_info.save()
         return cls(email=email, pswd_hash=pswd_hash)
 
 
 class UserInfoBase(object):
     def __init__(self, user_id):
-        try:
-            user_info = db_user.UserInfo.objects.get(user_id=user_id)
-        except ObjectDoesNotExist:
-            raise UserDoesNotExistException(
-                f'User (ID={user_id}) does not exist.')
-        self.user_info_dbobj = user_info
+        check_user_existance(user_id=user_id)
+        self.user_info_dbobj = db_user.UserInfo.objects.get(user_id=user_id)
 
     def get_user_id(self):
         return self.user_info_dbobj.user_id
@@ -155,77 +154,58 @@ class UserInfoBase(object):
 
 class UserInfo(UserInfoBase):
     def set_user_name(self, user_name):
-        try:
-            self.user_info_dbobj.user_name = user_name
-            self.user_info_dbobj.save()
-            return 0
-        except Exception as e:
-            raise e
-            return 1
+        self.user_info_dbobj.user_name = user_name
+        self.user_info_dbobj.save()
 
     def set_gender(self, gender):
         if gender not in (db_user.UserInfo.MALE,
                           db_user.UserInfo.FEMALE,
                           db_user.UserInfo.UNKNOWN):
             gender = db_user.UserInfo.OTHER
-        try:
-            self.user_info_dbobj.gender = gender
-            self.user_info_dbobj.save()
-            return 0
-        except Exception as e:
-            raise e
-            return 1
+        self.user_info_dbobj.gender = gender
+        self.user_info_dbobj.save()
 
     def set_resident_city_id(self, city_id):
-        try:
-            city = mod_city.get_city_instance_by_id(city_id=city_id)
-            self.user_info_dbobj.resident_city_id = city
-            self.user_info_dbobj.save()
-            return 0
-        except Exception as e:
-            raise e
-            return 1
+        city = mod_city.get_city_instance_by_id(city_id=city_id)
+        self.user_info_dbobj.resident_city_id = city
+        self.user_info_dbobj.save()
 
 
 class FriendInfo(UserInfoBase):
     def __init__(self, user_id, friend_user_id):
-        try:
-            self.friend_relation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
-                                                                            friend_user_id=friend_user_id)
-        except ObjectDoesNotExist:
-            raise FriendDoesNotExistException(f'Friend relation between '
-                                              f'user (ID={user_id}) and user (ID={friend_user_id})'
-                                              f' does not exist.')
+        check_friendship_existance(
+            user_id=user_id, friend_user_id=friend_user_id)
+        self.friend_relation_dbobj = db_user.FriendRelation.objects.get(
+            user_id=user_id, friend_user_id=friend_user_id)
+        self.self_user_id = user_id
         super().__init__(user_id=friend_user_id)
 
     def get_user_note(self):
         return self.friend_relation_dbobj.friend_user_note
 
     def set_user_note(self, user_note):
-        try:
-            self.friend_relation_dbobj.friend_user_note = user_note
-            self.friend_relation_dbobj.save()
-            return 0
-        except Exception as e:
-            raise e
-            return 1
+        self.friend_relation_dbobj.friend_user_note = user_note
+        self.friend_relation_dbobj.save()
 
     def delete(self):
-        pass
-    
+        self.friend_relation_dbobj.delete()
+
     @classmethod
-    def new_friendinfo(cls,user_id,friend_user_id,friend_user_note):
-        pass
+    def new_friendinfo(cls, user_id, friend_user_id, friend_user_note):
+        check_user_existance(friend_user_id)
+        check_friendship_existance(user_id, friend_user_id, existance="N")
+        db_user.FriendRelation.objects.create(
+            user_id=user_id, friend_user_id=friend_user_id, friend_user_note=friend_user_note)
+        return cls(user_id=user_id, friend_user_id=friend_user_id)
 
-
-
-pswd_hash_pattern = r"[0-9A-Fa-f]{32}$"
+# Static Methods
 
 
 def check_pswd_hash_format(pswd_hash):
+    pswd_hash_pattern = r"[0-9A-Fa-f]{32}$"
     if re.match(pattern=pswd_hash_pattern, string=pswd_hash, flags=re.I) == None:
         raise IllegalPswdHashFormat(
-            f"Illegal Password Pattern: should be like {pswd_has_pattern}(regex expression).")
+            f"Illegal Password Pattern: should be like {pswd_hash_pattern}(regex expression).")
 
 
 def check_user_existance(user_id, existance="Y"):
@@ -241,6 +221,18 @@ def check_user_existance(user_id, existance="Y"):
         if db_user.User.objects.filter(user_id=user_id).exists():
             raise UserAlreadyExistsException(
                 f'User (ID={user_id}) already exist.')
+    return 0
+
+
+def check_friendship_existance(user_id, friend_user_id, existance="Y"):
+    if existance == "Y":
+        if not db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists():
+            raise FriendDoesNotExistException(
+                f'The friendship between User (ID={user_id}) and User (ID={friend_user_id}) doesn\'t exist')
+    else:
+        if db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists():
+            raise FriendAlreadyExistsException(
+                f'The friendship between User (ID={user_id}) and User (ID={friend_user_id}) already exists.')
     return 0
 
 

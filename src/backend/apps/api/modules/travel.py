@@ -47,6 +47,9 @@ class Travel(object):
 
         return cls(user_id=user_id, travel_id=travel_id)
 
+    def delete(self):
+        self.travel_dbobj.delete()
+
     def add_company(self, company_user_id):
         cuser = mod_user.get_user_instance_by_id(company_user_id)
         if db_travel.TravelAssociation.objects.filter(company_user_id=cuser, travel_id=self.travel_dbobj).exists():
@@ -57,7 +60,7 @@ class Travel(object):
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
             travel_id=self.travel_dbobj)
 
-    def remove_company(self, user_id):
+    def remove_company(self, user_id, company_user_id):
         cuser = mod_user.get_user_instance_by_id(company_user_id)
         if not db_travel.TravelAssociation.objects.filter(company_user_id=cuser, travel_id=self.travel_dbobj).exists():
             raise TravelAssociationDoesNotExist(
@@ -111,13 +114,11 @@ class TravelInfo(object):
 
     @classmethod
     def new_travelinfo(cls, user_id, travel_note, city_id, date_start, date_end, visbility):
-        if not db_user.User.objects.filter(user_id=user_id).exists():
-            raise UserDoesNotExistException(
-                f'User (ID={user_id}) does not exist.')
+        mod_user.check_user_existance(user_id=user_id)
         city = mod_city.get_city_instance_by_id(city_id)
         try:
             dstart, dend = ddate(date_start), ddate(date_end)
-        except Exception as e:
+        except Exception:
             raise DateFormatError("Date Format Error.")
         if dstart >= dend:
             raise DateStartLaterThanDateEndError(
@@ -198,14 +199,6 @@ class TravelInfo(object):
         self.travelinfo_dbobj.save()
 
 
-def check_visibility(visibility):
-    assert type(visibility) == str
-    v = visibility.upper()
-    if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
-        raise VisibilityError(f"Visibility {visibility} is illegal.")
-    return v
-
-
 class TravelGroup(object):
     def __init__(self, user_id, travel_group_id):
         if not db_user.User.objects.filter(user_id=user_id).exists():
@@ -227,11 +220,12 @@ class TravelGroup(object):
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(
                 f"Travel Grouping (ID={travel_group_id}) does not exist.")
-
-        # 是否应该判断这个travel_group_id是否属于user_id？
+        self.travel_list = []
+        for t in travellist:
+            self.travel_list.append(
+                Travel(user_id=user_id, travel_id=t.travel_id))
 
         self.travelgroup_dbobj = travelgroup
-        self.travel_list = travellist
         self.user_id = user_id
 
     @classmethod
@@ -243,43 +237,39 @@ class TravelGroup(object):
         db_travel.TravelGroupOwnership.objects.create(
             travel_group_id=travel_group, user_id=user)
         return cls(user_id, travel_group)
-    
-    #删除应该交给每个自己的类
-    def delete(self):
-        pass
-        
-    def add_travel(self, travel_id):
-        try:
-            travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
-        except ObjectDoesNotExist:
-            raise TravelDoesNotExistException(
-                f"Travel (ID={travel_id}) does not exist.")
 
+    def delete(self):
+        self.travelgroup_dbobj.delete()
+
+    def add_travel(self, travel_id):
+        check_travel_existance(travel_id=travel_id)
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
             raise TravelAlreadyExistsInTravelGroup(
                 f'Travel (ID={travel_id}) already exists in the travelgrouping database.')
+        t = get_travel_instance_by_id(travel_id=travel_id)
+        db_travel.TravelGrouping.objects.create(
+            travel_id=t, travel_group_id=self.travelgroup_dbobj)
+        self.travel_list.append(
+            Travel(user_id=self.get_user_id(), travel_id=travel_id))
 
-        try:
-            tg = db_travel.TravelGrouping(
-                travel_id=travelinfo, travel_group_id=self.travelgroup_dbobj)
-            tg.save()
-            return 0
-        except Exception as e:
-            raise e
-            return 1
+    def add_new_travel(self, travel_note, city_id, date_start, date_end, visibility, company_user_id_list):
+        t = Travel.new_travel(user_id=self.get_user_id(), travel_group_id=self.get_travel_group_id(
+        ), travel_note=travel_note, city_id=city_id, date_start=date_start, date_end=date_end, visibility=visibility, company_user_id_list=company_user_id_list)
+        self.travel_list.append(t)
 
     def remove_travel(self, travel_id):
-        try:
-            tg = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
-            tg.delete()
-            return 0
-        except ObjectDoesNotExist:
-            raise TravelDoesNotExistInTravelGroup(
-                f'Travel (ID={travel_id}) doesn\'t exist in the travelgrouping database.')
-            return 1
-        except Exception as e:
-            raise e
-            return 2
+        t = self.get_travel_object_in_group(travel_id)
+        t.delete()
+        self.travel_list.remove(t)
+
+    def travel_move_to_other_group(self, travel_id, other_travel_group_id):
+        t = self.get_travel_object_in_group(travel_id)
+        t.move_to_travel_group(other_travel_group_id)
+
+    def travel_move_to_new_group(self, travel_id, travel_group_name, travel_group_note, travel_group_color):
+        t = self.get_travel_object_in_group(travel_id)
+        t.move_to_new_travel_group(
+            travel_group_name, travel_group_note, travel_group_color)
 
     def get_user_id(self):
         return self.user_id
@@ -297,32 +287,44 @@ class TravelGroup(object):
         return self.travelgroup_dbobj.travel_group_color
 
     def get_travel_list(self):
-        '''
-        Return the QuerySet of Model TravelGrouping.
-        '''
         return self.travel_list
 
     def set_travel_group_name(self, name):
         self.travelgroup_dbobj.travel_group_name = name
         self.travelgroup_dbobj.save()
-        return 0
 
     def set_travel_group_note(self, note):
         self.travelgroup_dbobj.travel_group_note = note
         self.travelgroup_dbobj.save()
-        return 0
 
     def set_travel_group_color(self, color):
         self.travelgroup_dbobj.travel_group_color = color
         self.travelgroup_dbobj.save()
-        return 0
+
+    def get_travel_object_in_group(self, travel_id):
+        travel_exist = False
+        for t in self.travel_list:
+            if t.get_travel_id() == travel_id:
+                travel_exist = True
+                return t
+        if not travel_exist:
+            raise TravelDoesNotExistInTravelGroup(
+                f"TravelGroup (ID={self.get_travel_group_id()}) doesn't have the Travel (ID={travel_id}).")
+
+
+# Static Methods
+def check_visibility(visibility):
+    assert type(visibility) == str
+    v = visibility.upper()
+    if not v in (db_travel.Travel.ONLY_ME, db_travel.Travel.FRIEND, db_travel.Travel.PUBLIC):
+        raise VisibilityError(f"Visibility {visibility} is illegal.")
+    return v
 
 
 def check_travel_existance(travel_id):
     if not db_travel.Travel.objects.filter(travel_id=travel_id).exists():
         raise TravelDoesNotExistException(
             f'Travel (ID={travel_id}) does not exist.')
-    return 0
 
 
 def get_travel_group_instance_by_id(travel_group_id):
@@ -339,3 +341,4 @@ def get_travel_instance_by_id(travel_id):
     except ObjectDoesNotExist:
         raise TravelDoesNotExistException(
             f"Travel (ID={travel_id}) does not exist.")
+    return travelinfo

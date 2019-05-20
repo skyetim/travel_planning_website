@@ -80,3 +80,6 @@ class TravelAssociationDoesNotExist(BackendBaseException):
 
 class IllegalPswdHashFormat(BackendBaseException):
     CODE = 21
+
+class FriendAlreadyExistsException(UserDoesNotExistException):
+    CODE = 22
