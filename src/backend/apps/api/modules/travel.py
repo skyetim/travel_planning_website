@@ -220,6 +220,7 @@ class TravelGroup(object):
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(
                 f"Travel Group (ID={travel_group_id}) does not exist.")
+        # 这里不对 应该是返回一个List of Travel 而不是返回数据库对象
         try:
             travellist = db_travel.TravelGrouping.objects.filter(
                 travel_group_id=travel_group_id)
@@ -242,7 +243,11 @@ class TravelGroup(object):
         db_travel.TravelGroupOwnership.objects.create(
             travel_group_id=travel_group, user_id=user)
         return cls(user_id, travel_group)
-
+    
+    #删除应该交给每个自己的类
+    def delete(self):
+        pass
+        
     def add_travel(self, travel_id):
         try:
             travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)

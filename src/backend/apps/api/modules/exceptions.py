@@ -74,5 +74,9 @@ class TravelAssociationAlreadyExist(BackendBaseException):
     CODE = 19
 
 
-class TravelAssociationDoseNotExist(BackendBaseException):
+class TravelAssociationDoesNotExist(BackendBaseException):
     CODE = 20
+
+
+class IllegalPswdHashFormat(BackendBaseException):
+    CODE = 21
