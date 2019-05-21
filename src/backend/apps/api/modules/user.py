@@ -30,7 +30,7 @@ class User(object):
 
         self.travel_group_list = []
         if db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id()).exists():
-            travel_group = db_travel.db_travel.TravelGroupOwnership.objects.filter(
+            travel_group = db_travel.db_travel.TravelGroupOwnership.objects.filter( #多了一个db_travel？
                 user_id=self.get_user_id())
             for tg_dbobj in travel_group:
                 self.travel_group_list.append(mod_travel.TravelGroup(

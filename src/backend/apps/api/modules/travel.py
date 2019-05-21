@@ -29,7 +29,8 @@ class Travel(object):
         self.travel_dbobj = db_travel.Travel.objects.get(travel_id=travel_id)
         self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(
-            travel_id=self.travel_dbobj)
+            travel_id=self.travel_dbobj)#掉了id？
+            
 
     @classmethod
     def new_travel(cls, user_id, travel_group_id, travel_note, city_id, date_start, date_end, visibility, company_user_id_list):
