@@ -54,6 +54,7 @@ class UserInfo(models.Model):
                                          to_field='city_id',
                                          related_name='U_UI_residentcityid',
                                          on_delete=models.PROTECT)
+    register_date = models.DateField(auto_now_add=True)
 
     class Meta:
         indexes = [
@@ -95,6 +96,7 @@ class UserSession(models.Model):
     session_id = models.UUIDField(default=uuid.uuid4,
                                   editable=False,
                                   unique=True)
+    last_action_time = models.DateTimeField(auto_now=True)
 
     class Meta:
         indexes = [

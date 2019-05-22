@@ -1,5 +1,7 @@
 from functools import wraps
 
+import datetime as dt
+
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
@@ -22,6 +24,8 @@ __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 request_method_list = ['GET', 'POST']
 
 logged_in_users = {}
+
+SESSION_TIMEOUT = dt.timedelta(minutes=10)
 
 
 def prepare_request_data(func):
@@ -76,12 +80,15 @@ def check_token(func):
         user_id = request_data['user_id'],
         session_id = request_data['session_id']
         try:
-            db_user.UserSession.objects.get(user_id=user_id,
-                                            session_id=session_id)
+            user_session = db_user.UserSession.objects.get(user_id=user_id,
+                                                           session_id=session_id)
         except db_user.UserSession.DoesNotExist:
             db_user.UserSession.objects.filter(user_id=user_id).delete()
             raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match.')
         else:
+            if user_session.last_action_time < dt.datetime.now() - SESSION_TIMEOUT:
+                raise UserSessionTimeoutException('User (ID={user_id}) has no action for 10 minutes, log out.')
+            user_session.save()
             return func(request_data=request_data)
 
     return ck_wrapper
