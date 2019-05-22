@@ -19,8 +19,7 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class FriendRelationSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRelation
-        fields = ['user_id',
-                  'friend_user_id',
+        fields = ['friend_user_id',
                   'friend_note']
 
 

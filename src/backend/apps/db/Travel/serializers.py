@@ -7,7 +7,7 @@ from apps.db.Travel.models import TravelGroupOwnership, TravelGroup, TravelGroup
 class TravelAssociationSerializer(serializers.ModelSerializer):
     class Meta:
         model = TravelAssociation
-        fields = ['travel_id', 'company_user_id']
+        fields = ['company_user_id']
 
 
 class TravelSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class TravelGroupingSerializer(serializers.ModelSerializer):
 
 
 class TravelGroupSerializer(serializers.ModelSerializer):
-    travel_grouping = TravelGroupingSerializer('T_TG_travelgroupid', many=True, read_only=True)
+    travels = TravelGroupingSerializer('T_TG_travelgroupid', many=True, read_only=True)
 
     class Meta:
         model = TravelGroup
@@ -41,12 +41,12 @@ class TravelGroupSerializer(serializers.ModelSerializer):
                   'travel_group_name',
                   'travel_group_note',
                   'travel_group_color',
-                  'travel_grouping']
+                  'travels']
 
 
 class GroupOwnershipSerializer(serializers.ModelSerializer):
-    travel_group = TravelGroupSerializer(source='travel_group_id', many=True, read_only=True)
+    travel_group = TravelGroupSerializer(source='travel_group_id', many=False, read_only=True)
 
     class Meta:
         model = TravelGroupOwnership
-        fields = ['user_id', 'travel_group']
+        fields = ['travel_group']
