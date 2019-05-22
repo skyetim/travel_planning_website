@@ -189,6 +189,16 @@ class FriendInfo(UserInfoBase):
 
     def delete(self):
         self.friend_relation_dbobj.delete()
+    
+    def get_travel_group_list(self):
+        '''
+            Return a list of apps.api.modules.travel.TravelGroup Objects.
+        '''
+        tgl=[]
+        
+        return tgl
+        
+        # To be finished 
 
     @classmethod
     def new_friendinfo(cls, user_id, friend_user_id, friend_user_note):
