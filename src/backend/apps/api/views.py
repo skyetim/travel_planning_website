@@ -299,7 +299,7 @@ def user_detail(request, user_id):
     Retrieve a user.
     """
     try:
-        user = db_user.User.objects.get(city_id=user_id)
+        user = db_user.User.objects.get(user_id=user_id)
     except db_user.User.DoesNotExist:
         raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
 
