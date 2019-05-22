@@ -1,6 +1,5 @@
-from functools import wraps
-
 import datetime as dt
+from functools import wraps
 
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -11,6 +10,8 @@ import apps.api.modules.city as mod_city
 import apps.api.modules.user as mod_user
 import apps.db.City.models as db_city
 import apps.db.City.serializers as srl_city
+import apps.db.Travel.models as db_travel
+import apps.db.Travel.serializers as srl_travel
 import apps.db.User.models as db_user
 import apps.db.User.serializers as srl_user
 from apps.api.modules.exceptions import *
@@ -304,5 +305,77 @@ def user_detail(request, user_id):
         raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
 
     serializer = srl_user.UserSerializer(user)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_group_list(request):
+    """
+    List all travel groups.
+    """
+
+    travel_groups = db_travel.TravelGroup.objects.all()
+    serializer = srl_travel.TravelGroupSerializer(travel_groups, many=True)
+    response = {
+        'count': len(serializer.data),
+        'travel_group_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_group_detail(request, travel_group_id):
+    """
+    Retrieve a travel group.
+    """
+    try:
+        travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
+    except db_travel.TravelGroup.DoesNotExist:
+        raise TravelGroupDoseNotExistException(f'Travel group (ID={travel_group_id}) does not exist.')
+
+    serializer = srl_travel.TravelGroupSerializer(travel_group)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_list(request):
+    """
+    List all travels.
+    """
+
+    travels = db_travel.Travel.objects.all()
+    serializer = srl_travel.TravelSerializer(travels, many=True)
+    response = {
+        'count': len(serializer.data),
+        'travel_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_detail(request, travel_id):
+    """
+    Retrieve a travel.
+    """
+    try:
+        travel = db_travel.Travel.objects.get(travel_id=travel_id)
+    except db_travel.Travel.DoesNotExist:
+        raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
+
+    serializer = srl_travel.TravelSerializer(travel)
     response = serializer.data
     return response
