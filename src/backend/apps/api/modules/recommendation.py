@@ -10,7 +10,7 @@ import apps.api.modules.user as mod_user
 from apss.api.modules.exceptions import *
 
 def recommend(user_id):
-    mod_user.check_user_existance(user_id)
+    mod_user.check_user_existence(user_id)
 
     user_ob = db_user.User.objects.get(user_id=user_id)
     user = mod_user.User(email=user_ob.email, pswd_hash=user_ob.pswd_hash)
@@ -30,6 +30,3 @@ def recommend(user_id):
         for travel in travel_list:
             company_list = travel.get_company_list() # actually user_id_list, database object
             travel_info = travel.get_travel_info() # TravelInfo Object
-
-
-

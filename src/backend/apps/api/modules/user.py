@@ -16,37 +16,40 @@ def check_pswd_hash_format(pswd_hash):
                 f"Illegal Password Pattern: should be like {pswd_hash_pattern}(regex expression).")
 
 
-def check_user_existance(user_id, existance="Y"):
-    '''
-        Check the existance of user_id in the database user.User. Raise exceptions when the target user_id exists (or not).
-            :param: existance, "Y" checks user_id in the database; "N" checks user_id not in the database.
-    '''
-    if existance == "Y":
+def check_user_existence(user_id, existence="Y"):
+    """
+    Check the existence of user_id in the database user.User. Raise exceptions when the target user_id exists (or not).
+        :param: existence, "Y" checks user_id in the database; "N" checks user_id not in the database.
+    """
+    if existence == "Y":
         if not db_user.User.objects.filter(user_id=user_id).exists():
-            raise UserDoesNotExistException(
-                    f'User (ID={user_id}) does not exist.')
+            raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
     else:
         if db_user.User.objects.filter(user_id=user_id).exists():
-            raise UserAlreadyExistsException(
-                    f'User (ID={user_id}) already exist.')
+            raise UserAlreadyExistsException(f'User (ID={user_id}) already exist.')
     return 0
 
 
-def check_friendship_existance(user_id, friend_user_id, existance="Y"):
-    if existance == "Y":
+def check_friendship_existence(user_id, friend_user_id, existence="Y"):
+    if existence == "Y":
         if not db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists():
-            raise FriendDoesNotExistException(
-                    f'The friendship between User (ID={user_id}) and User (ID={friend_user_id}) doesn\'t exist')
+            raise FriendDoesNotExistException(f'The friendship between '
+                                              f'User (ID={user_id}) and User (ID={friend_user_id})'
+                                              f' does not exist')
     else:
         if db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists():
-            raise FriendAlreadyExistsException(
-                    f'The friendship between User (ID={user_id}) and User (ID={friend_user_id}) already exists.')
+            raise FriendAlreadyExistsException(f'The friendship between '
+                                               f'User (ID={user_id}) and User (ID={friend_user_id})'
+                                               f' already exists.')
     return 0
 
 
 def get_user_instance_by_id(user_id):
-    check_user_existance(user_id)
+    check_user_existence(user_id)
     return db_user.User.objects.get(user_id=user_id)
+
+
+from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 
 
 class User(object):
@@ -56,8 +59,7 @@ class User(object):
             if user.pswd_hash != pswd_hash:
                 raise WrongPasswordException('Wrong password.')
         except ObjectDoesNotExist:
-            raise UserDoesNotExistException(
-                    f'User (Email={email}) does not exist.')
+            raise UserDoesNotExistException(f'User (Email={email}) does not exist.')
 
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
 
@@ -67,23 +69,19 @@ class User(object):
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
-        from apps.api.modules.travel import TravelGroup
-
         self.travel_group_list = []
         if db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id()).exists():
-            travel_group = db_travel.db_travel.TravelGroupOwnership.objects.filter(  # 多了一个db_travel？
-                    user_id=self.get_user_id())
+            travel_group = db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id())
             for tg_dbobj in travel_group:
-                self.travel_group_list.append(TravelGroup(
-                        user_id=self.get_user_id, travel_group_id=tg_dbobj.travel_group_id))
+                self.travel_group_list.append(mod_travel_TravelGroup(user_id=self.get_user_id,
+                                                                     travel_group_id=tg_dbobj.travel_group_id))
 
         self.friend_info_list = []
         if db_user.FriendRelation.objects.filter(user_id=self.get_user_id()).exists():
-            friend_relation = db_user.FriendRelation.objects.filter(
-                    user_id=self.get_user_id())
+            friend_relation = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
             for fr_dbobj in friend_relation:
-                self.friend_info_list.append(FriendInfo(
-                        user_id=self.get_user_id(), friend_user_id=fr_dbobj.friend_user_id))
+                self.friend_info_list.append(FriendInfo(user_id=self.get_user_id(),
+                                                        friend_user_id=fr_dbobj.friend_user_id))
 
     def get_user_id(self):
         return self.user_dbobj.user_id
@@ -115,8 +113,9 @@ class User(object):
                 friend_exist = True
                 fr.set_user_note(friend_user_note)
         if not friend_exist:
-            raise FriendDoesNotExistException(
-                    f"User (ID={self.get_user_id()}) doesn't have friendship with User (ID={friend_user_id})")
+            raise FriendDoesNotExistException(f'User (ID={self.get_user_id()})'
+                                              f' does not have friendship with '
+                                              f'User (ID={friend_user_id})')
 
     def reset_password(self, old_pswd_hash, new_pswd_hash):
         if self.user_dbobj.pswd_hash != old_pswd_hash:
@@ -128,7 +127,7 @@ class User(object):
     # 和类图定义不一致
 
     def add_friend(self, friend_user_id, friend_user_note):
-        fr = FriendInfo.new_friendinfo(user_id=self.get_user_id(
+        fr = FriendInfo.new_friend_info(user_id=self.get_user_id(
         ), friend_user_id=friend_user_id, friend_user_note=friend_user_note)
         self.friend_info_list.append(fr)
 
@@ -140,12 +139,13 @@ class User(object):
                 fr.delete()
                 self.friend_info_list.remove(fr)
         if not friend_exist:
-            raise FriendDoesNotExistException(
-                    f"User (ID={self.get_user_id()}) doesn't have friendship with User (ID={friend_user_id})")
+            raise FriendDoesNotExistException(f"User (ID={self.get_user_id()}) doesn't have friendship with User (ID={friend_user_id})")
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
-        tg = mod_travel_TravelGroup.new_travelgroup(user_id=self.get_user_id(
-        ), travel_group_name=travel_group_name, travel_group_note=travel_group_note, travel_group_color=travel_group_color)
+        tg = mod_travel_TravelGroup.new_travelgroup(user_id=self.get_user_id(),
+                                                    travel_group_name=travel_group_name,
+                                                    travel_group_note=travel_group_note,
+                                                    travel_group_color=travel_group_color)
         self.travel_group_list.append(tg)
 
     def remove_travel_group(self, travel_group_id):
@@ -156,28 +156,30 @@ class User(object):
                 tg.delete()
                 self.travel_group_list.remove(tg)
         if not travel_group_exist:
-            raise TravelGroupDoseNotExistException(
-                    f"User (ID={self.get_user_id()}) doesn't have the Travel Group (ID={travel_group_id})")
+            raise TravelGroupDoseNotExistException(f'User (ID={self.get_user_id()})'
+                                                   f' does not have the Travel Group '
+                                                   f'(ID={travel_group_id})')
 
     @classmethod
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):
         if db_user.User.objects.filter(email=email).exists():
-            raise UserAlreadyExistsException(
-                    f'User (Email={email}) already exists, try to login.')
+            raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
         resident_city = mod_city.get_city_instance_by_id(
                 city_id=resident_city_id)
         user = db_user.User(email=email, pswd_hash=pswd_hash)
         user.save()
 
-        user_info = db_user.UserInfo(
-                user_id=user, user_name=user_name, gender=gender, resident_city_id=resident_city)
+        user_info = db_user.UserInfo(user_id=user,
+                                     user_name=user_name,
+                                     gender=gender,
+                                     resident_city_id=resident_city)
         user_info.save()
         return cls(email=email, pswd_hash=pswd_hash)
 
 
 class UserInfoBase(object):
     def __init__(self, user_id):
-        check_user_existance(user_id=user_id)
+        check_user_existence(user_id=user_id)
         self.user_info_dbobj = db_user.UserInfo.objects.get(user_id=user_id)
 
     def get_user_id(self):
@@ -214,10 +216,10 @@ class UserInfo(UserInfoBase):
 
 class FriendInfo(UserInfoBase):
     def __init__(self, user_id, friend_user_id):
-        check_friendship_existance(
-                user_id=user_id, friend_user_id=friend_user_id)
-        self.friend_relation_dbobj = db_user.FriendRelation.objects.get(
-                user_id=user_id, friend_user_id=friend_user_id)
+        check_friendship_existence(user_id=user_id,
+                                   friend_user_id=friend_user_id)
+        self.friend_relation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
+                                                                        friend_user_id=friend_user_id)
         self.self_user_id = user_id
         super().__init__(user_id=friend_user_id)
 
@@ -232,9 +234,9 @@ class FriendInfo(UserInfoBase):
         self.friend_relation_dbobj.delete()
 
     def get_travel_group_list(self):
-        '''
-            Return a list of apps.api.modules.travel.TravelGroup Objects.
-        '''
+        """
+        Return a list of apps.api.modules.travel.TravelGroup Objects.
+        """
         tgl = []
 
         return tgl
@@ -242,9 +244,9 @@ class FriendInfo(UserInfoBase):
         # To be finished
 
     @classmethod
-    def new_friendinfo(cls, user_id, friend_user_id, friend_user_note):
-        check_user_existance(friend_user_id)
-        check_friendship_existance(user_id, friend_user_id, existance="N")
+    def new_friend_info(cls, user_id, friend_user_id, friend_user_note):
+        check_user_existence(friend_user_id)
+        check_friendship_existence(user_id, friend_user_id, existence="N")
         db_user.FriendRelation.objects.create(
                 user_id=user_id, friend_user_id=friend_user_id, friend_user_note=friend_user_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
