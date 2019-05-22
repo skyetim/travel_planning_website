@@ -106,12 +106,12 @@ class User(object):
         self.user_dbobj.save()
         return self.user_dbobj.email
 
-    def set_friend_note(self, friend_user_id, friend_user_note):
+    def set_friend_note(self, friend_user_id, friend_note):
         friend_exist = False
         for fr in self.friend_info_list:
             if fr.get_user_id() == friend_user_id:
                 friend_exist = True
-                fr.set_user_note(friend_user_note)
+                fr.set_user_note(friend_note)
         if not friend_exist:
             raise FriendDoesNotExistException(f'User (ID={self.get_user_id()})'
                                               f' does not have friendship with '
@@ -126,9 +126,9 @@ class User(object):
 
     # 和类图定义不一致
 
-    def add_friend(self, friend_user_id, friend_user_note):
+    def add_friend(self, friend_user_id, friend_note):
         fr = FriendInfo.new_friend_info(user_id=self.get_user_id(
-        ), friend_user_id=friend_user_id, friend_user_note=friend_user_note)
+        ), friend_user_id=friend_user_id, friend_note=friend_note)
         self.friend_info_list.append(fr)
 
     def remove_friend(self, friend_user_id):
@@ -224,10 +224,10 @@ class FriendInfo(UserInfoBase):
         super().__init__(user_id=friend_user_id)
 
     def get_user_note(self):
-        return self.friend_relation_dbobj.friend_user_note
+        return self.friend_relation_dbobj.friend_note
 
     def set_user_note(self, user_note):
-        self.friend_relation_dbobj.friend_user_note = user_note
+        self.friend_relation_dbobj.friend_note = user_note
         self.friend_relation_dbobj.save()
 
     def delete(self):
@@ -244,9 +244,9 @@ class FriendInfo(UserInfoBase):
         # To be finished
 
     @classmethod
-    def new_friend_info(cls, user_id, friend_user_id, friend_user_note):
+    def new_friend_info(cls, user_id, friend_user_id, friend_note):
         check_user_existence(friend_user_id)
         check_friendship_existence(user_id, friend_user_id, existence="N")
         db_user.FriendRelation.objects.create(
-                user_id=user_id, friend_user_id=friend_user_id, friend_user_note=friend_user_note)
+                user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)

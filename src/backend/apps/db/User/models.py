@@ -73,7 +73,7 @@ class FriendRelation(models.Model):
                                        to_field='user_id',
                                        related_name='U_FR_frienduserid',
                                        on_delete=models.CASCADE)
-    friend_user_note = models.CharField(max_length=20,
+    friend_note = models.CharField(max_length=20,
                                         null=False,
                                         editable=True)
 

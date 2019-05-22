@@ -21,7 +21,7 @@ class FriendRelationSerializer(serializers.ModelSerializer):
         model = FriendRelation
         fields = ['user_id',
                   'friend_user_id',
-                  'friend_user_note']
+                  'friend_note']
 
 
 class UserSerializer(serializers.ModelSerializer):
