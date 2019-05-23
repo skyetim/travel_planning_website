@@ -6,7 +6,6 @@ import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
 from apps.api.modules.exceptions import *
-from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 
 
 # Static Methods
@@ -46,6 +45,9 @@ def check_friendship_existence(user_id, friend_user_id, need_existence=True):
 def get_user_instance_by_id(user_id):
     check_user_existence(user_id=user_id)
     return db_user.User.objects.get(user_id=user_id)
+
+
+from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 
 
 class User(object):
