@@ -92,7 +92,7 @@ class User(object):
     def get_friend_info_list(self):
         return self.friend_info_list
 
-    def get_group_list(self):
+    def get_travel_group_list(self):
         return self.travel_group_list
 
     def get_others_travel_group_list(self, other_user_id):
