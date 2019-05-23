@@ -55,7 +55,7 @@ def get_permission_level(user_id, travel_group_id):
 
 
 class TravelInfo(object):
-    def __init__(self, travel_id, permission_level=db_travel.Travel.PUBLIC):
+    def __init__(self, travel_id, permission_level):
         try:
             travel_info = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
@@ -167,7 +167,7 @@ class TravelInfo(object):
 
 
 class Travel(object):
-    def __init__(self, travel_id, permission_level=db_travel.Travel.PUBLIC):
+    def __init__(self, travel_id, permission_level):
         check_travel_existence(travel_id)
         check_visibility(permission_level)
         self.permission_level = permission_level
