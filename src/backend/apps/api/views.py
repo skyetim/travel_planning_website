@@ -20,8 +20,8 @@ __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
-__all__.extend(['get_travel_group_info', 'set_travel_group_info', 'add_travel_group'])
-__all__.extend(['get_travel_info', 'set_travel_group_info'])
+__all__.extend(['add_travel_group', 'get_travel_group_info', 'set_travel_group_info'])
+__all__.extend(['add_new_travel', 'get_travel_info', 'set_travel_group_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['POST']
@@ -278,6 +278,23 @@ def set_travel_group_info(request_data):
     travel_group.set_travel_group_color(color=request_data['travel_group_color'])
 
     response = {}
+    return response
+
+
+@api(check_tokens=True)
+def add_new_travel(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.add_new_travel(date_start=request_data['date_start'],
+                                date_end=request_data['date_end'],
+                                city_id=request_data['city_id'],
+                                travel_note=request_data['travel_note'],
+                                visibility=request_data['visibility'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
     return response
 
 

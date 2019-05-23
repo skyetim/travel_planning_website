@@ -191,16 +191,12 @@ class Travel(object):
     @classmethod
     def new_travel(cls, user_id, travel_group_id,
                    date_start, date_end, city_id,
-                   visibility, travel_note, company_user_id_list):
+                   visibility, travel_note):
         travel_id = TravelInfo.new_travel_info(user_id, date_start, date_end, city_id,
                                                visibility, travel_note)
         travel_group_id = get_travel_group_instance_by_id(travel_group_id)
         db_travel.TravelGrouping.objects.create(travel_id=travel_id,
                                                 travel_group_id=travel_group_id)
-        for c_user in company_user_id_list:
-            c_user_id = get_user_instance_by_id(c_user)
-            db_travel.TravelAssociation.objects.create(travel_id=travel_id,
-                                                       company_user_id=c_user_id)
 
         return cls(user_id=user_id, travel_id=travel_id)
 
@@ -317,18 +313,18 @@ class TravelGroup(object):
         self.travel_list.append(Travel(user_id=self.get_owner_user_id(),
                                        travel_id=travel_id))
 
-    def add_new_travel(self, travel_note, city_id,
+    def add_new_travel(self,
                        date_start, date_end,
+                       city_id,
                        visibility,
-                       company_user_id_list):
+                       travel_note):
         self.check_permission()
         travel = Travel.new_travel(user_id=self.get_owner_user_id(),
                                    travel_group_id=self.get_travel_group_id(),
                                    date_start=date_start, date_end=date_end,
                                    city_id=city_id,
                                    visibility=visibility,
-                                   travel_note=travel_note,
-                                   company_user_id_list=company_user_id_list)
+                                   travel_note=travel_note)
         self.travel_list.append(travel)
 
     def remove_travel(self, travel_id):
