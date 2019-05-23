@@ -64,13 +64,7 @@ class User(object):
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
-        self.travel_group_list = []
-        travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id())
-        for tg_dbobj in travel_groups:
-            self.travel_group_list.append(
-                mod_travel_TravelGroup(travel_group_id=tg_dbobj.travel_group_id.travel_group_id,
-                                       permission_level=db_travel.Travel.ME)
-            )
+        self.travel_group_list = self.get_others_travel_group_list(others_user_id=self.get_user_id())
 
         self.friend_info_list = []
         friend_relations = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
@@ -95,6 +89,25 @@ class User(object):
 
     def get_group_list(self):
         return self.travel_group_list
+
+    def get_others_travel_group_list(self, others_user_id):
+        if others_user_id == self.get_user_id():
+            permission_level = db_travel.Travel.ME
+        elif db_user.FriendRelation.objects.filter(user_id=self.get_user_id(), friend_user_id=others_user_id).exists():
+            permission_level = db_travel.Travel.FRIEND
+        else:
+            permission_level = db_travel.Travel.PUBLIC
+        travel_group_list = []
+        travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=others_user_id)
+        for tg_dbobj in travel_groups:
+            try:
+                travel_group = mod_travel_TravelGroup(travel_group_id=tg_dbobj.travel_group_id.travel_group_id,
+                                                      permission_level=permission_level)
+                travel_group_list.append(travel_group)
+            except PermissionDeniedException:
+                pass
+
+        return travel_group_list
 
     def set_email(self, email):
         self.user_dbobj.email = email
@@ -157,26 +170,6 @@ class User(object):
             raise TravelGroupDoseNotExistException(f'User (ID={self.get_user_id()})'
                                                    f' does not have the Travel Group '
                                                    f'(ID={travel_group_id})')
-
-    def get_others_travel_group_list(self, other_user_id):
-        if other_user_id = self.get_user_id():
-            return self.get_group_list()
-        is_friend = db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists()
-        if is_friend:
-            permission_level = db_travel.Travel.FRIEND
-        else:
-            permission_level = db_travel.Travel.PUBLIC
-        travel_group_list = []
-        travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=other_user_id)
-        for tg_dbobj in travel_groups:
-            try:
-                travel_group = mod_travel_TravelGroup(travel_group_id=tg_dbobj.travel_group_id.travel_group_id,
-                                                      permission_level=permission_level)
-                travel_group_list.append(travel_group)
-            except PermissionDeniedException:
-                pass
-
-        return travel_group_list
 
     @classmethod
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):

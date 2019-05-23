@@ -260,10 +260,6 @@ class Travel(object):
 
 class TravelGroup(object):
     def __init__(self, travel_group_id, permission_level=db_travel.Travel.PUBLIC):
-        if not db_user.User.objects.filter(user_id=user_id).exists():
-            raise UserDoesNotExistException(f'User (ID={user_id}) does not exist.')
-        if db_travel.TravelGroupOwnership.objects.filter(user_id=user_id, travel_group_id=travel_group_id).exists():
-            permission_level = db_travel.Travel.ME
         try:
             travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
         except ObjectDoesNotExist:
@@ -279,8 +275,7 @@ class TravelGroup(object):
         travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
         for t in travel_list:
             try:
-                self.travel_list.append(Travel(user_id=user_id,
-                                               travel_id=t.travel_id,
+                self.travel_list.append(Travel(travel_id=t.travel_id,
                                                permission_level=permission_level))
             except PermissionDeniedException:
                 pass
@@ -288,7 +283,6 @@ class TravelGroup(object):
             raise PermissionDeniedException(f'No permission to access TravelGroup (ID={self.get_travel_group_id()}).')
 
         self.travel_group_dbobj = travel_group
-        self.user_id = user_id
 
     @classmethod
     def new_travel_group(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
@@ -352,9 +346,6 @@ class TravelGroup(object):
         t.move_to_new_travel_group(travel_group_name,
                                    travel_group_note,
                                    travel_group_color)
-
-    def get_user_id(self):
-        return self.user_id
 
     def get_travel_group_id(self):
         return self.travel_group_dbobj.travel_group_id
