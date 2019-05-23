@@ -4,9 +4,8 @@ from django.core.exceptions import *
 
 import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
-import apps.db.User.models as db_user
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id
+from apps.api.modules.user import get_user_instance_by_id, is_friend
 
 
 # Static Methods
@@ -42,12 +41,11 @@ def get_travel_instance_by_id(travel_id):
 
 
 def get_permission_level(user_id, travel_group_id):
-    user = get_user_instance_by_id(user_id=user_id)
     travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
     ownership = db_travel.TravelGroupOwnership.objects.get(travel_group_id=travel_group)
-    if user.user_id == ownership.user_id.user_id:
+    if user_id == ownership.user_id.user_id:
         permission_level = db_travel.Travel.ME
-    elif db_user.FriendRelation.objects.filter(user_id=user, friend_user_id=ownership.user_id).exists():
+    elif is_friend(user_id=user_id, friend_user_id=ownership.user_id.user_id):
         permission_level = db_travel.Travel.FRIEND
     else:
         permission_level = db_travel.Travel.PUBLIC

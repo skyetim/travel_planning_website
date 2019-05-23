@@ -29,17 +29,20 @@ def check_user_existence(user_id, need_existence=True):
         raise UserAlreadyExistsException(f'User (ID={user_id}) already exist.')
 
 
-def check_friendship_existence(user_id, friend_user_id, need_existence=True):
-    exists = db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists()
-    if need_existence:
-        if not exists:
-            raise FriendDoesNotExistException(f'The friendship between '
-                                              f'User (ID={user_id}) and User (ID={friend_user_id})'
-                                              f' does not exist')
-    elif exists:
-        raise FriendAlreadyExistsException(f'The friendship between '
-                                           f'User (ID={user_id}) and User (ID={friend_user_id})'
-                                           f' already exists.')
+def is_friend(user_id, friend_user_id):
+    return db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists()
+
+
+def check_friend_relation_existence(user_id, friend_user_id, need_existence=True):
+    if is_friend(user_id=user_id, friend_user_id=friend_user_id):
+        if not need_existence:
+            raise FriendAlreadyExistsException(f'The friendship between '
+                                               f'User (ID={user_id}) and User (ID={friend_user_id})'
+                                               f' already exists.')
+    elif need_existence:
+        raise FriendDoesNotExistException(f'The friendship between '
+                                          f'User (ID={user_id}) and User (ID={friend_user_id})'
+                                          f' does not exist')
 
 
 def get_user_instance_by_id(user_id):
@@ -239,7 +242,7 @@ class UserInfo(UserInfoBase):
 
 class FriendInfo(UserInfoBase):
     def __init__(self, user_id, friend_user_id):
-        check_friendship_existence(user_id=user_id, friend_user_id=friend_user_id)
+        check_friend_relation_existence(user_id=user_id, friend_user_id=friend_user_id)
         self.friend_relation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
                                                                         friend_user_id=friend_user_id)
         self.self_user_id = user_id
@@ -268,7 +271,7 @@ class FriendInfo(UserInfoBase):
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
         check_user_existence(friend_user_id)
-        check_friendship_existence(user_id, friend_user_id, need_existence=False)
+        check_friend_relation_existence(user_id, friend_user_id, need_existence=False)
         db_user.FriendRelation.objects.create(
                 user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
