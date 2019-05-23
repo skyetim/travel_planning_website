@@ -22,7 +22,8 @@ __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_info', 'set_travel_group_info'])
-__all__.extend(['add_new_travel', 'get_travel_info', 'set_travel_group_info'])
+__all__.extend(['add_travel', 'remove_travel',
+                'get_travel_info', 'set_travel_group_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['POST']
@@ -293,7 +294,7 @@ def set_travel_group_info(request_data):
 
 
 @api(check_tokens=True)
-def add_new_travel(request_data):
+def add_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
 
@@ -306,6 +307,17 @@ def add_new_travel(request_data):
     response = {
         'travel_group_id': travel_group.get_travel_group_id()
     }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.remove_travel(travel_id=request_data['travel_id'])
+
+    response = {}
     return response
 
 
