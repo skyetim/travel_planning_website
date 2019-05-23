@@ -57,7 +57,7 @@ class TravelInfo(object):
         else:
             self.read_only = True
         if travel_info.visibility not in visibility_list:
-            raise PermissionDeniedException
+            raise PermissionDeniedException(f'No permission to access Travel (ID={self.get_travel_id()}).')
         self.travel_info_dbobj = travel_info
 
     @classmethod
@@ -275,12 +275,8 @@ class TravelGroup(object):
         self.read_only = (permission_level != db_travel.Travel.ME)
 
         # 这里不对 应该是返回一个List of Travel 而不是返回数据库对象
-        try:
-            travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
-        except ObjectDoesNotExist:
-            raise TravelGroupDoseNotExistException(f'Travel Grouping (ID={travel_group_id}) does not exist.')
-
         self.travel_list = []
+        travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
         for t in travel_list:
             try:
                 self.travel_list.append(Travel(user_id=user_id,
@@ -288,6 +284,9 @@ class TravelGroup(object):
                                                permission_level=permission_level))
             except PermissionDeniedException:
                 pass
+        if list(self.travel_list) == 0:
+            raise PermissionDeniedException(f'No permission to access TravelGroup (ID={self.get_travel_group_id()}).')
+
         self.travel_group_dbobj = travel_group
         self.user_id = user_id
 
