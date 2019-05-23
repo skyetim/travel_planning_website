@@ -65,7 +65,7 @@ def get_permission_level(user_id, travel_group_id):
 
 class TravelInfo(object):
     def __init__(self, travel_id, permission_level):
-        check_travel_existence(travel_id)
+        travel_info = get_travel_instance_by_id(travel_id)
 
         permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
@@ -263,7 +263,7 @@ class Travel(object):
 
 class TravelGroup(object):
     def __init__(self, user_id, travel_group_id):
-        check_travel_group_existence(travel_group_id)
+        travel_group=get_travel_group_instance_by_id(travel_group_id)
 
         self.permission_level = get_permission_level(user_id=user_id, travel_group_id=travel_group_id)
         self.read_only = (self.permission_level != db_travel.Travel.ME)

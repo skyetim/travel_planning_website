@@ -42,7 +42,7 @@ class TravelDoesNotExistException(BackendBaseException):
     CODE = 11
 
 
-class TravelGroupDoseNotExistException(BackendBaseException):
+class TravelGroupDoesNotExistException(BackendBaseException):
     CODE = 12
 
 
