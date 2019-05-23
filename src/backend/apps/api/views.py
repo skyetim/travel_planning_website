@@ -15,6 +15,7 @@ import apps.db.Travel.models as db_travel
 import apps.db.Travel.serializers as srl_travel
 import apps.db.User.models as db_user
 import apps.db.User.serializers as srl_user
+from Server.settings import DEBUG
 from apps.api.modules.exceptions import *
 
 
@@ -24,7 +25,10 @@ __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
-request_method_list = ['GET', 'POST']
+request_method_list = ['POST']
+
+if DEBUG:
+    request_method_list.append('GET')
 
 logged_in_users = {}
 
