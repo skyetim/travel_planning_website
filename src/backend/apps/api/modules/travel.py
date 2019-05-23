@@ -120,10 +120,10 @@ class TravelInfo(object):
     def get_visibility(self):
         return self.travel_info_dbobj.visibility
 
-    def set_city(self, city_id):
+    def set_city_id(self, city_id):
         self.check_permission()
-        resident_city = mod_city.get_city_instance_by_id(city_id)
-        self.travel_info_dbobj.resident_city_id = resident_city
+        city = mod_city.get_city_instance_by_id(city_id=city_id)
+        self.travel_info_dbobj.city_id = city
         self.travel_info_dbobj.save()
 
     # date_start必须比date_end早，但是这一步检查应该在哪里做？
@@ -176,8 +176,6 @@ class TravelInfo(object):
 
 class Travel(object):
     def __init__(self, user_id, travel_id):
-        travel = get_travel_instance_by_id(travel_id=travel_id)
-
         self.permission_level = get_travel_permission_level(user_id=user_id, travel_id=travel_id)
 
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
@@ -186,7 +184,7 @@ class Travel(object):
             raise TravelDoesNotBelongToTravelGroup(f'Travel (ID={travel_id})'
                                                    f' does not belong to any travel group.')
 
-        self.travel_dbobj = travel
+        self.travel_dbobj = get_travel_instance_by_id(travel_id=travel_id)
         self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(travel_id=self.travel_dbobj)
 
@@ -271,8 +269,6 @@ class Travel(object):
 
 class TravelGroup(object):
     def __init__(self, user_id, travel_group_id):
-        travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
-
         self.permission_level = get_travel_group_permission_level(user_id=user_id, travel_group_id=travel_group_id)
 
         # 这里不对 应该是返回一个List of Travel 而不是返回数据库对象
@@ -287,7 +283,7 @@ class TravelGroup(object):
             raise PermissionDeniedException(f'No permission to access '
                                             f'TravelGroup (ID={self.get_travel_group_id()}).')
 
-        self.travel_group_dbobj = travel_group
+        self.travel_group_dbobj = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
 
     @classmethod
     def new_travel_group(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
@@ -400,7 +396,8 @@ class TravelGroup(object):
                 'travel_group_id',
                 'travel_group_name',
                 'travel_group_note',
-                'travel_group_color']
+                'travel_group_color',
+                'travel_list']
 
     def __getitem__(self, item):
         return getattr(self, f'get_{item}')()
