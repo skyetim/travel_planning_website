@@ -8,9 +8,9 @@ from apps.api.modules.user import get_user_instance_by_id, is_friend
 
 # Static Methods
 def check_visibility(visibility):
-    '''
-        Return the standard version of visibility.
-    '''
+    """
+    Return the standard version of visibility.
+    """
     assert isinstance(visibility, str)
     v = visibility.upper()
     if v not in (db_travel.Travel.ME,
