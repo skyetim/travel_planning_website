@@ -22,5 +22,69 @@ class FriendDoesNotExistException(UserDoesNotExistException):
     CODE = 6
 
 
-class CityIdDoesNotExistException(BackendBaseException):
+class NoCityFoundException(BackendBaseException):
     CODE = 7
+
+
+class CityIdDoesNotExistException(BackendBaseException):
+    CODE = 8
+
+
+class DateFormatError(BackendBaseException):
+    CODE = 9
+
+
+class VisibilityError(BackendBaseException):
+    CODE = 10
+
+
+class TravelDoesNotExistException(BackendBaseException):
+    CODE = 11
+
+
+class TravelGroupDoseNotExistException(BackendBaseException):
+    CODE = 12
+
+
+class TravelGroupOwnershipMismatch(BackendBaseException):
+    CODE = 13
+
+
+class TravelAlreadyExistsInTravelGroup(BackendBaseException):
+    CODE = 14
+
+
+class TravelDoesNotExistInTravelGroup(BackendBaseException):
+    CODE = 15
+
+
+class TravelAlreadyExistsException(BackendBaseException):
+    CODE = 16
+
+
+class DateStartLaterThanDateEndError(BackendBaseException):
+    CODE = 17
+
+
+class TravelDoesNotExistBelongToTravelGroup(BackendBaseException):
+    CODE = 18
+
+
+class TravelAssociationAlreadyExist(BackendBaseException):
+    CODE = 19
+
+
+class TravelAssociationDoesNotExist(BackendBaseException):
+    CODE = 20
+
+
+class IllegalPswdHashFormat(BackendBaseException):
+    CODE = 21
+
+
+class FriendAlreadyExistsException(BackendBaseException):
+    CODE = 22
+
+
+class UserSessionTimeoutException(BackendBaseException):
+    CODE = 23

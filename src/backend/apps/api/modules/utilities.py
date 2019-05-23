@@ -77,9 +77,9 @@ class GeoCoder(object):
     @staticmethod
     def __geores_to_city(res):
         if not res:
-            return dict()
+            return {}
         add_com = res[0]['address_components']
-        city = {'country': ''}
+        city = {}
         for x in add_com:
             if 'country' in x['types']:
                 city['country'] = x['long_name']
@@ -88,10 +88,11 @@ class GeoCoder(object):
             if 'locality' in x['types']:
                 city['city'] = x['long_name']
 
-        if 'province' not in city:
-            city['province'] = city['country']
-        if 'city' not in city:
-            city['city'] = city['province']
+        if 'country' in city:
+            if 'province' not in city:
+                city['province'] = city['country']
+            if 'city' not in city:
+                city['city'] = city['province']
         city["latitude"] = res[0]['geometry']['location']['lat']
         city["longitude"] = res[0]['geometry']['location']['lng']
 

@@ -54,6 +54,8 @@ class UserInfo(models.Model):
                                          to_field='city_id',
                                          related_name='U_UI_residentcityid',
                                          on_delete=models.PROTECT)
+    register_date = models.DateField(auto_now_add=True,
+                                     editable=False)
 
     class Meta:
         indexes = [
@@ -71,7 +73,7 @@ class FriendRelation(models.Model):
                                        to_field='user_id',
                                        related_name='U_FR_frienduserid',
                                        on_delete=models.CASCADE)
-    friend_user_note = models.CharField(max_length=20,
+    friend_note = models.CharField(max_length=20,
                                         null=False,
                                         editable=True)
 
@@ -95,6 +97,8 @@ class UserSession(models.Model):
     session_id = models.UUIDField(default=uuid.uuid4,
                                   editable=False,
                                   unique=True)
+    last_action_time = models.DateTimeField(auto_now=True,
+                                            editable=False)
 
     class Meta:
         indexes = [

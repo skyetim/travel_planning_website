@@ -10,9 +10,15 @@ class TravelGroup(models.Model):
                                        null=False,
                                        unique=True,
                                        editable=False)
+    travel_group_name = models.CharField(max_length=20,
+                                         default='未命名',
+                                         null=False,
+                                         editable=True)
     travel_group_note = models.TextField(max_length=140,
                                          null=False,
                                          editable=True)
+    travel_group_color = models.PositiveIntegerField(null=False,
+                                                     editable=True)
 
     class Meta:
         indexes = [
@@ -89,7 +95,7 @@ class TravelGrouping(models.Model):
     travel_id = models.OneToOneField(Travel,
                                      to_field='travel_id',
                                      related_name='T_TG_travelid',
-                                     unique=True,
+                                     unique=False,
                                      on_delete=models.CASCADE)
     travel_group_id = models.OneToOneField(TravelGroup,
                                            to_field='travel_group_id',

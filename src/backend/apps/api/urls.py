@@ -16,6 +16,7 @@ Including another URLconf
 
 from django.urls import path
 
+from Server.settings import DEBUG
 from apps.api import views
 
 
@@ -24,3 +25,15 @@ urlpatterns = []
 for view in views.__all__:
     if callable(getattr(views, view)):
         urlpatterns.append(path(rf'{view}/', getattr(views, view), name=view))
+
+if DEBUG:
+    urlpatterns.extend([
+        path('cities/', views.city_list),
+        path('cities/<int:city_id>/', views.city_detail),
+        path('users/', views.user_list),
+        path('users/<int:user_id>/', views.user_detail),
+        path('travel_groups/', views.travel_group_list),
+        path('travel_groups/<int:travel_group_id>/', views.travel_group_detail),
+        path('travels/', views.travel_list),
+        path('travels/<int:travel_id>/', views.travel_detail)
+    ])
