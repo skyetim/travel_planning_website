@@ -21,7 +21,7 @@ from apps.api.modules.exceptions import *
 __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
-__all__.extend(['get_friend_info_list'])
+__all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['GET', 'POST']
@@ -196,13 +196,23 @@ def set_user_info(request_data):
 
 @api(check_tokens=True)
 def get_friend_info_list(request_data):
-    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user = logged_in_users[request_data['user_id']]
     friend_info_list = user.get_friend_info_list()
 
     response = {
         'count': len(friend_info_list),
         'friend_info_list': list(map(dict, friend_info_list))
     }
+    return response
+
+
+@api(check_tokens=True)
+def set_friend_note(request_data):
+    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user.set_friend_note(friend_user_id=request_data['friend_user_id'],
+                         friend_note=request_data['friend_note'])
+
+    response = {}
     return response
 
 
