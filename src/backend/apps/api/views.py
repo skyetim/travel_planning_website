@@ -346,7 +346,7 @@ def travel_group_detail(request, travel_group_id):
     try:
         travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
     except db_travel.TravelGroup.DoesNotExist:
-        raise TravelGroupDoseNotExistException(f'Travel group (ID={travel_group_id}) does not exist.')
+        raise TravelGroupDoesNotExistException(f'Travel group (ID={travel_group_id}) does not exist.')
 
     serializer = srl_travel.TravelGroupSerializer(travel_group)
     response = serializer.data

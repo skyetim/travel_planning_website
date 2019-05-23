@@ -166,7 +166,7 @@ class User(object):
                 tg.delete()
                 self.travel_group_list.remove(tg)
         if not travel_group_exist:
-            raise TravelGroupDoseNotExistException(f'User (ID={self.get_user_id()})'
+            raise TravelGroupDoesNotExistException(f'User (ID={self.get_user_id()})'
                                                    f' does not have the Travel Group '
                                                    f'(ID={travel_group_id})')
 

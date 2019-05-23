@@ -1,7 +1,5 @@
 from datetime import date as ddate
 
-from django.core.exceptions import *
-
 import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
 from apps.api.modules.exceptions import *
@@ -22,28 +20,18 @@ def check_visibility(visibility):
     return v
 
 
-def check_travel_existence(travel_id):
-    if not db_travel.Travel.objects.filter(travel_id=travel_id).exists():
+def get_travel_instance_by_id(travel_id):
+    try:
+        return db_travel.Travel.objects.get(travel_id=travel_id)
+    except db_travel.Travel.DoesNotExist:
         raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
 
-def check_travel_group_existence(travel_group_id):
-    if not db_travel.TravelGroup.objects.filter(travel_group_id=travel_group_id).exists():
-        raise TravelGroupDoesNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
 
 def get_travel_group_instance_by_id(travel_group_id):
     try:
-        travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
+        return db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
     except db_travel.TravelGroup.DoesNotExist:
-        raise TravelGroupDoseNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
-    return travel_group
-
-
-def get_travel_instance_by_id(travel_id):
-    try:
-        travel = db_travel.Travel.objects.get(travel_id=travel_id)
-    except db_travel.Travel.DoesNotExist:
-        raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
-    return travel
+        raise TravelGroupDoesNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
 
 
 def get_travel_group_owner_user_instance(travel_group_id):
@@ -65,9 +53,8 @@ def get_permission_level(user_id, travel_group_id):
 
 class TravelInfo(object):
     def __init__(self, travel_id, permission_level):
-        check_travel_existence(travel_id)
+        travel_info = get_travel_instance_by_id(travel_id=travel_id)
 
-        permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
         visibility_list = {permission_level, db_travel.Travel.PUBLIC}
         if permission_level == db_travel.Travel.ME:
@@ -126,7 +113,6 @@ class TravelInfo(object):
         self.travel_info_dbobj.resident_city_id = resident_city
         self.travel_info_dbobj.save()
 
-
     # date_start必须比date_end早，但是这一步检查应该在哪里做？
     def set_date_start(self, year, month, date):
         self.check_permission()
@@ -166,18 +152,18 @@ class TravelInfo(object):
 
 class Travel(object):
     def __init__(self, travel_id, permission_level):
-        check_travel_existence(travel_id)
-        permission_level = check_visibility(permission_level)
+        travel = get_travel_instance_by_id(travel_id=travel_id)
+
         self.permission_level = permission_level
         self.read_only = (permission_level != db_travel.Travel.ME)
 
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
             self.travel_grouping_dbobj = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
         else:
-            raise TravelDoesNotExistBelongToTravelGroup(f'Travel (ID={travel_id})'
-                                                        f' does not belong to any travel group.')
+            raise TravelDoesNotBelongToTravelGroup(f'Travel (ID={travel_id})'
+                                                   f' does not belong to any travel group.')
 
-        self.travel_dbobj = db_travel.Travel.objects.get(travel_id=travel_id)
+        self.travel_dbobj = travel
         self.travel_info = TravelInfo(travel_id=travel_id,
                                       permission_level=permission_level)
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(travel_id=self.travel_dbobj)
@@ -263,7 +249,7 @@ class Travel(object):
 
 class TravelGroup(object):
     def __init__(self, user_id, travel_group_id):
-        check_travel_group_existence(travel_group_id)
+        travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
 
         self.permission_level = get_permission_level(user_id=user_id, travel_group_id=travel_group_id)
         self.read_only = (self.permission_level != db_travel.Travel.ME)
@@ -304,11 +290,11 @@ class TravelGroup(object):
 
     def add_travel(self, travel_id):
         self.check_permission()
-        check_travel_existence(travel_id=travel_id)
+        travel = get_travel_instance_by_id(travel_id=travel_id)
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
             raise TravelAlreadyExistsInTravelGroup(
                     f'Travel (ID={travel_id}) already exists in the travelgrouping database.')
-        travel = get_travel_instance_by_id(travel_id=travel_id)
+
         db_travel.TravelGrouping.objects.create(travel_id=travel,
                                                 travel_group_id=self.travel_group_dbobj)
         self.travel_list.append(Travel(travel_id=travel_id,

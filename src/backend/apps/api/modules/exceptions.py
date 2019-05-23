@@ -42,7 +42,7 @@ class TravelDoesNotExistException(BackendBaseException):
     CODE = 11
 
 
-class TravelGroupDoseNotExistException(BackendBaseException):
+class TravelGroupDoesNotExistException(BackendBaseException):
     CODE = 12
 
 
@@ -66,7 +66,7 @@ class DateStartLaterThanDateEndError(BackendBaseException):
     CODE = 17
 
 
-class TravelDoesNotExistBelongToTravelGroup(BackendBaseException):
+class TravelDoesNotBelongToTravelGroup(BackendBaseException):
     CODE = 18
 
 
