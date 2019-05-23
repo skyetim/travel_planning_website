@@ -64,8 +64,7 @@ class User(object):
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
 
         self.user_dbobj = user
-        self.user_session_dbobj = db_user.UserSession.objects.create(
-                user_id=user)
+        self.user_session_dbobj = db_user.UserSession.objects.create(user_id=user)
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
@@ -81,7 +80,7 @@ class User(object):
             friend_relation = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
             for fr_dbobj in friend_relation:
                 self.friend_info_list.append(FriendInfo(user_id=self.get_user_id(),
-                                                        friend_user_id=fr_dbobj.friend_user_id))
+                                                        friend_user_id=fr_dbobj.friend_user_id.user_id))
 
     def get_user_id(self):
         return self.user_dbobj.user_id

@@ -1,6 +1,7 @@
-import datetime as dt
+from datetime import timedelta
 from functools import wraps
 
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
@@ -26,7 +27,7 @@ request_method_list = ['GET', 'POST']
 
 logged_in_users = {}
 
-SESSION_TIMEOUT = dt.timedelta(minutes=10)
+SESSION_TIMEOUT = timedelta(minutes=10)
 
 
 def prepare_request_data(func):
@@ -38,7 +39,6 @@ def prepare_request_data(func):
 
         request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
-        cast(name='email', cast_func=str.lower)
         cast(name='email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
         cast(name='old_pswd_hash', cast_func=str.upper)
@@ -78,17 +78,21 @@ def check_authentication(func):
 def check_token(func):
     @wraps(wrapped=func)
     def ck_wrapper(request_data):
-        user_id = request_data['user_id'],
+        user_id = request_data['user_id']
         session_id = request_data['session_id']
+        if user_id not in logged_in_users:
+            raise UserAuthorizationException(f'User (ID={user_id}) does not log in.')
         try:
             user_session = db_user.UserSession.objects.get(user_id=user_id,
                                                            session_id=session_id)
         except db_user.UserSession.DoesNotExist:
             db_user.UserSession.objects.filter(user_id=user_id).delete()
-            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match.')
+            del logged_in_users[user_id]
+            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match, log out.')
         else:
-            if user_session.last_action_time < dt.datetime.now() - SESSION_TIMEOUT:
-                raise UserSessionTimeoutException('User (ID={user_id}) has no action for 10 minutes, log out.')
+            if user_session.last_action_time < timezone.now() - SESSION_TIMEOUT:
+                del logged_in_users[user_id]
+                raise UserSessionTimeoutException(f'User (ID={user_id}) has no action for 10 minutes, log out.')
             user_session.save()
             return func(request_data=request_data)
 
