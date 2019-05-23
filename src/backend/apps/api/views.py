@@ -7,17 +7,12 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-import apps.api.modules.city as mod_city
-import apps.api.modules.travel as mod_travel
-import apps.api.modules.user as mod_user
-import apps.db.City.models as db_city
-import apps.db.City.serializers as srl_city
-import apps.db.Travel.models as db_travel
-import apps.db.Travel.serializers as srl_travel
-import apps.db.User.models as db_user
-import apps.db.User.serializers as srl_user
 from Server.settings import DEBUG
+from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
 from apps.api.modules.exceptions import *
+from apps.db.City import models as db_city, serializers as srl_city
+from apps.db.Travel import models as db_travel, serializers as srl_travel
+from apps.db.User import models as db_user, serializers as srl_user
 
 
 __all__ = []
