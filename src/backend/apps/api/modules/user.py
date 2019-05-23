@@ -65,18 +65,18 @@ class User(object):
         self.user_info = UserInfo(user_id=self.get_user_id())
 
         self.travel_group_list = []
-        if db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id()).exists():
-            travel_group = db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id())
-            for tg_dbobj in travel_group:
-                self.travel_group_list.append(mod_travel_TravelGroup(user_id=self.get_user_id,
-                                                                     travel_group_id=tg_dbobj.travel_group_id))
+        travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=self.get_user_id())
+        for tg_dbobj in travel_groups:
+            self.travel_group_list.append(
+                mod_travel_TravelGroup(travel_group_id=tg_dbobj.travel_group_id.travel_group_id,
+                                       permission_level=db_travel.Travel.ME)
+            )
 
         self.friend_info_list = []
-        if db_user.FriendRelation.objects.filter(user_id=self.get_user_id()).exists():
-            friend_relation = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
-            for fr_dbobj in friend_relation:
-                self.friend_info_list.append(FriendInfo(user_id=self.get_user_id(),
-                                                        friend_user_id=fr_dbobj.friend_user_id.user_id))
+        friend_relations = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
+        for fr_dbobj in friend_relations:
+            self.friend_info_list.append(FriendInfo(user_id=self.get_user_id(),
+                                                    friend_user_id=fr_dbobj.friend_user_id.user_id))
 
     def get_user_id(self):
         return self.user_dbobj.user_id
@@ -93,7 +93,7 @@ class User(object):
     def get_friend_info_list(self):
         return self.friend_info_list
 
-    def get_group_info_list(self):
+    def get_group_list(self):
         return self.travel_group_list
 
     def set_email(self, email):
@@ -163,7 +163,7 @@ class User(object):
         if db_user.User.objects.filter(email=email).exists():
             raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
         resident_city = mod_city.get_city_instance_by_id(
-                city_id=resident_city_id)
+            city_id=resident_city_id)
         user = db_user.User(email=email, pswd_hash=pswd_hash)
         user.save()
 
@@ -261,7 +261,7 @@ class FriendInfo(UserInfoBase):
         check_user_existence(friend_user_id)
         check_friendship_existence(user_id, friend_user_id, need_existence=False)
         db_user.FriendRelation.objects.create(
-                user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
+            user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
 
     def keys(self):

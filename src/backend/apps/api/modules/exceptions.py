@@ -88,3 +88,7 @@ class FriendAlreadyExistsException(BackendBaseException):
 
 class UserSessionTimeoutException(BackendBaseException):
     CODE = 23
+
+
+class PermissionDeniedException(BackendBaseException):
+    CODE = 24
