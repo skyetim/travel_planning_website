@@ -157,6 +157,7 @@ class User(object):
                                                      travel_group_note=travel_group_note,
                                                      travel_group_color=travel_group_color)
         self.travel_group_list.append(tg)
+        return tg.get_travel_group_id()
 
     def remove_travel_group(self, travel_group_id):
         travel_group_exist = False

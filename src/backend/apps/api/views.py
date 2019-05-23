@@ -20,7 +20,7 @@ __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
-__all__.extend(['get_travel_group_info', 'set_travel_group_info'])
+__all__.extend(['get_travel_group_info', 'set_travel_group_info', 'add_travel_group'])
 __all__.extend(['get_travel_info', 'set_travel_group_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
@@ -166,6 +166,7 @@ def register(request_data):
 @api(check_tokens=True)
 def reset_password(request_data):
     user = logged_in_users[request_data['user_id']]
+
     user.reset_password(old_pswd_hash=request_data['old_pswd_hash'],
                         new_pswd_hash=request_data['new_pswd_hash'])
 
@@ -211,7 +212,8 @@ def get_friend_info_list(request_data):
 
 @api(check_tokens=True)
 def set_friend_note(request_data):
-    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user = logged_in_users[request_data['user_id']]
+
     user.set_friend_note(friend_user_id=request_data['friend_user_id'],
                          friend_note=request_data['friend_note'])
 
@@ -239,6 +241,20 @@ def get_others_travel_group_list(request_data):
     response = {
         'count': len(others_travel_group_list),
         'travel_group_list': list(map(dict, others_travel_group_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def add_travel_group(request_data):
+    user: mod_user.User = logged_in_users[request_data['user_id']]
+
+    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
+                                         travel_group_note=request_data['travel_group_note'],
+                                         travel_group_color=request_data['travel_group_color'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
     }
     return response
 
