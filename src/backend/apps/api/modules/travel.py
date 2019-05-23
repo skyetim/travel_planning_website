@@ -10,6 +10,9 @@ from apps.api.modules.user import get_user_instance_by_id, is_friend
 
 # Static Methods
 def check_visibility(visibility):
+    '''
+        Return the standard version of visibility.
+    '''
     assert isinstance(visibility, str)
     v = visibility.upper()
     if v not in (db_travel.Travel.ME,
@@ -63,8 +66,8 @@ class TravelInfo(object):
             travel_info = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
             raise TravelDoesNotExistException(f"Travel (ID={travel_id}) does not exist.")
-        # 是否应该判断这个travel_id是否属于user_id？
-        check_visibility(permission_level)
+
+        permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
         visibility_list = {permission_level, db_travel.Travel.PUBLIC}
         if permission_level == db_travel.Travel.ME:
@@ -172,7 +175,7 @@ class TravelInfo(object):
 class Travel(object):
     def __init__(self, travel_id, permission_level):
         check_travel_existence(travel_id)
-        check_visibility(permission_level)
+        permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
         self.read_only = (permission_level != db_travel.Travel.ME)
         self.travel_id = travel_id
