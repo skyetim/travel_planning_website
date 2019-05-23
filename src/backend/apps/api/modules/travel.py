@@ -26,33 +26,35 @@ def check_travel_existence(travel_id):
 
 
 def get_travel_group_instance_by_id(travel_group_id):
-    if not db_travel.TravelGroup.objects.filter(travel_group_id).exists():
+    try:
+        travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
+    except db_travel.TravelGroup.DoesNotExist:
         raise TravelGroupDoseNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
-    return db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
+    return travel_group
 
 
 def get_travel_instance_by_id(travel_id):
     try:
-        travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
-    except ObjectDoesNotExist:
+        travel = db_travel.Travel.objects.get(travel_id=travel_id)
+    except db_travel.Travel.DoesNotExist:
         raise TravelDoesNotExistException(f"Travel (ID={travel_id}) does not exist.")
-    return travelinfo
+    return travel
 
 
 class TravelInfo(object):
     def __init__(self, user_id, travel_id):
-        check_user_existence(user_id)
+        check_user_existence(user_id=user_id)
         try:
-            travelinfo = db_travel.Travel.objects.get(travel_id=travel_id)
+            travel_info = db_travel.Travel.objects.get(travel_id=travel_id)
         except ObjectDoesNotExist:
             raise TravelDoesNotExistException(
                     f"Travel (ID={travel_id}) does not exist.")
         # 是否应该判断这个travel_id是否属于user_id？
-        self.travelinfo_dbobj = travelinfo
+        self.travel_info_dbobj = travel_info
         self.user_id = user_id
 
     @classmethod
-    def new_travelinfo(cls, user_id, travel_note, city_id, date_start, date_end, visbility):
+    def new_travel_info(cls, user_id, travel_note, city_id, date_start, date_end, visbility):
         check_user_existence(user_id=user_id)
         city = mod_city.get_city_instance_by_id(city_id)
         try:
@@ -73,29 +75,29 @@ class TravelInfo(object):
         return self.user_id
 
     def get_travel_id(self):
-        return self.travelinfo_dbobj.travel_id
+        return self.travel_info_dbobj.travel_id
 
     def get_travel_note(self):
-        return self.travelinfo_dbobj.travel_note
+        return self.travel_info_dbobj.travel_note
 
     def get_city(self):
-        return mod_city.get_city_instance_by_id(self.travelinfo_dbobj.city_id)
+        return mod_city.get_city_instance_by_id(self.travel_info_dbobj.city_id)
 
     # 这里直接返回model里的DateField对应值，不确定是否可以
     def get_date_start(self):
-        return self.travelinfo_dbobj.date_start
+        return self.travel_info_dbobj.date_start
 
     def get_date_end(self):
-        return self.travelinfo_dbobj.date_end
+        return self.travel_info_dbobj.date_end
 
     def get_visibility(self):
-        return self.travelinfo_dbobj.visibility
+        return self.travel_info_dbobj.visibility
 
     def set_city(self, city_id):
         try:
             resident_city = mod_city.get_city_instance_by_id(city_id)
-            self.travelinfo_dbobj.resident_city_id = resident_city
-            self.travelinfo_dbobj.save()
+            self.travel_info_dbobj.resident_city_id = resident_city
+            self.travel_info_dbobj.save()
             return 0
         except CityIdDoesNotExistException as e:
             raise e
@@ -105,8 +107,8 @@ class TravelInfo(object):
     def set_date_start(self, year, month, date):
         try:
             d = ddate(year, month, date)
-            self.travelinfo_dbobj.date_start = d
-            self.travelinfo_dbobj.save()
+            self.travel_info_dbobj.date_start = d
+            self.travel_info_dbobj.save()
             return 0
         except ValueError:
             raise DateFormatError(
@@ -116,8 +118,8 @@ class TravelInfo(object):
     def set_date_end(self, year, month, date):
         try:
             d = ddate(year, month, date)
-            self.travelinfo_dbobj.date_end = d
-            self.travelinfo_dbobj.save()
+            self.travel_info_dbobj.date_end = d
+            self.travel_info_dbobj.save()
             return 0
         except ValueError:
             raise DateFormatError(
@@ -125,8 +127,8 @@ class TravelInfo(object):
             return 1
 
     def set_travel_note(self, note):
-        self.travelinfo_dbobj.travel_note = note
-        self.travelinfo_dbobj.save()
+        self.travel_info_dbobj.travel_note = note
+        self.travel_info_dbobj.save()
         return 0
 
     def set_visibility(self, visibility):
@@ -134,8 +136,8 @@ class TravelInfo(object):
             Receive "M"(Only ME),"F" (Friend) or "P"(Public).
         '''
         v = check_visibility(visibility)
-        self.travelinfo_dbobj.visbility = v
-        self.travelinfo_dbobj.save()
+        self.travel_info_dbobj.visbility = v
+        self.travel_info_dbobj.save()
 
 
 class Travel(object):
@@ -158,11 +160,12 @@ class Travel(object):
     @classmethod
     def new_travel(cls, user_id, travel_group_id, travel_note, city_id, date_start, date_end, visibility, company_user_id_list):
         user_id = get_user_instance_by_id(user_id)
-        travel_id = TravelInfo.new_travelinfo(
-                user_id, travel_note, city_id, date_start, date_end, visibility)
+        travel_id = TravelInfo.new_travel_info(user_id, travel_note,
+                                               city_id, date_start, date_end,
+                                               visibility)
         travel_group_id = get_travel_group_instance_by_id(travel_group_id)
-        db_travel.TravelGrouping.objects.create(
-                travel_id=travel_id, travel_group_id=travel_group_id)
+        db_travel.TravelGrouping.objects.create(travel_id=travel_id,
+                                                travel_group_id=travel_group_id)
         for c_user in company_user_id_list:
             c_user_id = get_user_instance_by_id(c_user)
             db_travel.TravelAssociation.objects.create(travel_id=travel_id,
@@ -203,10 +206,10 @@ class Travel(object):
                                                 travel_id=self.travel_dbobj)
 
     def move_to_new_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
-        new_travel_group = TravelGroup.new_travelgroup(user_id=self.user_id,
-                                                       travel_group_name=travel_group_name,
-                                                       travel_group_note=travel_group_note,
-                                                       travel_group_color=travel_group_color)
+        new_travel_group = TravelGroup.new_travel_group(user_id=self.user_id,
+                                                        travel_group_name=travel_group_name,
+                                                        travel_group_note=travel_group_note,
+                                                        travel_group_color=travel_group_color)
         self.move_to_travel_group(new_travel_group)
 
     def get_user_id(self):
@@ -251,7 +254,7 @@ class TravelGroup(object):
         self.user_id = user_id
 
     @classmethod
-    def new_travelgroup(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
+    def new_travel_group(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
         # mod_user.check_user_existence(user_id)
         user = get_user_instance_by_id(user_id)
         travel_group = db_travel.TravelGroup.objects.create(travel_group_name=travel_group_name,
