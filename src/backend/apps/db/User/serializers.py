@@ -25,13 +25,13 @@ class FriendRelationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     user_info = UserInfoSerializer(source='U_UI_userid', many=False, read_only=True)
-    friend_relations = FriendRelationSerializer(source='U_FR_userid', many=True, read_only=True)
-    travel_groups = GroupOwnershipSerializer(source='T_TGO_userid', many=True, read_only=True)
+    friend_list = FriendRelationSerializer(source='U_FR_userid', many=True, read_only=True)
+    travel_group_list = GroupOwnershipSerializer(source='T_TGO_userid', many=True, read_only=True)
 
     class Meta:
         model = User
         fields = ['user_id',
                   'email',
                   'user_info',
-                  'friend_relations',
-                  'travel_groups']
+                  'friend_list',
+                  'travel_group_list']
