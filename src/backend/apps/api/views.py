@@ -23,7 +23,7 @@ __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
-__all__.extend(['get_travel_group_list'])
+__all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['POST']
@@ -223,12 +223,24 @@ def set_friend_note(request_data):
 
 @api(check_tokens=True)
 def get_travel_group_list(request_data):
-    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user = logged_in_users[request_data['user_id']]
     travel_group_list = user.get_travel_group_list()
 
     response = {
         'count': len(travel_group_list),
         'travel_group_list': list(map(dict, travel_group_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_others_travel_group_list(request_data):
+    user: mod_user.User = logged_in_users[request_data['user_id']]
+    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
+
+    response = {
+        'count': len(others_travel_group_list),
+        'travel_group_list': list(map(dict, others_travel_group_list))
     }
     return response
 

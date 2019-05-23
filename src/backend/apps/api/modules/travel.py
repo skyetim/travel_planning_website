@@ -106,8 +106,9 @@ class TravelInfo(object):
     def get_travel_note(self):
         return self.travel_info_dbobj.travel_note
 
-    def get_city(self):
-        return mod_city.get_city_instance_by_id(self.travel_info_dbobj.city_id)
+    def get_city_id(self):
+        city = mod_city.get_city_instance_by_id(self.travel_info_dbobj.city_id)
+        return city.city_id
 
     # 这里直接返回model里的DateField对应值，不确定是否可以
     def get_date_start(self):
@@ -160,6 +161,17 @@ class TravelInfo(object):
         v = check_visibility(visibility)
         self.travel_info_dbobj.visibility = v
         self.travel_info_dbobj.save()
+
+    def keys(self):
+        return ['travel_id',
+                'date_start',
+                'date_end',
+                'city_id',
+                'visibility',
+                'travel_note']
+
+    def __getitem__(self, item):
+        return getattr(self, f'get_{item}')()
 
 
 class Travel(object):
