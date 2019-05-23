@@ -26,6 +26,9 @@ def check_travel_existence(travel_id):
     if not db_travel.Travel.objects.filter(travel_id=travel_id).exists():
         raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
 
+def check_travel_group_existence(travel_group_id):
+    if not db_travel.TravelGroup.objects.filter(travel_group_id=travel_group_id).exists():
+        raise TravelGroupDoesNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
 
 def get_travel_group_instance_by_id(travel_group_id):
     try:
@@ -62,10 +65,7 @@ def get_permission_level(user_id, travel_group_id):
 
 class TravelInfo(object):
     def __init__(self, travel_id, permission_level):
-        try:
-            travel_info = db_travel.Travel.objects.get(travel_id=travel_id)
-        except ObjectDoesNotExist:
-            raise TravelDoesNotExistException(f"Travel (ID={travel_id}) does not exist.")
+        check_travel_existence(travel_id)
 
         permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
@@ -122,14 +122,10 @@ class TravelInfo(object):
 
     def set_city(self, city_id):
         self.check_permission()
-        try:
-            resident_city = mod_city.get_city_instance_by_id(city_id)
-            self.travel_info_dbobj.resident_city_id = resident_city
-            self.travel_info_dbobj.save()
-            return 0
-        except CityIdDoesNotExistException as e:
-            raise e
-            return 1
+        resident_city = mod_city.get_city_instance_by_id(city_id)
+        self.travel_info_dbobj.resident_city_id = resident_city
+        self.travel_info_dbobj.save()
+
 
     # date_start必须比date_end早，但是这一步检查应该在哪里做？
     def set_date_start(self, year, month, date):
@@ -138,11 +134,9 @@ class TravelInfo(object):
             d = ddate(year, month, date)
             self.travel_info_dbobj.date_start = d
             self.travel_info_dbobj.save()
-            return 0
         except ValueError:
             raise DateFormatError(
                     f'Illegal Start Date: Year={year}, Month={month}, date={date}.')
-            return 1
 
     def set_date_end(self, year, month, date):
         self.check_permission()
@@ -150,11 +144,9 @@ class TravelInfo(object):
             d = ddate(year, month, date)
             self.travel_info_dbobj.date_end = d
             self.travel_info_dbobj.save()
-            return 0
         except ValueError:
             raise DateFormatError(
                     f'Illegal End Date: Year={year}, Month={month}, date={date}.')
-            return 1
 
     def set_travel_note(self, note):
         self.check_permission()
@@ -272,11 +264,7 @@ class Travel(object):
 
 class TravelGroup(object):
     def __init__(self, user_id, travel_group_id):
-        try:
-            travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
-        except ObjectDoesNotExist:
-            raise TravelGroupDoseNotExistException(f'Travel Group (ID={travel_group_id})'
-                                                   f' does not exist.')
+        check_travel_group_existence(travel_group_id)
 
         self.permission_level = get_permission_level(user_id=user_id, travel_group_id=travel_group_id)
         self.read_only = (self.permission_level != db_travel.Travel.ME)
