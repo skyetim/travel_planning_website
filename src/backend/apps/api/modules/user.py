@@ -110,7 +110,7 @@ class User(object):
         for fr in self.friend_info_list:
             if fr.get_user_id() == friend_user_id:
                 friend_exist = True
-                fr.set_user_note(friend_note)
+                fr.set_friend_note(friend_note)
         if not friend_exist:
             raise FriendDoesNotExistException(f'User (ID={self.get_user_id()})'
                                               f' does not have friendship with '
@@ -175,6 +175,13 @@ class User(object):
         user_info.save()
         return cls(email=email, pswd_hash=pswd_hash)
 
+    def keys(self):
+        return ['user_id',
+                'email']
+
+    def __getitem__(self, item):
+        return getattr(self, f'get_{item}')()
+
 
 class UserInfoBase(object):
     def __init__(self, user_id):
@@ -182,7 +189,7 @@ class UserInfoBase(object):
         self.user_info_dbobj = db_user.UserInfo.objects.get(user_id=user_id)
 
     def get_user_id(self):
-        return self.user_info_dbobj.user_id
+        return self.user_info_dbobj.user_id.user_id
 
     def get_user_name(self):
         return self.user_info_dbobj.user_name
@@ -192,6 +199,15 @@ class UserInfoBase(object):
 
     def get_resident_city_id(self):
         return self.user_info_dbobj.resident_city_id.city_id
+
+    def keys(self):
+        return ['user_id',
+                'user_name',
+                'gender',
+                'resident_city_id']
+
+    def __getitem__(self, item):
+        return getattr(self, f'get_{item}')()
 
 
 class UserInfo(UserInfoBase):
@@ -222,11 +238,11 @@ class FriendInfo(UserInfoBase):
         self.self_user_id = user_id
         super().__init__(user_id=friend_user_id)
 
-    def get_user_note(self):
+    def get_friend_note(self):
         return self.friend_relation_dbobj.friend_note
 
-    def set_user_note(self, user_note):
-        self.friend_relation_dbobj.friend_note = user_note
+    def set_friend_note(self, friend_note):
+        self.friend_relation_dbobj.friend_note = friend_note
         self.friend_relation_dbobj.save()
 
     def delete(self):

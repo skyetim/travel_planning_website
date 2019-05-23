@@ -28,3 +28,14 @@ class City(models.Model):
                          name='C_cityname_idx')
         ]
         unique_together = (('country_name', 'province_name', 'city_name'),)
+
+    def keys(self):
+        return ['city_id',
+                'country_name',
+                'province_name',
+                'city_name',
+                'latitude',
+                'longitude']
+
+    def __getitem__(self, item):
+        return getattr(self, item)

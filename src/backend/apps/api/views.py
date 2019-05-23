@@ -174,12 +174,8 @@ def get_user_info(request_data):
     user = logged_in_users[request_data['user_id']]
     user_info = user.get_user_info()
 
-    response = {
-        'user_name': user_info.get_user_name(),
-        'email': user.get_email(),
-        'gender': user_info.get_gender(),
-        'resident_city_id': user_info.get_resident_city_id()
-    }
+    response = dict(user)
+    response.update(dict(user_info))
     return response
 
 
@@ -201,14 +197,7 @@ def set_user_info(request_data):
 def address_to_city(request_data):
     city = mod_city.get_or_create_city_instance(address=request_data['address'])
 
-    response = {
-        'city_id': city.city_id,
-        'country_name': city.country_name,
-        'province_name': city.province_name,
-        'city_name': city.city_name,
-        'latitude': city.latitude,
-        'longitude': city.longitude
-    }
+    response = dict(city)
     return response
 
 
@@ -216,28 +205,16 @@ def address_to_city(request_data):
 def gps_to_city(request_data):
     city = mod_city.get_or_create_city_instance(latitude=request_data['latitude'],
                                                 longitude=request_data['longitude'])
-    response = {
-        'city_id': city.city_id,
-        'country_name': city.country_name,
-        'province_name': city.province_name,
-        'city_name': city.city_name,
-        'latitude': city.latitude,
-        'longitude': city.longitude
-    }
+
+    response = dict(city)
     return response
 
 
 @api(check_tokens=False)
 def city_id_to_city(request_data):
     city = mod_city.get_city_instance_by_id(city_id=request_data['city_id'])
-    response = {
-        'city_id': city.city_id,
-        'country_name': city.country_name,
-        'province_name': city.province_name,
-        'city_name': city.city_name,
-        'latitude': city.latitude,
-        'longitude': city.longitude
-    }
+
+    response = dict(city)
     return response
 
 
