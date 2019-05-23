@@ -148,7 +148,7 @@ namespace Backend {
         + get_date_end(): Date         {query}
         + get_visibility(): Visibility {query}
         .. setters ..
-        + set_city(city_id: int): int
+        + set_city_id(city_id: int): int
         + set_date_start(year: int, month: int, day: int): int
         + set_date_end(year: int, month: int, day: int): int
         + set_travel_note(travel_note: str): int

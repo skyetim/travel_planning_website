@@ -48,10 +48,10 @@ class TravelGroupOwnership(models.Model):
 
 
 class Travel(models.Model):
-    ONLY_ME = 'M'
+    ME = 'M'
     FRIEND = 'F'
     PUBLIC = 'P'
-    VISIBILITY_CHOICES = ((ONLY_ME, 'Only Me'),
+    VISIBILITY_CHOICES = ((ME, 'Only Me'),
                           (FRIEND, 'Friend'),
                           (PUBLIC, 'Public'))
 

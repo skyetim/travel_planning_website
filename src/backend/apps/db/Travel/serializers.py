@@ -12,7 +12,7 @@ class TravelAssociationSerializer(serializers.ModelSerializer):
 
 class TravelSerializer(serializers.ModelSerializer):
     city = CitySerializer(source='city_id', many=False, read_only=True)
-    travel_association = TravelAssociationSerializer(source='T_TA_travelid', many=True, read_only=True)
+    company_user_list = TravelAssociationSerializer(source='T_TA_travelid', many=True, read_only=True)
 
     class Meta:
         model = Travel
@@ -21,7 +21,7 @@ class TravelSerializer(serializers.ModelSerializer):
                   'city',
                   'visibility',
                   'travel_note',
-                  'travel_association']
+                  'company_user_list']
 
 
 class TravelGroupingSerializer(serializers.ModelSerializer):
@@ -33,7 +33,7 @@ class TravelGroupingSerializer(serializers.ModelSerializer):
 
 
 class TravelGroupSerializer(serializers.ModelSerializer):
-    travels = TravelGroupingSerializer('T_TG_travelgroupid', many=True, read_only=True)
+    travel_list = TravelGroupingSerializer('T_TG_travelgroupid', many=True, read_only=True)
 
     class Meta:
         model = TravelGroup
@@ -41,7 +41,7 @@ class TravelGroupSerializer(serializers.ModelSerializer):
                   'travel_group_name',
                   'travel_group_note',
                   'travel_group_color',
-                  'travels']
+                  'travel_list']
 
 
 class GroupOwnershipSerializer(serializers.ModelSerializer):

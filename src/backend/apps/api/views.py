@@ -7,24 +7,29 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-import apps.api.modules.city as mod_city
-import apps.api.modules.user as mod_user
-import apps.db.City.models as db_city
-import apps.db.City.serializers as srl_city
-import apps.db.Travel.models as db_travel
-import apps.db.Travel.serializers as srl_travel
-import apps.db.User.models as db_user
-import apps.db.User.serializers as srl_user
+from Server.settings import DEBUG
+from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
 from apps.api.modules.exceptions import *
+from apps.db.City import models as db_city, serializers as srl_city
+from apps.db.Travel import models as db_travel, serializers as srl_travel
+from apps.db.User import models as db_user, serializers as srl_user
 
 
 __all__ = []
 __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
+__all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
+__all__.extend(['add_travel_group', 'remove_travel_group',
+                'get_travel_group_info', 'set_travel_group_info'])
+__all__.extend(['add_travel', 'remove_travel',
+                'get_travel_info', 'set_travel_group_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
-request_method_list = ['GET', 'POST']
+request_method_list = ['POST']
+
+if DEBUG:
+    request_method_list.append('GET')
 
 logged_in_users = {}
 
@@ -163,6 +168,7 @@ def register(request_data):
 @api(check_tokens=True)
 def reset_password(request_data):
     user = logged_in_users[request_data['user_id']]
+
     user.reset_password(old_pswd_hash=request_data['old_pswd_hash'],
                         new_pswd_hash=request_data['new_pswd_hash'])
 
@@ -208,9 +214,132 @@ def get_friend_info_list(request_data):
 
 @api(check_tokens=True)
 def set_friend_note(request_data):
-    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user = logged_in_users[request_data['user_id']]
+
     user.set_friend_note(friend_user_id=request_data['friend_user_id'],
                          friend_note=request_data['friend_note'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_group_list(request_data):
+    user = logged_in_users[request_data['user_id']]
+    travel_group_list = user.get_travel_group_list()
+
+    response = {
+        'count': len(travel_group_list),
+        'travel_group_list': list(map(dict, travel_group_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_others_travel_group_list(request_data):
+    user = logged_in_users[request_data['user_id']]
+    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
+
+    response = {
+        'count': len(others_travel_group_list),
+        'travel_group_list': list(map(dict, others_travel_group_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def add_travel_group(request_data):
+    user = logged_in_users[request_data['user_id']]
+
+    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
+                                         travel_group_note=request_data['travel_group_note'],
+                                         travel_group_color=request_data['travel_group_color'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel_group(request_data):
+    user = logged_in_users[request_data['user_id']]
+
+    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_group_info(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    response = dict(travel_group)
+    return response
+
+
+@api(check_tokens=True)
+def set_travel_group_info(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.set_travel_group_name(name=request_data['travel_group_name'])
+    travel_group.set_travel_group_note(note=request_data['travel_group_note'])
+    travel_group.set_travel_group_color(color=request_data['travel_group_color'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def add_travel(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.add_new_travel(date_start=request_data['date_start'],
+                                date_end=request_data['date_end'],
+                                city_id=request_data['city_id'],
+                                travel_note=request_data['travel_note'],
+                                visibility=request_data['visibility'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.remove_travel(travel_id=request_data['travel_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_info(request_data):
+    travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
+                                        travel_id=request_data['travel_id'])
+
+    response = dict(travel_info)
+    return response
+
+
+@api(check_tokens=True)
+def set_travel_info(request_data):
+    travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
+                                        travel_id=request_data['travel_id'])
+
+    travel_info.set_date_start(**request_data['date_start'])
+    travel_info.set_date_end(**request_data['date_end'])
+    travel_info.set_city_id(city_id=request_data['city_id'])
+    travel_info.set_travel_note(note=request_data['travel_note'])
+    travel_info.set_visibility(visibility=request_data['visibility'])
 
     response = {}
     return response
@@ -342,7 +471,7 @@ def travel_group_detail(request, travel_group_id):
     try:
         travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
     except db_travel.TravelGroup.DoesNotExist:
-        raise TravelGroupDoseNotExistException(f'Travel group (ID={travel_group_id}) does not exist.')
+        raise TravelGroupDoesNotExistException(f'Travel group (ID={travel_group_id}) does not exist.')
 
     serializer = srl_travel.TravelGroupSerializer(travel_group)
     response = serializer.data
