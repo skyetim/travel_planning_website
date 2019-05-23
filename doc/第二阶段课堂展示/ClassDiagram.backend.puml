@@ -84,11 +84,11 @@ namespace Backend {
         .. getters ..
         + get_user_id(): int        {query}
         + get_user_name(): str      {query}
-        + get_user_note(): str      {query}
+        + get_friend_note(): str      {query}
         + get_gender(): Gender      {query}
         + get_resident_city(): City {query}
         .. setters ..
-        + set_user_note(user_note: str): int
+        + set_friend_note(user_note: str): int
     }
 
     class TravelGroup {

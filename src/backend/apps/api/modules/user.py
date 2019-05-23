@@ -265,3 +265,10 @@ class FriendInfo(UserInfoBase):
         db_user.FriendRelation.objects.create(
                 user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
+
+    def keys(self):
+        return ['user_id',
+                'user_name',
+                'friend_note',
+                'gender',
+                'resident_city_id']
