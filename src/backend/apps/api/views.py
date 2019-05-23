@@ -20,7 +20,8 @@ __all__.extend(['login', 'register', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
-__all__.extend(['add_travel_group', 'get_travel_group_info', 'set_travel_group_info'])
+__all__.extend(['add_travel_group', 'remove_travel_group',
+                'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['add_new_travel', 'get_travel_info', 'set_travel_group_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
@@ -247,7 +248,7 @@ def get_others_travel_group_list(request_data):
 
 @api(check_tokens=True)
 def add_travel_group(request_data):
-    user: mod_user.User = logged_in_users[request_data['user_id']]
+    user = logged_in_users[request_data['user_id']]
 
     travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
                                          travel_group_note=request_data['travel_group_note'],
@@ -256,6 +257,16 @@ def add_travel_group(request_data):
     response = {
         'travel_group_id': travel_group.get_travel_group_id()
     }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel_group(request_data):
+    user = logged_in_users[request_data['user_id']]
+
+    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
+
+    response = {}
     return response
 
 

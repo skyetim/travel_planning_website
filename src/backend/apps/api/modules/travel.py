@@ -298,6 +298,8 @@ class TravelGroup(object):
 
     def delete(self):
         self.check_permission()
+        for travel in self.get_travel_list():
+            self.remove_travel(travel_id=travel.get_travel_id())
         self.travel_group_dbobj.delete()
 
     def add_travel(self, travel_id):
