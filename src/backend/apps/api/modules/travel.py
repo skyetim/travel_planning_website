@@ -34,7 +34,7 @@ def get_travel_group_instance_by_id(travel_group_id):
     try:
         travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
     except db_travel.TravelGroup.DoesNotExist:
-        raise TravelGroupDoseNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
+        raise TravelGroupDoesNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
     return travel_group
 
 
