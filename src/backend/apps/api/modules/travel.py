@@ -178,7 +178,6 @@ class Travel(object):
         permission_level = check_visibility(permission_level)
         self.permission_level = permission_level
         self.read_only = (permission_level != db_travel.Travel.ME)
-        self.travel_id = travel_id
 
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
             self.travel_grouping_dbobj = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
@@ -222,7 +221,7 @@ class Travel(object):
         if db_travel.TravelAssociation.objects.filter(company_user_id=c_user,
                                                       travel_id=self.travel_dbobj).exists():
             raise TravelAssociationAlreadyExist(f'Travel Association between '
-                                                f'User(ID={company_user_id} and Travel (ID={self.travel_id})'
+                                                f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' already exists.')
         db_travel.TravelAssociation.objects.create(company_user_id=c_user,
                                                    travel_id=self.travel_dbobj)
@@ -233,7 +232,7 @@ class Travel(object):
         c_user = get_user_instance_by_id(company_user_id)
         if not db_travel.TravelAssociation.objects.filter(company_user_id=c_user, travel_id=self.travel_dbobj).exists():
             raise TravelAssociationDoesNotExist(f'Travel Association between '
-                                                f'User(ID={company_user_id} and Travel (ID={self.travel_id})'
+                                                f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' does not exist.')
         db_travel.TravelAssociation.objects.delete(company_user_id=c_user,
                                                    travel_id=self.travel_dbobj)
