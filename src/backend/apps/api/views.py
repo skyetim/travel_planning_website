@@ -298,11 +298,11 @@ def add_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
 
-    travel_group.add_new_travel(date_start=request_data['date_start'],
-                                date_end=request_data['date_end'],
-                                city_id=request_data['city_id'],
-                                travel_note=request_data['travel_note'],
-                                visibility=request_data['visibility'])
+    travel_group.add_travel(date_start=request_data['date_start'],
+                            date_end=request_data['date_end'],
+                            city_id=request_data['city_id'],
+                            travel_note=request_data['travel_note'],
+                            visibility=request_data['visibility'])
 
     response = {
         'travel_group_id': travel_group.get_travel_group_id()
