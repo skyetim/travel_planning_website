@@ -91,18 +91,12 @@ class User(object):
         return self.travel_group_list
 
     def get_others_travel_group_list(self, others_user_id):
-        if others_user_id == self.get_user_id():
-            permission_level = db_travel.Travel.ME
-        elif db_user.FriendRelation.objects.filter(user_id=self.get_user_id(), friend_user_id=others_user_id).exists():
-            permission_level = db_travel.Travel.FRIEND
-        else:
-            permission_level = db_travel.Travel.PUBLIC
         travel_group_list = []
-        travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=others_user_id)
-        for tg_dbobj in travel_groups:
+        others_travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=others_user_id)
+        for tg_dbobj in others_travel_groups:
             try:
-                travel_group = mod_travel_TravelGroup(travel_group_id=tg_dbobj.travel_group_id.travel_group_id,
-                                                      permission_level=permission_level)
+                travel_group = mod_travel_TravelGroup(user_id=self.get_user_id(),
+                                                      travel_group_id=tg_dbobj.travel_group_id.travel_group_id)
                 travel_group_list.append(travel_group)
             except PermissionDeniedException:
                 pass
@@ -176,7 +170,7 @@ class User(object):
         if db_user.User.objects.filter(email=email).exists():
             raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
         resident_city = mod_city.get_city_instance_by_id(
-            city_id=resident_city_id)
+                city_id=resident_city_id)
         user = db_user.User(email=email, pswd_hash=pswd_hash)
         user.save()
 
@@ -274,7 +268,7 @@ class FriendInfo(UserInfoBase):
         check_user_existence(friend_user_id)
         check_friendship_existence(user_id, friend_user_id, need_existence=False)
         db_user.FriendRelation.objects.create(
-            user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
+                user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
 
     def keys(self):

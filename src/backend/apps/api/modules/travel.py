@@ -6,7 +6,7 @@ import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, check_user_existence
+from apps.api.modules.user import get_user_instance_by_id
 
 
 # Static Methods
@@ -41,6 +41,19 @@ def get_travel_instance_by_id(travel_id):
     return travel
 
 
+def get_permission_level(user_id, travel_group_id):
+    user = get_user_instance_by_id(user_id=user_id)
+    travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
+    ownership = db_travel.TravelGroupOwnership.objects.get(travel_group_id=travel_group)
+    if user.user_id == ownership.user_id.user_id:
+        permission_level = db_travel.Travel.ME
+    elif db_user.FriendRelation.objects.filter(user_id=user, friend_user_id=ownership.user_id).exists():
+        permission_level = db_travel.Travel.FRIEND
+    else:
+        permission_level = db_travel.Travel.PUBLIC
+    return permission_level
+
+
 class TravelInfo(object):
     def __init__(self, travel_id, permission_level=db_travel.Travel.PUBLIC):
         try:
@@ -69,11 +82,11 @@ class TravelInfo(object):
             raise DateFormatError("Date Format Error.")
         if dstart >= dend:
             raise DateStartLaterThanDateEndError(
-                "The Date_Start should be earlier than Date_End.")
+                    "The Date_Start should be earlier than Date_End.")
         v = check_visibility(visibility)
 
         travel_info = db_travel.Travel.objects.create(
-            date_start=dstart, date_end=dend, city_id=city, visibility=v, travel_note=travel_note)
+                date_start=dstart, date_end=dend, city_id=city, visibility=v, travel_note=travel_note)
         travel_id = travel_info.travel_id
         return cls(travel_id)
 
@@ -119,7 +132,7 @@ class TravelInfo(object):
             return 0
         except ValueError:
             raise DateFormatError(
-                f'Illegal Start Date: Year={year}, Month={month}, date={date}.')
+                    f'Illegal Start Date: Year={year}, Month={month}, date={date}.')
             return 1
 
     def set_date_end(self, year, month, date):
@@ -132,7 +145,7 @@ class TravelInfo(object):
             return 0
         except ValueError:
             raise DateFormatError(
-                f'Illegal End Date: Year={year}, Month={month}, date={date}.')
+                    f'Illegal End Date: Year={year}, Month={month}, date={date}.')
             return 1
 
     def set_travel_note(self, note):
@@ -154,25 +167,22 @@ class TravelInfo(object):
 
 
 class Travel(object):
-    def __init__(self, user_id, travel_id, permission_level=db_travel.Travel.PUBLIC):
-        check_user_existence(user_id)
+    def __init__(self, travel_id, permission_level=db_travel.Travel.PUBLIC):
         check_travel_existence(travel_id)
         check_visibility(permission_level)
         self.permission_level = permission_level
         self.read_only = (permission_level != db_travel.Travel.ME)
-        self.user_id = user_id
         self.travel_id = travel_id
 
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
-            self.travel_group_id = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
+            self.travel_grouping_dbobj = db_travel.TravelGrouping.objects.get(travel_id=travel_id)
         else:
             raise TravelDoesNotExistBelongToTravelGroup(f'Travel (ID={travel_id})'
                                                         f' does not belong to any travel group.')
 
         self.travel_dbobj = db_travel.Travel.objects.get(travel_id=travel_id)
-        self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id,
-                                      visibility_list=visibility_list,
-                                      read_only=read_only)
+        self.travel_info = TravelInfo(travel_id=travel_id,
+                                      permission_level=permission_level)
         self.company_user_id_list = db_travel.TravelAssociation.objects.filter(travel_id=self.travel_dbobj)
 
     @classmethod
@@ -249,7 +259,7 @@ class Travel(object):
         return self.travel_dbobj.travel_id
 
     def get_travel_group_id(self):
-        return self.travel_group_id
+        return self.travel_grouping_dbobj.travel_group_id
 
     def get_travel_info(self):
         return self.travel_info
@@ -259,16 +269,15 @@ class Travel(object):
 
 
 class TravelGroup(object):
-    def __init__(self, travel_group_id, permission_level=db_travel.Travel.PUBLIC):
+    def __init__(self, user_id, travel_group_id):
         try:
             travel_group = db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
         except ObjectDoesNotExist:
             raise TravelGroupDoseNotExistException(f'Travel Group (ID={travel_group_id})'
                                                    f' does not exist.')
 
-        check_visibility(permission_level)
-        self.permission_level = permission_level
-        self.read_only = (permission_level != db_travel.Travel.ME)
+        self.permission_level = get_permission_level(user_id=user_id, travel_group_id=travel_group_id)
+        self.read_only = (self.permission_level != db_travel.Travel.ME)
 
         # 这里不对 应该是返回一个List of Travel 而不是返回数据库对象
         self.travel_list = []
@@ -276,7 +285,7 @@ class TravelGroup(object):
         for t in travel_list:
             try:
                 self.travel_list.append(Travel(travel_id=t.travel_id,
-                                               permission_level=permission_level))
+                                               permission_level=self.permission_level))
             except PermissionDeniedException:
                 pass
         if list(self.travel_list) == 0:
@@ -292,7 +301,7 @@ class TravelGroup(object):
                                                             travel_group_note=travel_group_note,
                                                             travel_group_color=travel_group_color)
         db_travel.TravelGroupOwnership.objects.create(travel_group_id=travel_group, user_id=user)
-        return cls(travel_group, permission_level=db_travel.Travel.ME)
+        return cls(travel_group)
 
     def delete(self):
         if self.read_only:
@@ -305,12 +314,11 @@ class TravelGroup(object):
         check_travel_existence(travel_id=travel_id)
         if db_travel.TravelGrouping.objects.filter(travel_id=travel_id).exists():
             raise TravelAlreadyExistsInTravelGroup(
-                f'Travel (ID={travel_id}) already exists in the travelgrouping database.')
+                    f'Travel (ID={travel_id}) already exists in the travelgrouping database.')
         travel = get_travel_instance_by_id(travel_id=travel_id)
         db_travel.TravelGrouping.objects.create(travel_id=travel,
                                                 travel_group_id=self.travel_group_dbobj)
-        self.travel_list.append(Travel(user_id=self.get_user_id(),
-                                       travel_id=travel_id))
+        self.travel_list.append(Travel(travel_id=travel_id))
 
     def add_new_travel(self, travel_note, city_id,
                        date_start, date_end,
