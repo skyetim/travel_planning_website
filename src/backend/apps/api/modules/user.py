@@ -69,7 +69,7 @@ class User(object):
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
-        self.travel_group_list = self.get_others_travel_group_list(others_user_id=self.get_user_id())
+        self.travel_group_list = self.get_others_travel_group_list(other_user_id=self.get_user_id())
 
         self.friend_info_list = []
         friend_relations = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
@@ -95,9 +95,9 @@ class User(object):
     def get_group_list(self):
         return self.travel_group_list
 
-    def get_others_travel_group_list(self, others_user_id):
+    def get_others_travel_group_list(self, other_user_id):
         travel_group_list = []
-        others_travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=others_user_id)
+        others_travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=other_user_id)
         for tg_dbobj in others_travel_groups:
             try:
                 travel_group = mod_travel_TravelGroup(user_id=self.get_user_id(),
@@ -257,16 +257,6 @@ class FriendInfo(UserInfoBase):
 
     def delete(self):
         self.friend_relation_dbobj.delete()
-
-    def get_travel_group_list(self):
-        """
-        Return a list of apps.api.modules.travel.TravelGroup Objects.
-        """
-        tgl = []
-
-        return tgl
-
-        # To be finished
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
