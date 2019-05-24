@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import wraps
 
 from django.utils import timezone
@@ -53,6 +53,8 @@ def prepare_request_data(func):
         cast(name='resident_city_id', cast_func=int)
         cast(name='latitude', cast_func=float)
         cast(name='longitude', cast_func=float)
+        cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
+        cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
 
         return func(request_data=request_data)
 
