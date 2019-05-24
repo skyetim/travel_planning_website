@@ -45,6 +45,7 @@ class TravelGroupOwnership(models.Model):
             models.Index(fields=['travel_group_id'],
                          name='T_TGO_travelgroupid_idx')
         ]
+        unique_together = (('user_id', 'travel_group_id'),)
 
 
 class Travel(models.Model):
@@ -110,6 +111,7 @@ class TravelGrouping(models.Model):
             models.Index(fields=['travel_group_id'],
                          name='T_TG_travelgroupid_idx')
         ]
+        unique_together = (('travel_id', 'travel_group_id'),)
 
 
 class TravelAssociation(models.Model):

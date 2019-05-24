@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import wraps
 
 from django.utils import timezone
@@ -53,6 +53,8 @@ def prepare_request_data(func):
         cast(name='resident_city_id', cast_func=int)
         cast(name='latitude', cast_func=float)
         cast(name='longitude', cast_func=float)
+        cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
+        cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
 
         return func(request_data=request_data)
 
@@ -194,6 +196,7 @@ def set_user_info(request_data):
     user.set_email(email=request_data['email'])
     user_info.set_user_name(user_name=request_data['user_name'])
     user_info.set_gender(gender=request_data['gender'])
+    user_info.set_comment(comment=request_data['comment'])
     user_info.set_resident_city_id(city_id=request_data['resident_city_id'])
 
     response = {}
@@ -298,11 +301,11 @@ def add_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
 
-    travel_group.add_new_travel(date_start=request_data['date_start'],
-                                date_end=request_data['date_end'],
-                                city_id=request_data['city_id'],
-                                travel_note=request_data['travel_note'],
-                                visibility=request_data['visibility'])
+    travel_group.add_travel(date_start=request_data['date_start'],
+                            date_end=request_data['date_end'],
+                            city_id=request_data['city_id'],
+                            travel_note=request_data['travel_note'],
+                            visibility=request_data['visibility'])
 
     response = {
         'travel_group_id': travel_group.get_travel_group_id()

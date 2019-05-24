@@ -1,7 +1,5 @@
 import re
 
-from django.core.exceptions import *
-
 import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
@@ -59,7 +57,7 @@ class User(object):
             user = db_user.User.objects.get(email=email)
             if user.pswd_hash != pswd_hash:
                 raise WrongPasswordException('Wrong password.')
-        except ObjectDoesNotExist:
+        except db_user.User.DoesNotExist:
             raise UserDoesNotExistException(f'User (Email={email}) does not exist.')
 
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
@@ -114,6 +112,8 @@ class User(object):
         return self.user_dbobj.email
 
     def set_friend_note(self, friend_user_id, friend_note):
+        # TODO: refactor (use dict)
+
         friend_exist = False
         for fr in self.friend_info_list:
             if fr.get_user_id() == friend_user_id:
@@ -140,6 +140,8 @@ class User(object):
         self.friend_info_list.append(fr)
 
     def remove_friend(self, friend_user_id):
+        # TODO: refactor (use dict)
+
         friend_exist = False
         for fr in self.friend_info_list:
             if fr.get_user_id() == friend_user_id:
@@ -152,14 +154,16 @@ class User(object):
                                               f'User (ID={friend_user_id})')
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
-        tg = mod_travel_TravelGroup.new_travel_group(user_id=self.get_user_id(),
-                                                     travel_group_name=travel_group_name,
-                                                     travel_group_note=travel_group_note,
-                                                     travel_group_color=travel_group_color)
-        self.travel_group_list.append(tg)
-        return tg.get_travel_group_id()
+        travel_group = mod_travel_TravelGroup.new_travel_group(user_id=self.get_user_id(),
+                                                               travel_group_name=travel_group_name,
+                                                               travel_group_note=travel_group_note,
+                                                               travel_group_color=travel_group_color)
+        self.travel_group_list.append(travel_group)
+        return travel_group.get_travel_group_id()
 
     def remove_travel_group(self, travel_group_id):
+        # TODO: refactor (use dict)
+
         travel_group_exist = False
         for tg in self.travel_group_list:
             if tg.get_travel_group_id() == travel_group_id:
@@ -175,16 +179,16 @@ class User(object):
     def new_user(cls, email, pswd_hash, user_name, gender, resident_city_id):
         if db_user.User.objects.filter(email=email).exists():
             raise UserAlreadyExistsException(f'User (Email={email}) already exists, try to login.')
-        resident_city = mod_city.get_city_instance_by_id(
-                city_id=resident_city_id)
-        user = db_user.User(email=email, pswd_hash=pswd_hash)
-        user.save()
 
-        user_info = db_user.UserInfo(user_id=user,
-                                     user_name=user_name,
-                                     gender=gender,
-                                     resident_city_id=resident_city)
-        user_info.save()
+        resident_city = mod_city.get_city_instance_by_id(city_id=resident_city_id)
+
+        user = db_user.User.objects.create(email=email, pswd_hash=pswd_hash)
+        user_info = db_user.UserInfo.objects.create(user_id=user,
+                                                    user_name=user_name,
+                                                    gender=gender,
+                                                    comment='',
+                                                    resident_city_id=resident_city)
+
         return cls(email=email, pswd_hash=pswd_hash)
 
     def keys(self):
@@ -209,6 +213,9 @@ class UserInfoBase(object):
     def get_gender(self):
         return self.user_info_dbobj.gender
 
+    def get_comment(self):
+        return self.user_info_dbobj.comment
+
     def get_resident_city_id(self):
         return self.user_info_dbobj.resident_city_id.city_id
 
@@ -216,6 +223,7 @@ class UserInfoBase(object):
         return ['user_id',
                 'user_name',
                 'gender',
+                'comment',
                 'resident_city_id']
 
     def __getitem__(self, item):
@@ -233,6 +241,10 @@ class UserInfo(UserInfoBase):
                           db_user.UserInfo.UNKNOWN):
             gender = db_user.UserInfo.OTHER
         self.user_info_dbobj.gender = gender
+        self.user_info_dbobj.save()
+
+    def set_comment(self, comment):
+        self.user_info_dbobj.comment = comment
         self.user_info_dbobj.save()
 
     def set_resident_city_id(self, city_id):
@@ -257,14 +269,19 @@ class FriendInfo(UserInfoBase):
         self.friend_relation_dbobj.save()
 
     def delete(self):
+        # TODO: remove all travel association for both user
+        # user1 associate with user2's travel
+        # user2 associate with user1's travel
+        # do not send message?
         self.friend_relation_dbobj.delete()
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
         check_user_existence(friend_user_id)
         check_friend_relation_existence(user_id, friend_user_id, need_existence=False)
-        db_user.FriendRelation.objects.create(
-                user_id=user_id, friend_user_id=friend_user_id, friend_note=friend_note)
+        db_user.FriendRelation.objects.create(user_id=user_id,
+                                              friend_user_id=friend_user_id,
+                                              friend_note=friend_note)
         return cls(user_id=user_id, friend_user_id=friend_user_id)
 
     def keys(self):
