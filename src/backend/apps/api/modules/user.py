@@ -1,7 +1,5 @@
 import re
 
-from django.core.exceptions import *
-
 import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
@@ -59,7 +57,7 @@ class User(object):
             user = db_user.User.objects.get(email=email)
             if user.pswd_hash != pswd_hash:
                 raise WrongPasswordException('Wrong password.')
-        except ObjectDoesNotExist:
+        except db_user.User.DoesNotExist:
             raise UserDoesNotExistException(f'User (Email={email}) does not exist.')
 
         db_user.UserSession.objects.filter(user_id=user.user_id).delete()
