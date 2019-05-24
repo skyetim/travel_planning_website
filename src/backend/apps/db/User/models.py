@@ -50,6 +50,9 @@ class UserInfo(models.Model):
                               choices=GENDER_CHOICES,
                               null=False,
                               editable=True)
+    comment = models.CharField(max_length=20,
+                               null=False,
+                               editable=True)
     resident_city_id = models.ForeignKey(city.City,
                                          to_field='city_id',
                                          related_name='U_UI_residentcityid',
@@ -74,8 +77,8 @@ class FriendRelation(models.Model):
                                        related_name='U_FR_frienduserid',
                                        on_delete=models.CASCADE)
     friend_note = models.CharField(max_length=20,
-                                        null=False,
-                                        editable=True)
+                                   null=False,
+                                   editable=True)
 
     class Meta:
         indexes = [

@@ -186,6 +186,7 @@ class User(object):
         user_info = db_user.UserInfo.objects.create(user_id=user,
                                                     user_name=user_name,
                                                     gender=gender,
+                                                    comment='',
                                                     resident_city_id=resident_city)
 
         return cls(email=email, pswd_hash=pswd_hash)
@@ -212,6 +213,9 @@ class UserInfoBase(object):
     def get_gender(self):
         return self.user_info_dbobj.gender
 
+    def get_comment(self):
+        return self.user_info_dbobj.comment
+
     def get_resident_city_id(self):
         return self.user_info_dbobj.resident_city_id.city_id
 
@@ -219,6 +223,7 @@ class UserInfoBase(object):
         return ['user_id',
                 'user_name',
                 'gender',
+                'comment',
                 'resident_city_id']
 
     def __getitem__(self, item):
@@ -236,6 +241,10 @@ class UserInfo(UserInfoBase):
                           db_user.UserInfo.UNKNOWN):
             gender = db_user.UserInfo.OTHER
         self.user_info_dbobj.gender = gender
+        self.user_info_dbobj.save()
+
+    def set_comment(self, comment):
+        self.user_info_dbobj.comment = comment
         self.user_info_dbobj.save()
 
     def set_resident_city_id(self, city_id):

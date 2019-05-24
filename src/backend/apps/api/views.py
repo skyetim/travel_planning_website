@@ -196,6 +196,7 @@ def set_user_info(request_data):
     user.set_email(email=request_data['email'])
     user_info.set_user_name(user_name=request_data['user_name'])
     user_info.set_gender(gender=request_data['gender'])
+    user_info.set_comment(comment=request_data['comment'])
     user_info.set_resident_city_id(city_id=request_data['resident_city_id'])
 
     response = {}
