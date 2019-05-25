@@ -1,3 +1,4 @@
+from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 import re
 
 import apps.api.modules.city as mod_city
@@ -46,9 +47,6 @@ def check_friend_relation_existence(user_id, friend_user_id, need_existence=True
 def get_user_instance_by_id(user_id):
     check_user_existence(user_id=user_id)
     return db_user.User.objects.get(user_id=user_id)
-
-
-from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 
 
 class User(object):
@@ -289,4 +287,5 @@ class FriendInfo(UserInfoBase):
                 'user_name',
                 'friend_note',
                 'gender',
+                'comment',
                 'resident_city_id']
