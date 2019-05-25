@@ -18,7 +18,7 @@ from apps.db.User import models as db_user, serializers as srl_user
 __all__ = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
-__all__.extend(['get_friend_info_list', 'set_friend_note'])
+__all__.extend(['get_friend_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_info', 'set_travel_group_info'])
@@ -218,13 +218,13 @@ def set_user_info(request_data):
 
 
 @api(check_tokens=True)
-def get_friend_info_list(request_data):
+def get_friend_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     friend_info_list = user.get_friend_info_list()
 
     response = {
         'count': len(friend_info_list),
-        'friend_info_list': list(map(dict, friend_info_list))
+        'friend_list': list(map(mod_user.FriendInfo.get_user_id, friend_info_list))
     }
     return response
 
