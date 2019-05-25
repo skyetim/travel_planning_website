@@ -16,7 +16,7 @@ from apps.db.User import models as db_user, serializers as srl_user
 
 
 __all__ = []
-__all__.extend(['login', 'register', 'reset_password'])
+__all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
 __all__.extend(['get_friend_info_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
@@ -143,6 +143,20 @@ def api(check_tokens):
 
 # Create your views here.
 @api(check_tokens=False)
+def register(request_data):
+    user = mod_user.User.new_user(email=request_data['email'],
+                                  pswd_hash=request_data['pswd_hash'],
+                                  user_name=request_data['user_name'],
+                                  gender=request_data['gender'],
+                                  resident_city_id=request_data['resident_city_id'])
+
+    response = {
+        'user_id': user.get_user_id()
+    }
+    return response
+
+
+@api(check_tokens=False)
 def login(request_data):
     user = mod_user.User(email=request_data['email'],
                          pswd_hash=request_data['pswd_hash'])
@@ -155,17 +169,15 @@ def login(request_data):
     return response
 
 
-@api(check_tokens=False)
-def register(request_data):
-    user = mod_user.User.new_user(email=request_data['email'],
-                                  pswd_hash=request_data['pswd_hash'],
-                                  user_name=request_data['user_name'],
-                                  gender=request_data['gender'],
-                                  resident_city_id=request_data['resident_city_id'])
+@api(check_tokens=True)
+def logout(request_data):
+    try:
+        del LOGGED_IN_USERS[request_data['user_id']]
+    except KeyError:
+        pass
+    db_user.UserSession.objects.filter(user_id=request_data['user_id']).delete()
 
-    response = {
-        'user_id': user.get_user_id()
-    }
+    response = {}
     return response
 
 
