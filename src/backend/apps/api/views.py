@@ -23,7 +23,7 @@ __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['add_travel', 'remove_travel',
-                'get_travel_info', 'set_travel_group_info'])
+                'get_travel_info', 'set_travel_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
 request_method_list = ['POST']
