@@ -25,7 +25,7 @@
           <th>行迹</th>
           <th>开始</th>
           <th>结束</th>
-          <th>计划</th>
+          <th>可见</th>
           <th>行程</th>
           <th>同伴</th>
         </template>
@@ -133,7 +133,7 @@
               addon-left-icon="ni ni-tag"
             ></base-input>
             <div class="dropdown-content">
-              <li v-for="(n,index) in [0, 1, 2, 3]" :key="index" @click="changeStatus(n, editRow)">
+              <li v-for="(n,index) in [0, 1, 2]" :key="index" @click="changeStatus(n, editRow)">
                 <a class="dropdown-item">
                   <span class="status">{{status[n]}}</span>
                 </a>
@@ -156,8 +156,8 @@ import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
 import moment from "moment";
 
-var statusType = ["success", "info", "warning", "danger"];
-var status = ["completed", "on schedule", "pending", "delayed"];
+var statusType = ["danger", "info", "success"];
+var status = ["仅自己可见", "好友可见", "所有可见"];
 
 var edit = {
   modal: false,

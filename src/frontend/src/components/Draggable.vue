@@ -100,13 +100,15 @@ export default {
 </script>
 <style scoped>
 .item {
-  padding: 10px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top:0px;
+  padding-bottom: 0px;
 }
 
 .input-list {
   width: 30%;
   margin-right: 5px;
-  margin-top: 5px;
   margin-bottom: 0px;
   display: inline-block;
   position: relative;
