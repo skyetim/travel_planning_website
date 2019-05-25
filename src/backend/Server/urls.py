@@ -17,8 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from Server import views
+
 
 urlpatterns = [
+    path(r'', views.backend_home),
     path(r'admin/', admin.site.urls),
     path(r'api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path(r'api/', include('apps.api.urls')),
