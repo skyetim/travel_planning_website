@@ -18,6 +18,7 @@ from apps.db.User import models as db_user, serializers as srl_user
 __all__ = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
+__all__.extend(['get_others_user_info'])
 __all__.extend(['get_friend_list', 'set_friend_note'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
@@ -199,6 +200,25 @@ def get_user_info(request_data):
 
     response = dict(user)
     response.update(dict(user_info))
+    return response
+
+
+@api(check_tokens=True)
+def get_others_user_info(request_data):
+    user_id = request_data['user_id']
+    other_user_id = request_data['other_user_id ']
+    is_friend = mod_user.is_friend(user_id=user_id, friend_user_id=other_user_id)
+
+    if other_user_id == user_id:
+        user = LOGGED_IN_USERS[request_data['user_id']]
+        other_user_info = user.get_user_info()
+    elif is_friend:
+        other_user_info = mod_user.FriendInfo(user_id=user_id, friend_user_id=other_user_id)
+    else:
+        other_user_info = mod_user.UserInfoBase(user_id=other_user_id)
+
+    response = dict(other_user_info)
+    response['is_friend'] = is_friend
     return response
 
 
