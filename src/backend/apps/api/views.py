@@ -16,9 +16,10 @@ from apps.db.User import models as db_user, serializers as srl_user
 
 
 __all__ = []
-__all__.extend(['login', 'register', 'reset_password'])
+__all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info'])
-__all__.extend(['get_friend_info_list', 'set_friend_note'])
+__all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
+__all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_info', 'set_travel_group_info'])
@@ -26,12 +27,12 @@ __all__.extend(['add_travel', 'remove_travel',
                 'get_travel_info', 'set_travel_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
-request_method_list = ['POST']
+REQUEST_METHOD_LIST = ['POST']
 
 if DEBUG:
-    request_method_list.append('GET')
+    REQUEST_METHOD_LIST.append('GET')
 
-logged_in_users = {}
+LOGGED_IN_USERS = {}
 
 SESSION_TIMEOUT = timedelta(minutes=10)
 
@@ -88,18 +89,20 @@ def check_token(func):
     def ck_wrapper(request_data):
         user_id = request_data['user_id']
         session_id = request_data['session_id']
-        if user_id not in logged_in_users:
+        if user_id not in LOGGED_IN_USERS:
             raise UserAuthorizationException(f'User (ID={user_id}) does not log in.')
         try:
             user_session = db_user.UserSession.objects.get(user_id=user_id,
                                                            session_id=session_id)
         except db_user.UserSession.DoesNotExist:
+            del LOGGED_IN_USERS[user_id]
             db_user.UserSession.objects.filter(user_id=user_id).delete()
-            del logged_in_users[user_id]
-            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id}) do not match, log out.')
+            raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id})'
+                                             f' do not match, log out.')
         else:
             if user_session.last_action_time < timezone.now() - SESSION_TIMEOUT:
-                del logged_in_users[user_id]
+                del LOGGED_IN_USERS[user_id]
+                db_user.UserSession.objects.filter(user_id=user_id).delete()
                 raise UserSessionTimeoutException(f'User (ID={user_id}) has no action for 10 minutes, log out.')
             user_session.save()
             return func(request_data=request_data)
@@ -131,8 +134,8 @@ def api(check_tokens):
         if check_tokens:
             wrapped_func = check_token(wrapped_func)
         wrapped_func = prepare_request_data(func=wrapped_func)
-        wrapped_func = api_view(http_method_names=request_method_list)(func=wrapped_func)
-        wrapped_func = require_http_methods(request_method_list=request_method_list)(func=wrapped_func)
+        wrapped_func = api_view(http_method_names=REQUEST_METHOD_LIST)(func=wrapped_func)
+        wrapped_func = require_http_methods(request_method_list=REQUEST_METHOD_LIST)(func=wrapped_func)
 
         return wrapped_func
 
@@ -140,19 +143,6 @@ def api(check_tokens):
 
 
 # Create your views here.
-@api(check_tokens=False)
-def login(request_data):
-    user = mod_user.User(email=request_data['email'],
-                         pswd_hash=request_data['pswd_hash'])
-    logged_in_users[user.get_user_id()] = user
-
-    response = {
-        'user_id': user.get_user_id(),
-        'session_id': user.get_session_id()
-    }
-    return response
-
-
 @api(check_tokens=False)
 def register(request_data):
     user = mod_user.User.new_user(email=request_data['email'],
@@ -167,9 +157,34 @@ def register(request_data):
     return response
 
 
+@api(check_tokens=False)
+def login(request_data):
+    user = mod_user.User(email=request_data['email'],
+                         pswd_hash=request_data['pswd_hash'])
+    LOGGED_IN_USERS[user.get_user_id()] = user
+
+    response = {
+        'user_id': user.get_user_id(),
+        'session_id': user.get_session_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def logout(request_data):
+    try:
+        del LOGGED_IN_USERS[request_data['user_id']]
+    except KeyError:
+        pass
+    db_user.UserSession.objects.filter(user_id=request_data['user_id']).delete()
+
+    response = {}
+    return response
+
+
 @api(check_tokens=True)
 def reset_password(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
     user.reset_password(old_pswd_hash=request_data['old_pswd_hash'],
                         new_pswd_hash=request_data['new_pswd_hash'])
@@ -180,7 +195,7 @@ def reset_password(request_data):
 
 @api(check_tokens=True)
 def get_user_info(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
     user_info = user.get_user_info()
 
     response = dict(user)
@@ -190,7 +205,7 @@ def get_user_info(request_data):
 
 @api(check_tokens=True)
 def set_user_info(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
     user_info = user.get_user_info()
 
     user.set_email(email=request_data['email'])
@@ -204,20 +219,29 @@ def set_user_info(request_data):
 
 
 @api(check_tokens=True)
-def get_friend_info_list(request_data):
-    user = logged_in_users[request_data['user_id']]
+def get_friend_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
     friend_info_list = user.get_friend_info_list()
 
     response = {
         'count': len(friend_info_list),
-        'friend_info_list': list(map(dict, friend_info_list))
+        'friend_list': list(map(mod_user.FriendInfo.get_user_id, friend_info_list))
     }
     return response
 
 
 @api(check_tokens=True)
+def get_friend_info(request_data):
+    friend_user_info = mod_user.FriendInfo(user_id=request_data['user_id'],
+                                           friend_user_id=request_data['friend_user_id '])
+
+    response = dict(friend_user_info)
+    return response
+
+
+@api(check_tokens=True)
 def set_friend_note(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
     user.set_friend_note(friend_user_id=request_data['friend_user_id'],
                          friend_note=request_data['friend_note'])
@@ -227,8 +251,27 @@ def set_friend_note(request_data):
 
 
 @api(check_tokens=True)
+def get_others_user_info(request_data):
+    user_id = request_data['user_id']
+    other_user_id = request_data['other_user_id ']
+    is_friend = mod_user.is_friend(user_id=user_id, friend_user_id=other_user_id)
+
+    if other_user_id == user_id:
+        user = LOGGED_IN_USERS[request_data['user_id']]
+        other_user_info = user.get_user_info()
+    elif is_friend:
+        other_user_info = mod_user.FriendInfo(user_id=user_id, friend_user_id=other_user_id)
+    else:
+        other_user_info = mod_user.UserInfoBase(user_id=other_user_id)
+
+    response = dict(other_user_info)
+    response['is_friend'] = is_friend
+    return response
+
+
+@api(check_tokens=True)
 def get_travel_group_list(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
     travel_group_list = user.get_travel_group_list()
 
     response = {
@@ -240,7 +283,7 @@ def get_travel_group_list(request_data):
 
 @api(check_tokens=True)
 def get_others_travel_group_list(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
     others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
 
     response = {
@@ -252,7 +295,7 @@ def get_others_travel_group_list(request_data):
 
 @api(check_tokens=True)
 def add_travel_group(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
     travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
                                          travel_group_note=request_data['travel_group_note'],
@@ -266,7 +309,7 @@ def add_travel_group(request_data):
 
 @api(check_tokens=True)
 def remove_travel_group(request_data):
-    user = logged_in_users[request_data['user_id']]
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
     user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
 
