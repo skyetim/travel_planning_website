@@ -3,6 +3,7 @@ openssl==1.0.2r
 mysqlclient
 django
 djangorestframework
+django-cors-headers
 autopep8
 pylint
 googlemaps
