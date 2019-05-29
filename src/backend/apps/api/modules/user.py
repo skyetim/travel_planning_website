@@ -1,4 +1,3 @@
-from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 import re
 
 import apps.api.modules.city as mod_city
@@ -92,6 +91,8 @@ class User(object):
         return self.travel_group_list
 
     def get_others_travel_group_list(self, other_user_id):
+        from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
+
         travel_group_list = []
         others_travel_groups = db_travel.TravelGroupOwnership.objects.filter(user_id=other_user_id)
         for tg_dbobj in others_travel_groups:
@@ -152,6 +153,8 @@ class User(object):
                                               f'User (ID={friend_user_id})')
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
+        from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
+
         travel_group = mod_travel_TravelGroup.new_travel_group(user_id=self.get_user_id(),
                                                                travel_group_name=travel_group_name,
                                                                travel_group_note=travel_group_note,
