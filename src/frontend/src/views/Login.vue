@@ -65,7 +65,7 @@
         </div>
 </template>
 <script>
-  import {email, minLength} from 'vuelidate/lib/validators';
+  import {email} from 'vuelidate/lib/validators';
   export default {
     name: 'login',
     data() {
