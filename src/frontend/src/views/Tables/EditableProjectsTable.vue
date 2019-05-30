@@ -3,9 +3,7 @@
     <div class="card-header border-0">
       <div class="row align-items-center">
         <div class="col">
-          <h3 class="mb-0">
-            {{title}}
-          </h3>
+          <h3 class="mb-0">{{title}}</h3>
         </div>
         <div class="col text-right">
           <base-button type="primary" size="sm" @click="addBox()">添加新的行程</base-button>
@@ -109,48 +107,53 @@
         <h5 class="modal-title" id="exampleModalLabel">新建行迹</h5>
       </template>
       <div>
+        <small class="text-muted text-center">行迹名</small>
+        <br>
         <div class="row">
-          <!-- <small class="text-muted text-center">行迹名</small><br> -->
-          <base-input alternative class="mb-3" placeholder="行迹名" v-model="editRow.name" addon-left-icon="ni ni-send"></base-input>
-          <i
-            :class="['ni', edit.collapsed ? 'ni-bold-down': 'ni-bold-up', 'icon-expand']"
-            @click="edit.collapsed=!edit.collapsed"
-          ></i>
+          <div class="col-11 inline-div">
+            <base-input placeholder="行迹名" v-model="editRow.name"></base-input>
+          </div>
+          <div class="inline-div">
+            <i
+              :class="['ni', edit.collapsed ? 'ni-bold-down': 'ni-bold-up', 'icon-expand']"
+              @click="edit.collapsed=!edit.collapsed"
+            ></i>
+          </div>
+        </div>
+        <div class="row">
           <div :class="[edit.collapsed?'collapse': 'expand']">
-            <div class="col">
+            <div class="col-11">
               <draggablelist :travel="editRow.travel"></draggablelist>
             </div>
           </div>
         </div>
 
+        <small class="text-muted text-center">行程状态</small>
+        <br>
         <div class="row">
-          <!-- <small class="text-muted text-center">行程状态</small><br/> -->
-          <div class="dropdown">
-            <base-input
-              alternative
-              class="mb-3"
-              v-model="status[editRow.status]"
-              addon-left-icon="ni ni-tag"
-            ></base-input>
-            <div class="dropdown-content">
-              <li v-for="(n,index) in [0, 1, 2]" :key="index" @click="changeStatus(n, editRow)">
-                <a class="dropdown-item">
-                  <span class="status">{{status[n]}}</span>
-                </a>
-              </li>
-            </div>
+          <div class="col-11">
+            <base-input @click.native="expandPicker()" v-model="status[editRow.status]" readonly></base-input>
+          </div>
+        </div>
+        <div class="row" margin-top="-30px">
+          <div ref="picker" class="col-11 dropdown-content">
+            <div
+              class="list-group-item item"
+              v-for="(n,index) in [0, 1, 2]"
+              :key="index"
+              @click="changeStatus(n, editRow)"
+            >{{status[n]}}</div>
           </div>
         </div>
       </div>
       <template slot="footer">
-        <base-button type="primary"  @click="edit.modal = false">Save changes</base-button>
+        <base-button type="primary" @click="edit.modal = false">Save changes</base-button>
       </template>
     </modal>
   </div>
 </template>
 
 <script>
-
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
@@ -217,6 +220,7 @@ export default {
     },
     changeStatus: function(n, row) {
       row.status = n;
+      this.$refs.picker.style.display = "none";
     },
     del: function(row) {
       for (var i = 0; i < this.tableData.length; ++i) {
@@ -225,23 +229,20 @@ export default {
           break;
         }
       }
+    },
+    expandPicker: function() {
+      this.$refs.picker.style.display = "block";
     }
   }
 };
 </script>
 
 <style scoped>
-.mb-3 {
-  width: 400px;
-}
-.col {
-  width: 400px;
-}
-
 /* icons */
 .icon-expand {
   position: relative;
-  margin: 10px;
+  margin-top: 10px;
+  margin-left: 10px;
   font-size: 150%;
   transition: transform 0.2s;
 }
@@ -272,53 +273,34 @@ export default {
 
 /* collapse and expand */
 .collapse {
-  padding: 18px;
   display: none;
   overflow: hidden;
   background-color: #ffffff;
 }
 
 .expand {
-  padding: 18px;
   display: block;
   overflow: hidden;
   background-color: #ffffff;
-}
-
-/* Dropdown Button */
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
 }
 
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #ffffff;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 2;
 }
 
-/* Links inside the dropdown */
-.dropdown-content a {
-  color: black;
-  padding: 12px 16px;
-  text-decoration: none;
-  display: block;
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {
-  background-color: #ddd;
-}
-
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
 /* modal input*/
+.inline-div {
+  display: inline-block;
+}
+
+.item {
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  cursor: pointer;
+}
 </style>
