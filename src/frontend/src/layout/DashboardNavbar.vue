@@ -45,7 +45,7 @@
                             <span>Support</span>
                         </router-link>
                         <div class="dropdown-divider"></div>
-                        <router-link to="/profile" class="dropdown-item">
+                        <router-link v-on:click.native='logout' to='/login' class="dropdown-item">
                             <i class="ni ni-user-run"></i>
                             <span>Logout</span>
                         </router-link>
@@ -73,6 +73,38 @@
       },
       toggleMenu() {
         this.showMenu = !this.showMenu;
+      },
+      logout(){
+        if (this.$session.exists()) {
+          this.$http.post('http://185.239.71.198:9000/api/logout', {
+                user_id: this.$session.get('user_id'),
+                session_id: this.$session.id().replace('sess:', '')
+          }).then(function (response) {
+              if (response.status === 200) {
+                if (response.body.status == this.$status['normal']){
+                  this.$session.destroy();
+                  this.$router.push('/login');
+                } else if (response.body.status == this.$status['user_anthorization_error']) {
+                  window.alert('用户登录信息有误, 请重新登录');
+                  this.$session.destroy();
+                  this.$router.push('/login');
+                } else if (response.body.status == this.$status['user_session_timeout']){
+                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
+                  this.$session.destroy();
+                  this.$router.push('/login');
+                } else {
+                  console.error('退出时发生未知错误', response.body);
+                }
+              } else {
+                console.error('网络连接有问题');
+              }
+          }, function (err) {
+              console.error('err', err);
+            })
+        } else {
+          window.alert('用户已退出, 请重新登录');
+          this.$router.push('/login');
+        }
       }
     }
   };
