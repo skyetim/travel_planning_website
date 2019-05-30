@@ -350,6 +350,7 @@ class TravelGroup(object):
         self.check_permission()
         t = self.get_travel_object_in_group(travel_id)
         t.move_to_travel_group(other_travel_group_id)
+        self.travel_list.remove(travel_id)
 
     def travel_move_to_new_group(self, travel_id, travel_group_name, travel_group_note, travel_group_color):
         self.check_permission()
@@ -358,6 +359,7 @@ class TravelGroup(object):
         tg = owner.add_travel_group(
             travel_group_name, travel_group_note, travel_group_color)
         t.move_to_travel_group(tg.get_travel_group_id)
+        self.travel_list.remove(travel_id)
 
 
     def get_owner_user_id(self):
