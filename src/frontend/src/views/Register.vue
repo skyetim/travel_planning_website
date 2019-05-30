@@ -26,39 +26,56 @@
                         <base-input class="input-group-alternative mb-3"
                                     placeholder="Name"
                                     addon-left-icon="ni ni-hat-3"
-                                    v-model="model.name">
+                                    v-model="model.user_name"
+                                    @focus="login_error.visible=false">
                         </base-input>
 
                         <base-input class="input-group-alternative mb-3"
                                     placeholder="Email"
                                     addon-left-icon="ni ni-email-83"
-                                    v-model="model.email">
+                                    v-model="model.email"
+                                    @focus="login_error.visible=false">
                         </base-input>
+
+                        <div v-if="!$v.model.email.email">
+                            <base-alert type='primary'>
+                                请输入正确的邮箱地址
+                            </base-alert>
+                        </div>
 
                         <base-input class="input-group-alternative"
                                     placeholder="Password"
                                     type="password"
                                     addon-left-icon="ni ni-lock-circle-open"
-                                    v-model="model.password">
+                                    v-model="model.password"
+                                    @focus="login_error.visible=false">
                         </base-input>
 
-                        <base-input class="input-group-alternative mb-3"
+                        <div v-show="login_error.visible">
+                            <base-alert type='primary'>
+                                {{this.login_error.message}}
+                            </base-alert>
+                        </div>
+
+                        <!-- <base-input class="input-group-alternative mb-3"
                                     placeholder="Resident city"
                                     addon-left-icon="ni ni-hat-3"
                                     v-model="model.resident_city">
-                        </base-input>
+                        </base-input> -->
+
+
 
                         <!-- <div class="text-muted font-italic">
                             <small>password strength: <span class="text-success font-weight-700">strong</span></small>
                         </div> -->
 
-                        <div class="row my-4">
+                        <!-- <div class="row my-4">
                             <div class="col-12">
                                 <base-checkbox class="custom-control-alternative">
                                     <span class="text-muted">I agree with the <a href="#!">Privacy Policy</a></span>
                                 </base-checkbox>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="text-center">
                             <base-button type="primary" class="my-4" @click='register'>Create account</base-button>
                         </div>
@@ -81,6 +98,8 @@
     </div>
 </template>
 <script>
+  import {email} from 'vuelidate/lib/validators';
+  import { setTimeout } from 'timers';
   export default {
     name: 'register',
     data() {
@@ -89,31 +108,57 @@
           name: '',
           email: '',
           password: '',
-          resident_city: ''
+          resident_city_id: 1, 
+          gender: '男'
+        }, 
+        login_error: {
+            visible: false, 
+            message: ''
         }
       }
     }, 
+    validations: {
+        model: {
+            email:{
+                email
+            }
+        }
+    }, 
     methods: {
         register(){
-            if (this.name=='' || this.email=='' || this.password=='' || this.resident_city==''){
-                // TODO
-                // return;
+            if (this.name=='' || this.email=='' || this.password=='' || this.resident_city_id=='' || this.gender==''){
+                this.login_error.visible = true;
+                this.login_error.message = '以上内容均为必填项, 请全部填写';
+                return
             }
+            this.$http.post('http://185.239.71.198:9000/api/register', {
+                pswd_hash: this.$md5(this.model.password),
+                email: this.model.email, 
+                user_name: this.model.name, 
+                gender: this.model.gender, 
+                resident_city_id: this.model.resident_city_id
+            }).then(function (response) {
+                if (response.status === 200) {
+                    if (response.body.status == this.$status['normal']){
+                        this.login_error.visible = true;
+                        this.login_error.message = '注册成功, 请登录';
+                        // setTimeout(function(){}, 1500);
+                        this.$router.push('/login');
+                    } else if (response.body.status == this.$status['user_already_exists']){
+                        this.login_error.visible = true;
+                        this.login_error.message = '该邮箱已存在, 请尝试登录';
+                    } else {
+                        console.error('注册时发生未知错误', response.body)
+                    }
+                } else {
+                    this.login_error.visible = true; 
+                    this.login_error.message = '网络连接有问题, 请重试';
+                    console.error(response.body);
+                }
+            }, function (err) {
+                console.error('err', err)
+            })
 
-            let loginParam = {
-                email: this.email,
-                pswd: this.password
-            }
-
-            // TODO: POST
-
-            // END
-
-            // TODO: Notify successful register
-
-            // END
-
-            this.$router.push('/login');
 
         }
     }
