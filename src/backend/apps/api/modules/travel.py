@@ -354,10 +354,11 @@ class TravelGroup(object):
     def travel_move_to_new_group(self, travel_id, travel_group_name, travel_group_note, travel_group_color):
         self.check_permission()
         t = self.get_travel_object_in_group(travel_id)
-        tg = TravelGroup.new_travel_group(self.get_owner_user_id(
-        ), travel_group_name, travel_group_note, travel_group_color)
+        owner = get_user_instance_by_id(self.get_owner_user_id())
+        tg = owner.add_travel_group(
+            travel_group_name, travel_group_note, travel_group_color)
         t.move_to_travel_group(tg.get_travel_group_id)
-        # TODO: add the new travel_group to user's travel_group_list
+
 
     def get_owner_user_id(self):
         owner = get_travel_group_owner_user_instance(
