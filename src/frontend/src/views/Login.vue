@@ -23,16 +23,27 @@
                             <base-input class="input-group-alternative mb-3"
                                         placeholder="Email"
                                         addon-left-icon="ni ni-email-83"
-                                        v-model="model.email">
+                                        v-model="model.email"
+                                        type='email'
+                                        @focus="login_error.visible=false">
                             </base-input>
-
+                            <div v-if="!$v.model.email.email">
+                                <base-alert type='primary'>
+                                    请输入正确的邮箱地址
+                                </base-alert>
+                            </div>
                             <base-input class="input-group-alternative"
                                         placeholder="Password"
                                         type="password"
                                         addon-left-icon="ni ni-lock-circle-open"
-                                        v-model="model.password">
+                                        v-model="model.password"
+                                        @focus="login_error.visible=false">
                             </base-input>
-
+                            <div v-show="login_error.visible">
+                                <base-alert type='primary'>
+                                    {{this.login_error.message}}
+                                </base-alert>
+                            </div>
                             <base-checkbox class="custom-control-alternative">
                                 <span class="text-muted">Remember me</span>
                             </base-checkbox>
@@ -54,6 +65,7 @@
         </div>
 </template>
 <script>
+  import {email, minLength} from 'vuelidate/lib/validators';
   export default {
     name: 'login',
     data() {
@@ -61,28 +73,55 @@
         model: {
           email: '',
           password: ''
+        }, 
+        login_error: {
+            visible: false, 
+            message: ''
         }
       }
+    },
+    validations: {
+        model: {
+            email:{
+                email
+            }
+        }
     }, 
     methods: {
         login() {
-            if(this.account=='' || this.password!=''){
-                // TODO
-                // return;
+            if(this.model.email=='' || this.model.password==''){
+                this.login_error.visible = true;
+                this.login_error.message = '邮箱地址与密码未填充完全';
+                return
             }
-            let expireDays = 1000 * 60 * 60 * 24 * 1;
-
-            let loginParam = {
-                email: this.email,
-                pswd: this.password
-            }
-
             // TODO: POST
+            this.$http.post('http://185.239.71.198:9000/api/login', {
+                pswd_hash: this.$md5(this.model.password),
+                email: this.model.email
+            }).then(function (response) {
+                if (response.status === 200) {
+                    if (response.body.status == this.$status['normal']){
+                        this.$session.start();
+                        this.$session.renew(response.body.session_id);
+                        this.$session.set('user_id', response.body.user_id);
+                        this.$router.push('/');
+                    } else if (response.body.status == this.$status['user_does_not_exist']){
+                        this.login_error.visible = true;
+                        this.login_error.message = '用户不存在';
+                    } else if (response.body.status == this.$status['wrong_password']) {
+                        this.login_error.visible = true;
+                        this.login_error.message = '密码错误';
+                    } else {
+                        console.error('登录时发生未知错误', response.body)
+                    }
+                } else {
+                    this.login_error.visible = true; 
+                    this.login_error.message = '网络连接有问题, 请重试';
+                }
+            }, function (err) {
+                console.error('err', err)
+            })
 
-            // END
-            let session = 'test'; 
-            this.setCookie('session', session, expireDays);
-            this.$router.push('/dashboard');
         }
     }
   }
