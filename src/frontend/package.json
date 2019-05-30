@@ -16,6 +16,7 @@
     "chart.js": "2.8.0",
     "core-js": "2.6.5",
     "flatpickr": "4.5.7",
+    "js-md5": "^0.7.3",
     "leaflet": "^1.4.0",
     "mdbvue": "^5.2.0",
     "moment": "^2.24.0",
@@ -26,10 +27,13 @@
     "vue-clipboard2": "0.3.0",
     "vue-color": "^2.7.0",
     "vue-flatpickr-component": "8.1.2",
+    "vue-resource": "^1.5.1",
     "vue-router": "3.0.1",
+    "vue-session": "^1.0.0",
     "vue2-leaflet": "^2.1.1",
     "vue2-transitions": "0.3.0",
-    "vuedraggable": "^2.20.0"
+    "vuedraggable": "^2.20.0",
+    "vuelidate": "^0.7.4"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.5.0",
