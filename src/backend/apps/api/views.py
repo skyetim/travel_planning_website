@@ -56,6 +56,7 @@ def prepare_request_data(func):
         cast(name='longitude', cast_func=float)
         cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
         cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
+        cast(name='travel_group_color', cast_func=str.upper)
 
         return func(request_data=request_data)
 
