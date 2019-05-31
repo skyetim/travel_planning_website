@@ -6,14 +6,7 @@
       title="Travel"
     >
       <template slot="links">
-        <!-- <sidebar-item
-          :link="{
-            name: 'Dashboard',
-            icon: 'ni ni-tv-2 text-primary',
-            path: '/dashboard'
-          }"
-        /> -->
-
+        <sidebar-item :link="{name: 'Dashboard', icon: 'ni ni-tv-2 text-primary', path: '/dashboard'}"/>
         <!-- <sidebar-item :link="{name: 'Icons', icon: 'ni ni-planet text-blue', path: '/icons'}"/> -->
         <sidebar-item :link="{name: 'Map', icon: 'ni ni-pin-3 text-orange', path: '/maps'}"/>
         <sidebar-item :link="{name: 'Travel', icon: 'ni ni-bullet-list-67 text-red', path: '/tables'}"/>
