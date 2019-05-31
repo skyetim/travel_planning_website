@@ -260,7 +260,7 @@
 <script>
 import { setTimeout } from 'timers';
   export default {
-    name: 'user-profile',
+    name: 'settings',
     data() {
       return {
         model: {

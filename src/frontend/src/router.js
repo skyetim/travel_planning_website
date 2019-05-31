@@ -26,9 +26,9 @@ export default new Router({
           component: () => import(/* webpackChunkName: "demo" */ './views/Icons.vue')
         },
         {
-          path: '/profile',
-          name: 'profile',
-          component: () => import(/* webpackChunkName: "demo" */ './views/UserProfile.vue')
+          path: '/settings',
+          name: 'settings',
+          component: () => import(/* webpackChunkName: "demo" */ './views/Settings.vue')
         },
         {
           path: '/maps',
