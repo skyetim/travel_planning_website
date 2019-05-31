@@ -58,7 +58,7 @@
                             </div>
                             <div class="text-center">
                                 <h3>
-                                    {{model.user_name}}<span class="font-weight-light">, {{model.gender}}</span>
+                                    {{model_user_name}}<span class="font-weight-light">, {{model.gender}}</span>
                                 </h3>
                                 <div class="h5 font-weight-300">
                                     <i class="ni location_pin mr-2"></i>{{model.resident_city}}
@@ -258,12 +258,12 @@
     </div>
 </template>
 <script>
+import { setTimeout } from 'timers';
   export default {
     name: 'user-profile',
     data() {
       return {
         model: {
-          user_name: '',
           email: '',
           first_name: '',
           last_name: '',
@@ -300,6 +300,15 @@
         }
       }
     },
+    computed: {
+        model_user_name: function(){
+            if (typeof this.model.last_name === 'undefined' || typeof this.model.first_name === 'undefined' ) {
+                return '';
+            } else {
+                return this.model.last_name + ' ' + this.model.first_name;
+            }
+        }
+    }, 
     mounted() {
         if (this.$session.exists()) {
             this.$http.post('http://185.239.71.198:9000/api/get_user_info', {
@@ -308,9 +317,9 @@
           }).then(function (response) {
               if (response.status === 200) {
                 if (response.body.status == this.$status['normal']){
-                  this.model.user_name = response.body.user_name;
-                  this.model.first_name = this.model.user_name.split(' ')[1];
-                  this.model.last_name = this.model.user_name.split(' ')[0]
+                  let user_name = response.body.user_name;
+                  this.model.first_name = user_name.split(' ')[1];
+                  this.model.last_name = user_name.split(' ')[0]
                   this.model.email = response.body.email;
                   this.model.gender = this.$gender[response.body.gender];
                   this.model.resident_city_id = response.body.resident_city_id;
@@ -343,7 +352,7 @@
             this.$http.post('http://185.239.71.198:9000/api/set_user_info', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', ''),
-                user_name: this.model.last_name + ' ' + this.model.first_name, 
+                user_name: this.model_user_name, 
                 email: this.model.email, 
                 gender: this.$gender_reverse[this.model.gender], 
                 comment: this.model.comment, 
@@ -352,9 +361,13 @@
               if (response.status === 200) {
                 if (response.body.status == this.$status['normal']){
                     this.message.personal_info.visible = true;
-                    this.message.personal_info.message = '个人信息成功保存';
+                    this.message.personal_info.message = '个人信息成功保存, 即将刷新';
                     this.message.personal_info.type = 'success';
-                    this.$router.go();
+                    var that = this;
+                    setTimeout(function(){
+                        that.$session.set('user_name', this.model_user_name);
+                        that.$router.go();
+                    }, 2000);
                 } else if (response.body.status == this.$status['user_anthorization_error']) {
                   window.alert('用户登录信息有误, 请重新登录');
                   this.$session.destroy();
