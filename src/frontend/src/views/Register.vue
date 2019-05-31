@@ -22,13 +22,24 @@
                         <small>Sign up with credentials</small>
                     </div>
                     <form role="form">
-
-                        <base-input class="input-group-alternative mb-3"
-                                    placeholder="Name"
-                                    addon-left-icon="ni ni-hat-3"
-                                    v-model="model.user_name"
-                                    @focus="login_error.visible=false">
-                        </base-input>
+                        <div class='row'>
+                            <div class='col-lg-6'>
+                                <base-input class="input-group-alternative mb-3"
+                                            placeholder="姓"
+                                            addon-left-icon="ni ni-hat-3"
+                                            v-model="model.last_name"
+                                            @focus="login_error.visible=false">
+                                </base-input>
+                            </div>
+                            <div class='col-lg-6'>
+                                <base-input class="input-group-alternative mb-3"
+                                            placeholder="名"
+                                            addon-left-icon="ni ni-hat-3"
+                                            v-model="model.first_name"
+                                            @focus="login_error.visible=false">
+                                </base-input>
+                            </div>       
+                        </div>
 
                         <base-input class="input-group-alternative mb-3"
                                     placeholder="Email"
@@ -105,11 +116,12 @@
     data() {
       return {
         model: {
-          name: '',
+          first_name: '',
+          last_name: '',
           email: '',
           password: '',
           resident_city_id: 1, 
-          gender: '男'
+          gender: '未设置'
         }, 
         login_error: {
             visible: false, 
@@ -134,16 +146,18 @@
             this.$http.post('http://185.239.71.198:9000/api/register', {
                 pswd_hash: this.$md5(this.model.password),
                 email: this.model.email, 
-                user_name: this.model.name, 
-                gender: this.model.gender, 
+                user_name: this.model.last_name+' '+this.model.first_name, 
+                gender: this.$gender_reverse[this.model.gender], 
                 resident_city_id: this.model.resident_city_id
             }).then(function (response) {
                 if (response.status === 200) {
                     if (response.body.status == this.$status['normal']){
                         this.login_error.visible = true;
                         this.login_error.message = '注册成功, 请登录';
-                        // setTimeout(function(){}, 1500);
-                        this.$router.push('/login');
+                        var that = this;
+                        setTimeout(function(){
+                            that.$router.push('/login');
+                        }, 1000);
                     } else if (response.body.status == this.$status['user_already_exists']){
                         this.login_error.visible = true;
                         this.login_error.message = '该邮箱已存在, 请尝试登录';
