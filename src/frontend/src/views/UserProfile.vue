@@ -32,6 +32,7 @@
                         </div>
                         <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
                             <div class="d-flex justify-content-between">
+                                <span class='description'>预览</span>
                                 <!-- <base-button size="sm" type="info" class="mr-4">Connect</base-button> -->
                                 <!-- <base-button size="sm" type="default" class="float-right">Message</base-button> -->
                             </div>
