@@ -308,8 +308,10 @@
               if (response.status === 200) {
                 if (response.body.status == this.$status['normal']){
                   this.model.user_name = response.body.user_name;
+                  this.model.first_name = this.model.user_name.split(' ')[1];
+                  this.model.last_name = this.model.user_name.split(' ')[0]
                   this.model.email = response.body.email;
-                  this.model.gender = response.body.gender;
+                  this.model.gender = this.$gender[response.body.gender];
                   this.model.resident_city_id = response.body.resident_city_id;
                   this.model.comment = response.body.comment;
                 } else if (response.body.status == this.$status['user_anthorization_error']) {
@@ -342,7 +344,7 @@
                 session_id: this.$session.id().replace('sess:', ''),
                 user_name: this.model.last_name + ' ' + this.model.first_name, 
                 email: this.model.email, 
-                gender: this.model.gender, 
+                gender: this.$gender_reverse[this.model.gender], 
                 comment: this.model.comment, 
                 resident_city_id: this.model.resident_city_id
           }).then(function (response) {
