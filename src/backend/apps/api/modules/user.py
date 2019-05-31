@@ -160,7 +160,7 @@ class User(object):
                                                                travel_group_note=travel_group_note,
                                                                travel_group_color=travel_group_color)
         self.travel_group_list.append(travel_group)
-        return travel_group.get_travel_group_id()
+        return travel_group
 
     def remove_travel_group(self, travel_group_id):
         # TODO: refactor (use dict)

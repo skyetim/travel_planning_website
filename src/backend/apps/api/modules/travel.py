@@ -311,7 +311,7 @@ class TravelGroup(object):
                                                             travel_group_color=travel_group_color)
         db_travel.TravelGroupOwnership.objects.create(
             user_id=user, travel_group_id=travel_group)
-        return cls(user_id, travel_group)
+        return cls(user_id, travel_group.travel_group_id)
 
     def check_permission(self):
         if self.permission_level != db_travel.Travel.ME:
