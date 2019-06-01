@@ -64,13 +64,12 @@ class User(object):
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
-        self.travel_group_list = self.get_others_travel_group_list(other_user_id=self.get_user_id())
+        self.travel_group_set = set(self.get_others_travel_group_list(other_user_id=self.get_user_id()))
 
-        self.friend_info_list = []
+        self.friend_set = set()
         friend_relations = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
         for fr_dbobj in friend_relations:
-            self.friend_info_list.append(FriendInfo(user_id=self.get_user_id(),
-                                                    friend_user_id=fr_dbobj.friend_user_id.user_id))
+            self.friend_set.add(fr_dbobj.friend_user_id.user_id)
 
     def get_user_id(self):
         return self.user_dbobj.user_id
@@ -84,11 +83,11 @@ class User(object):
     def get_user_info(self):
         return self.user_info
 
-    def get_friend_info_list(self):
-        return self.friend_info_list
+    def get_friend_list(self):
+        return list(self.friend_set)
 
     def get_travel_group_list(self):
-        return self.travel_group_list
+        return list(self.travel_group_set)
 
     def get_others_travel_group_list(self, other_user_id):
         from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
@@ -99,7 +98,7 @@ class User(object):
             try:
                 travel_group = mod_travel_TravelGroup(user_id=self.get_user_id(),
                                                       travel_group_id=tg_dbobj.travel_group_id.travel_group_id)
-                travel_group_list.append(travel_group)
+                travel_group_list.append(travel_group.get_travel_group_id())
             except PermissionDeniedException:
                 pass
 
@@ -111,17 +110,9 @@ class User(object):
         return self.user_dbobj.email
 
     def set_friend_note(self, friend_user_id, friend_note):
-        # TODO: refactor (use dict)
-
-        friend_exist = False
-        for fr in self.friend_info_list:
-            if fr.get_user_id() == friend_user_id:
-                friend_exist = True
-                fr.set_friend_note(friend_note)
-        if not friend_exist:
-            raise FriendDoesNotExistException(f'User (ID={self.get_user_id()})'
-                                              f' does not have friendship with '
-                                              f'User (ID={friend_user_id})')
+        check_friend_relation_existence(self.get_user_id(), friend_user_id, need_existence=True)
+        friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
+        friend_info.set_friend_note(friend_note=friend_note)
 
     def reset_password(self, old_pswd_hash, new_pswd_hash):
         if self.user_dbobj.pswd_hash != old_pswd_hash:
@@ -133,24 +124,16 @@ class User(object):
     # 和类图定义不一致
 
     def add_friend(self, friend_user_id, friend_note):
-        fr = FriendInfo.new_friend_info(user_id=self.get_user_id(),
-                                        friend_user_id=friend_user_id,
-                                        friend_note=friend_note)
-        self.friend_info_list.append(fr)
+        friend_info = FriendInfo.new_friend_info(user_id=self.get_user_id(),
+                                                 friend_user_id=friend_user_id,
+                                                 friend_note=friend_note)
+        self.friend_set.add(friend_info.get_user_id())
 
     def remove_friend(self, friend_user_id):
-        # TODO: refactor (use dict)
-
-        friend_exist = False
-        for fr in self.friend_info_list:
-            if fr.get_user_id() == friend_user_id:
-                friend_exist = True
-                fr.delete()
-                self.friend_info_list.remove(fr)
-        if not friend_exist:
-            raise FriendDoesNotExistException(f'User (ID={self.get_user_id()})'
-                                              f' does not have friendship with '
-                                              f'User (ID={friend_user_id})')
+        check_friend_relation_existence(self.get_user_id(), friend_user_id, need_existence=True)
+        self.friend_set.remove(friend_user_id)
+        friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
+        friend_info.delete()
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
         from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
@@ -159,19 +142,18 @@ class User(object):
                                                                travel_group_name=travel_group_name,
                                                                travel_group_note=travel_group_note,
                                                                travel_group_color=travel_group_color)
-        self.travel_group_list.append(travel_group)
+        self.travel_group_set.add(travel_group)
         return travel_group
 
     def remove_travel_group(self, travel_group_id):
-        # TODO: refactor (use dict)
+        from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
 
-        travel_group_exist = False
-        for tg in self.travel_group_list:
-            if tg.get_travel_group_id() == travel_group_id:
-                travel_group_exist = True
-                tg.delete()
-                self.travel_group_list.remove(tg)
-        if not travel_group_exist:
+        try:
+            self.travel_group_set.remove(travel_group_id)
+            travel_group = mod_travel_TravelGroup(user_id=self.get_user_id(),
+                                                  travel_group_id=travel_group_id)
+            travel_group.delete()
+        except KeyError:
             raise TravelGroupDoesNotExistException(f'User (ID={self.get_user_id()})'
                                                    f' does not have the Travel Group '
                                                    f'(ID={travel_group_id})')
@@ -266,6 +248,8 @@ class FriendInfo(UserInfoBase):
         return self.friend_relation_dbobj.friend_note
 
     def set_friend_note(self, friend_note):
+        if friend_note == '':
+            friend_note = self.get_user_name()
         self.friend_relation_dbobj.friend_note = friend_note
         self.friend_relation_dbobj.save()
 
@@ -280,9 +264,14 @@ class FriendInfo(UserInfoBase):
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
         check_user_existence(friend_user_id)
         check_friend_relation_existence(user_id, friend_user_id, need_existence=False)
+
+        if friend_note == '':
+            friend_info = db_user.UserInfo.objects.get(user_id=friend_user_id)
+            friend_note = friend_info.user_name
         db_user.FriendRelation.objects.create(user_id=user_id,
                                               friend_user_id=friend_user_id,
                                               friend_note=friend_note)
+
         return cls(user_id=user_id, friend_user_id=friend_user_id)
 
     def keys(self):

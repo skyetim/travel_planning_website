@@ -33,5 +33,5 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['user_id',
                   'email',
                   'user_info',
-                  'friend_list',
+                  'friend_set',
                   'travel_group_list']

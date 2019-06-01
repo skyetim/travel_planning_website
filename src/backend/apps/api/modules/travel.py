@@ -339,6 +339,7 @@ class TravelGroup(object):
                                    travel_note=travel_note)
 
         self.travel_list.append(travel.get_travel_id())
+        return travel.get_travel_id()
 
     def remove_travel(self, travel_id):
         self.check_permission()
