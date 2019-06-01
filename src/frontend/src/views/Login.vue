@@ -17,11 +17,11 @@
                     </div> -->
                     <div class="card-body px-lg-5 py-lg-5">
                         <div class="text-center text-muted mb-4">
-                            <small>Sign in with credentials</small>
+                            <small>输入注册邮箱与密码登录行迹</small>
                         </div>
                         <form role="form">
                             <base-input class="input-group-alternative mb-3"
-                                        placeholder="Email"
+                                        placeholder="邮箱"
                                         addon-left-icon="ni ni-email-83"
                                         v-model="model.email"
                                         type='email'
@@ -33,7 +33,7 @@
                                 </base-alert>
                             </div>
                             <base-input class="input-group-alternative"
-                                        placeholder="Password"
+                                        placeholder="密码"
                                         type="password"
                                         addon-left-icon="ni ni-lock-circle-open"
                                         v-model="model.password"
@@ -45,10 +45,10 @@
                                 </base-alert>
                             </div>
                             <base-checkbox class="custom-control-alternative">
-                                <span class="text-muted">Remember me</span>
+                                <span class="text-muted">7天内无需重复登录</span>
                             </base-checkbox>
                             <div class="text-center">
-                                <base-button type="primary" class="my-4" @click='login'>Sign in</base-button>
+                                <base-button type="primary" class="my-4" @click='login'>登录</base-button>
                             </div>
                         </form>
                     </div>
@@ -58,7 +58,7 @@
                         <a href="#" class="text-light"><small> </small></a>
                     </div>
                     <div class="col-6 text-right">
-                        <router-link to="/register" class="text-light"><small>Create new account</small></router-link>
+                        <router-link to="/register" class="text-light"><small>创建新的账户</small></router-link>
                     </div>
                 </div>
             </div>

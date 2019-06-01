@@ -19,7 +19,7 @@
                 </div> -->
                 <div class="card-body px-lg-5 py-lg-5">
                     <div class="text-center text-muted mb-4">
-                        <small>Sign up with credentials</small>
+                        <small>填写姓名, 邮箱, 密码以注册</small>
                     </div>
                     <form role="form">
 
@@ -31,7 +31,7 @@
                         </base-input>
 
                         <base-input class="input-group-alternative mb-3"
-                                    placeholder="Email"
+                                    placeholder="邮箱"
                                     addon-left-icon="ni ni-email-83"
                                     v-model="model.email"
                                     @focus="login_error.visible=false">
@@ -44,7 +44,7 @@
                         </div>
 
                         <base-input class="input-group-alternative"
-                                    placeholder="Password"
+                                    placeholder="密码"
                                     type="password"
                                     addon-left-icon="ni ni-lock-circle-open"
                                     v-model="model.password"
@@ -77,7 +77,7 @@
                             </div>
                         </div> -->
                         <div class="text-center">
-                            <base-button type="primary" class="my-4" @click='register'>Create account</base-button>
+                            <base-button type="primary" class="my-4" @click='register'>创建账户</base-button>
                         </div>
                     </form>
                 </div>
@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-6 text-right">
                     <router-link to="/login" class="text-light">
-                        <small>Login into your account</small>
+                        <small>登录已有账户</small>
                     </router-link>
                 </div>
             </div>
