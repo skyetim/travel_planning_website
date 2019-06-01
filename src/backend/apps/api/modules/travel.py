@@ -1,7 +1,9 @@
 import apps.api.modules.city as mod_city
 import apps.db.Travel.models as db_travel
+import apps.db.Message.models as db_msg
+
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, is_friend
+from apps.api.modules.user import get_user_instance_by_id, is_friend,get_userinfo_instance_by_id
 
 
 # Static Methods
@@ -190,7 +192,7 @@ class Travel(object):
     def __init__(self, user_id, travel_id):
         self.permission_level = get_travel_permission_level(user_id=user_id,
                                                             travel_id=travel_id)
-
+        self.user_id=user_id
         self.travel_dbobj = get_travel_instance_by_id(travel_id=travel_id)
         self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
 
@@ -220,11 +222,21 @@ class Travel(object):
     def delete(self):
         self.check_permission()
 
-        # TODO: send message to companies
+        company_list = self.get_company_list()
+        self_user_dbobj = get_user_instance_by_id(self.user_id)
+        self_user_name = get_userinfo_instance_by_id(self.user_id).user_name
+        city_name = mod_city.get_cityname_by_id(
+            self.get_travel_info().get_city_id())
+        for c_id in company_list:
+            other_user_dbobj = get_user_instance_by_id(c_id)
+            db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj, friend_user_id=self_user_dbobj, travel_id=get_travel_instance_by_id(travel_id=self.get_travel_id()), msg_type=db_msg.TravelAssociation.DELETE msg_content=f"Your friend {self_user_name}"
+                                                    f" has deleted the associated trip to {city_name}")
+
         self.travel_dbobj.delete()
 
     def add_company(self, company_user_id):
         self.check_permission()
+        # TODO: send message to existed companies
 
         if company_user_id in self.company_set:
             raise TravelAssociationAlreadyExist(f'Travel Association between '

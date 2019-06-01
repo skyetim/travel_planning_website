@@ -25,7 +25,8 @@ def get_or_create_city_instance(address=None,
         try:
             city_dict = gc.gps_to_city(latlng=(latitude, longitude))
         except KeyError:
-            raise NoCityFoundException(f'No city found near location {(latitude, longitude)}.')
+            raise NoCityFoundException(
+                f'No city found near location {(latitude, longitude)}.')
 
     try:
         country_name = city_dict['country']
@@ -35,9 +36,11 @@ def get_or_create_city_instance(address=None,
         longitude = city_dict['longitude']
     except KeyError:
         if from_address:
-            raise NoCityFoundException(f'No city found near address "{address}".')
+            raise NoCityFoundException(
+                f'No city found near address "{address}".')
         else:
-            raise NoCityFoundException(f'No city found near location {(latitude, longitude)}.')
+            raise NoCityFoundException(
+                f'No city found near location {(latitude, longitude)}.')
 
     try:
         city = db_city.City.objects.get(country_name=country_name,
@@ -56,5 +59,11 @@ def get_city_instance_by_id(city_id):
     try:
         city = db_city.City.objects.get(city_id=city_id)
     except db_city.City.DoesNotExist:
-        raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
+        raise CityIdDoesNotExistException(
+            f'City (ID={city_id}) does not exist.')
     return city
+
+
+def get_cityname_by_id(city_id):
+    city = get_city_instance_by_id(city_id)
+    return ' '.join([city.country_name, city.province_name, city.city_name])
