@@ -162,6 +162,8 @@ class TravelInfo(object):
 
         # TODO: send message to companies
         # to set visibility ME is same to delete, remove all companies
+        if self.get_visibility() != db_travel.Travel.ME and visibility == db_travel.Travel.ME:
+            db_travel.TravelAssociation.objects.filter(travel_id=self.get_travel_id()).delete()
         self.travel_info_dbobj.visibility = visibility
         self.travel_info_dbobj.save()
 
@@ -249,7 +251,7 @@ class Travel(object):
         old_travel_grouping = db_travel.TravelGrouping.objects.get(travel_id=self.travel_dbobj)
         old_travel_grouping.delete()
 
-        new_travel_group = get_travel_group_instance_by_id(new_travel_group_id)
+        new_travel_group = get_travel_group_instance_by_id(travel_group_id=new_travel_group_id)
         db_travel.TravelGrouping.objects.create(travel_group_id=new_travel_group,
                                                 travel_id=self.travel_dbobj)
 

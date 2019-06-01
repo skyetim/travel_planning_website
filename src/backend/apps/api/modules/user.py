@@ -207,18 +207,22 @@ class UserInfoBase(object):
     def get_gender(self):
         return self.user_info_dbobj.gender
 
+    def get_resident_city_id(self):
+        return self.user_info_dbobj.resident_city_id.city_id
+
     def get_comment(self):
         return self.user_info_dbobj.comment
 
-    def get_resident_city_id(self):
-        return self.user_info_dbobj.resident_city_id.city_id
+    def get_avatar_url(self):
+        return self.user_info_dbobj.avatar_url
 
     def keys(self):
         return ['user_id',
                 'user_name',
                 'gender',
+                'resident_city_id',
                 'comment',
-                'resident_city_id']
+                'avatar_url']
 
     def __getitem__(self, item):
         return getattr(self, f'get_{item}')()
@@ -237,13 +241,17 @@ class UserInfo(UserInfoBase):
         self.user_info_dbobj.gender = gender
         self.user_info_dbobj.save()
 
+    def set_resident_city_id(self, city_id):
+        city = mod_city.get_city_instance_by_id(city_id=city_id)
+        self.user_info_dbobj.resident_city_id = city
+        self.user_info_dbobj.save()
+
     def set_comment(self, comment):
         self.user_info_dbobj.comment = comment
         self.user_info_dbobj.save()
 
-    def set_resident_city_id(self, city_id):
-        city = mod_city.get_city_instance_by_id(city_id=city_id)
-        self.user_info_dbobj.resident_city_id = city
+    def set_avatar_url(self, avatar_url):
+        self.user_info_dbobj.avatar_url = avatar_url
         self.user_info_dbobj.save()
 
 
@@ -295,5 +303,6 @@ class FriendInfo(UserInfoBase):
                 'user_name',
                 'friend_note',
                 'gender',
+                'resident_city_id',
                 'comment',
-                'resident_city_id']
+                'avatar_url']
