@@ -19,7 +19,7 @@
         <div class="container-fluid mt--7">
             <div class="row">
                 <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
-                    <user-card-preview :user_name='model.model_user_name'
+                    <user-card-preview :user_name='model_user_name'
                                        :gender='model.gender'
                                        :resident_city='model.resident_city'
                                        :comment='model.comment'
@@ -263,7 +263,7 @@ import UserCardPreview from './UserCardPreview';
     }, 
     mounted() {
         if (this.$session.exists()) {
-            this.$http.post('http://185.239.71.198:9000/api/get_user_info', {
+            this.$http.post('http://139.162.123.242:9000/api/get_user_info', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', '')
           }).then(function (response) {
@@ -301,7 +301,7 @@ import UserCardPreview from './UserCardPreview';
     methods: {
         setUserInfo() {
             if (this.$session.exists()) {
-            this.$http.post('http://185.239.71.198:9000/api/set_user_info', {
+            this.$http.post('http://139.162.123.242:9000/api/set_user_info', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', ''),
                 user_name: this.model_user_name, 
@@ -344,7 +344,7 @@ import UserCardPreview from './UserCardPreview';
         }, 
         resetPassword() {
             if (this.$session.exists()) {
-            this.$http.post('http://185.239.71.198:9000/api/reset_password', {
+            this.$http.post('http://139.162.123.242:9000/api/reset_password', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', ''),
                 old_pswd_hash: this.$md5(this.model.old_password),
