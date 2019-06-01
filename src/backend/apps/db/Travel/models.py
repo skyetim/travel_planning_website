@@ -94,25 +94,24 @@ class Travel(models.Model):
 
 
 class TravelGrouping(models.Model):
+    travel_group_id = models.ForeignKey(TravelGroup,
+                                        to_field='travel_group_id',
+                                        related_name='T_TG_travelgroupid',
+                                        on_delete=models.CASCADE)
     travel_id = models.OneToOneField(Travel,
                                      to_field='travel_id',
                                      related_name='T_TG_travelid',
-                                     unique=False,
+                                     unique=True,
                                      on_delete=models.CASCADE)
-    travel_group_id = models.OneToOneField(TravelGroup,
-                                           to_field='travel_group_id',
-                                           related_name='T_TG_travelgroupid',
-                                           unique=True,
-                                           on_delete=models.CASCADE)
 
     class Meta:
         indexes = [
-            models.Index(fields=['travel_id'],
-                         name='T_TG_travelid_idx'),
             models.Index(fields=['travel_group_id'],
-                         name='T_TG_travelgroupid_idx')
+                         name='T_TG_travelgroupid_idx'),
+            models.Index(fields=['travel_id'],
+                         name='T_TG_travelid_idx')
         ]
-        unique_together = (('travel_id', 'travel_group_id'),)
+        unique_together = (('travel_group_id', 'travel_id'),)
 
 
 class TravelAssociation(models.Model):
