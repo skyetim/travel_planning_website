@@ -336,7 +336,7 @@ class TravelGroup(object):
                                                   f' does not have the '
                                                   f'Travel (ID={travel_id}).')
 
-    def travel_move_to_other_group(self, travel_id, other_travel_group_id):
+    def move_travel_to_other_group(self, travel_id, other_travel_group_id):
         self.check_permission()
 
         try:

@@ -23,7 +23,7 @@ __all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_info', 'set_travel_group_info'])
-__all__.extend(['add_travel', 'remove_travel',
+__all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info', 'set_travel_info'])
 __all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
 
@@ -363,6 +363,18 @@ def remove_travel(request_data):
                                           travel_group_id=request_data['travel_group_id'])
 
     travel_group.remove_travel(travel_id=request_data['travel_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def move_travel(request_data):
+    travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_group.move_travel_to_other_group(travel_id=request_data['travel_id'],
+                                            other_travel_group_id=request_data['other_travel_group_id'])
 
     response = {}
     return response
