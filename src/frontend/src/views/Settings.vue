@@ -19,61 +19,11 @@
         <div class="container-fluid mt--7">
             <div class="row">
                 <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
-
-                    <div class="card card-profile shadow">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-3 order-lg-2">
-                                <div class="card-profile-image">
-                                    <a href="#">
-                                        <img src="img/theme/team-4-800x800.jpg" class="rounded-circle">
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                            <div class="d-flex justify-content-between">
-                                <span class='description'>预览</span>
-                                <!-- <base-button size="sm" type="info" class="mr-4">Connect</base-button> -->
-                                <!-- <base-button size="sm" type="default" class="float-right">Message</base-button> -->
-                            </div>
-                        </div>
-                        <div class="card-body pt-0 pt-md-4">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="card-profile-stats d-flex justify-content-center mt-md-5">
-                                        <div>
-                                            <span class="heading">{{model.friends_num}}</span>
-                                            <span class="description">朋友</span>
-                                        </div>
-                                        <div>
-                                            <span class="heading">{{model.travel_groups_num}}</span>
-                                            <span class="description">行迹</span>
-                                        </div>
-                                        <!-- <div>
-                                            <span class="heading">89</span>
-                                            <span class="description">Comments</span>
-                                        </div> -->
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="text-center">
-                                <h3>
-                                    {{model_user_name}}<span class="font-weight-light">, {{model.gender}}</span>
-                                </h3>
-                                <div class="h5 font-weight-300">
-                                    <i class="ni location_pin mr-2"></i>{{model.resident_city}}
-                                </div>
-                                <!-- <div class="h5 mt-4">
-                                    <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
-                                </div>
-                                <div>
-                                    <i class="ni education_hat mr-2"></i>University of Computer Science
-                                </div> -->
-                                <hr class="my-4" />
-                                <p>{{model.comment}}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <user-card-preview :user_name='model.model_user_name'
+                                       :gender='model.gender'
+                                       :resident_city='model.resident_city'
+                                       :comment='model.comment'
+                    ></user-card-preview>
                 </div>
 
                 <div class="col-xl-8 order-xl-1">
@@ -259,6 +209,7 @@
 </template>
 <script>
 import { setTimeout } from 'timers';
+import UserCardPreview from './UserCardPreview';
   export default {
     name: 'settings',
     data() {
@@ -270,8 +221,6 @@ import { setTimeout } from 'timers';
           resident_city: '',
           gender: '', 
           comment: '', 
-          friends_num: 0, 
-          travel_groups_num: 0, 
           resident_city_id: 1, 
           old_password: '', 
           new_password: '', 
@@ -308,6 +257,9 @@ import { setTimeout } from 'timers';
                 return this.model.last_name + ' ' + this.model.first_name;
             }
         }
+    }, 
+    components: {
+        'user-card-preview': UserCardPreview
     }, 
     mounted() {
         if (this.$session.exists()) {
