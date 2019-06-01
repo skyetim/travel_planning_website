@@ -35,8 +35,9 @@ def get_travel_group_instance_by_id(travel_group_id):
 def get_travel_group_instance_by_travel_id(travel_id):
     travel = get_travel_instance_by_id(travel_id=travel_id)
     try:
-        return db_travel.TravelGrouping.objects.get(travel_id=travel).travel_group_id
-    except db_travel.TravelGroup.DoesNotExist:
+        travel_groups = db_travel.TravelGrouping.objects.filter(travel_id=travel)
+        return travel_groups.first().travel_group_id
+    except AttributeError:
         TravelDoesNotBelongToTravelGroup(f'Travel (ID={travel_id})'
                                          f' does not belong to any travel group.')
 
@@ -81,19 +82,25 @@ class TravelInfo(object):
         self.travel_info_dbobj = travel_info
 
     @classmethod
-    def new_travel_info(cls, user_id, city_id, date_start, date_end, visibility, travel_note):
+    def new_travel_info(cls, user_id, travel_group_id,
+                        city_id,
+                        date_start, date_end,
+                        visibility, travel_note):
         visibility = check_visibility(visibility=visibility)
 
         if date_start > date_end:
             raise DateStartLaterThanDateEndError('The date_start should be earlier than date_end.')
 
         city = mod_city.get_city_instance_by_id(city_id=city_id)
-        travel_info = db_travel.Travel.objects.create(city_id=city,
-                                                      date_start=date_start, date_end=date_end,
-                                                      visibility=visibility,
-                                                      travel_note=travel_note)
+        travel = db_travel.Travel.objects.create(city_id=city,
+                                                 date_start=date_start, date_end=date_end,
+                                                 visibility=visibility,
+                                                 travel_note=travel_note)
+        travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
+        db_travel.TravelGrouping.objects.create(travel_id=travel,
+                                                travel_group_id=travel_group)
 
-        return cls(user_id=user_id, travel_id=travel_info.travel_id)
+        return cls(user_id=user_id, travel_id=travel.travel_id)
 
     def check_permission(self):
         if self.permission_level != db_travel.Travel.ME:
@@ -193,17 +200,15 @@ class Travel(object):
             self.company_set.add(company.company_user_id.user_id)
 
     @classmethod
-    def new_travel(cls, user_id, travel_group,
+    def new_travel(cls, user_id, travel_group_id,
                    city_id, date_start, date_end,
                    visibility, travel_note):
         travel_info = TravelInfo.new_travel_info(user_id=user_id,
+                                                 travel_group_id=travel_group_id,
                                                  city_id=city_id,
                                                  date_start=date_start, date_end=date_end,
                                                  visibility=visibility,
                                                  travel_note=travel_note)
-        travel_group = get_travel_group_instance_by_id(travel_group)
-        db_travel.TravelGrouping.objects.create(travel_id=travel_info.get_travel_id(),
-                                                travel_group_id=travel_group)
 
         return cls(user_id=user_id, travel_id=travel_info.get_travel_id())
 
@@ -274,12 +279,12 @@ class TravelGroup(object):
         travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
         for travel_dbobj in travel_list:
             try:
-                travel = Travel(user_id=user_id, travel_id=travel_dbobj.travel_id)
+                travel = Travel(user_id=user_id, travel_id=travel_dbobj.travel_id.travel_id)
                 self.travel_set.add(travel.get_travel_id())
             except PermissionDeniedException:
                 pass
 
-        if len(self.travel_set) == 0:
+        if self.permission_level != db_travel.Travel.ME and len(self.travel_set) == 0:
             raise PermissionDeniedException(f'No permission to access '
                                             f'TravelGroup (ID={self.get_travel_group_id()}).')
 
@@ -317,14 +322,14 @@ class TravelGroup(object):
         self.check_permission()
 
         travel = Travel.new_travel(user_id=self.get_owner_user_id(),
-                                   travel_group=self.get_travel_group_id(),
+                                   travel_group_id=self.get_travel_group_id(),
                                    city_id=city_id,
                                    date_start=date_start, date_end=date_end,
                                    visibility=visibility,
                                    travel_note=travel_note)
 
         self.travel_set.add(travel.get_travel_id())
-        return travel.get_travel_id()
+        return travel
 
     def remove_travel(self, travel_id):
         self.check_permission()
