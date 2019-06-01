@@ -41,7 +41,7 @@ var travelGroup = [
     ],
     dates: { start: "2019-05-01", end: "2019-07-19" },
     color: { hex: "#f5365c", a: 0.8 },
-    status: 3
+    status: 2
   },
   {
     name: "云南穷游",
