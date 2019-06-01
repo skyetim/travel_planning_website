@@ -26,7 +26,8 @@ __all__.extend(['add_travel_group', 'remove_travel_group',
 __all__.extend(['get_travel_list'])
 __all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info', 'set_travel_info'])
-__all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
+__all__.extend(['address_to_city', 'address_to_city_list',
+                'gps_to_city', 'city_id_to_city'])
 
 REQUEST_METHOD_LIST = ['POST']
 
@@ -432,16 +433,27 @@ def set_travel_info(request_data):
 
 @api(check_tokens=False)
 def address_to_city(request_data):
-    city = mod_city.get_or_create_city_instance(address=request_data['address'])
+    city = mod_city.get_city_instance_by_address(address=request_data['address'])
 
     response = dict(city)
     return response
 
 
 @api(check_tokens=False)
+def address_to_city_list(request_data):
+    city_list = mod_city.get_city_instance_list_by_address(address=request_data['address'])
+
+    response = {
+        'count': len(city_list),
+        'city_list': list(map(dict, city_list))
+    }
+    return response
+
+
+@api(check_tokens=False)
 def gps_to_city(request_data):
-    city = mod_city.get_or_create_city_instance(latitude=request_data['latitude'],
-                                                longitude=request_data['longitude'])
+    city = mod_city.get_city_instance_by_gps(latitude=request_data['latitude'],
+                                             longitude=request_data['longitude'])
 
     response = dict(city)
     return response
