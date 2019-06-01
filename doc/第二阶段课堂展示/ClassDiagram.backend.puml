@@ -34,7 +34,7 @@ namespace Backend {
         + get_user_id(): int                         {query}
         + get_email(): str                           {query}
         + get_user_info(): UserInfo                  {query}
-        + get_friend_info_list(): FriendInfo[0..*]   {query}
+        + get_friend_list(): FriendInfo[0..*]   {query}
         + get_travel_group_list(): TravelGroup[0..*] {query}
         .. setters ..
         + set_email(email: str): int

@@ -99,20 +99,46 @@ class GeoCoder(object):
         return city
 
     def address_to_city(self, address, version=1):
-        res = self.geocode(address, version=version)
-        return self.__geores_to_city(res)
+        geo_res = self.geocode(address, version=version)
+        return self.__geores_to_city(geo_res)
 
     def gps_to_city(self, latlng, version=1):
-        res = self.rev_geocode(latlng, version=version)
-        res = self.__geores_to_city(res)
+        geo_res = self.rev_geocode(latlng, version=version)
+        res = self.__geores_to_city(geo_res)
         address = ' '.join([res['country'], res['province'], res['city']])
         return self.address_to_city(address=address, version=version)
+
+    def address_to_city_list(self, address, version=2):
+        geo_res = self.geocode(address, version=version)
+        city_list = []
+        for gr in geo_res:
+            temp = self.__geores_to_city([gr])
+            flag = True
+            for c in city_list:
+                if compare_city(c, temp):
+                    flag = False
+                    break
+            if flag:
+                city_list.append(temp)
+        return city_list
+
+
+def compare_city(city1, city2):
+    if city1['country'] != city2['country']:
+        return False
+    if city1['province'] != city2['province']:
+        return False
+    if city1['city'] != city2['city']:
+        return False
+    return True
 
 
 if __name__ == '__main__':
     api_file = os.path.join(os.path.dirname(__file__), 'yang.gapi')
     gc = GeoCoder(api_file=api_file)
     print(f'Address to City: 北京大学物理学院->{gc.address_to_city("北京大学物理学院")}')
-    print(f'Address to GPS: 洛杉矶->{gc.address_to_gps("洛杉矶")}')
-    latlng = (32.05549011970849, 118.7776112197085)
-    print(f'GPS to city: {latlng}->{gc.gps_to_city(latlng, version=1)}')
+    # print(f'Address to GPS: 洛杉矶->{gc.address_to_gps("洛杉矶")}')
+    # latlng = (32.05549011970849, 118.7776112197085)
+    # print(f'GPS to city: {latlng}->{gc.gps_to_city(latlng, version=1)}')
+    print(f'Address to City List: 肯德基->{gc.address_to_city_list("肯德基")}')
+    

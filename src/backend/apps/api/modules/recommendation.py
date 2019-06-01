@@ -17,7 +17,7 @@ def recommend(user_id):
 
     travel_group_list = user.get_group_info_list()
 
-    friend_info_list = user.get_friend_info_list() #FriendInfo Object
+    friend_info_list = user.get_friend_list() #FriendInfo Object
     friend_travel_group_list = [] #如何获取朋友的travel信息？
     for friend_info in friend_info_list:
         friend_travel_group_list.append()

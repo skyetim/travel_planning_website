@@ -17,8 +17,9 @@ class TravelGroup(models.Model):
     travel_group_note = models.TextField(max_length=140,
                                          null=False,
                                          editable=True)
-    travel_group_color = models.PositiveIntegerField(null=False,
-                                                     editable=True)
+    travel_group_color = models.CharField(max_length=7,
+                                          null=False,
+                                          editable=True)
 
     class Meta:
         indexes = [
