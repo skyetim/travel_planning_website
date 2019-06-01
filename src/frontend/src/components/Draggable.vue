@@ -53,7 +53,7 @@
                 ></flat-picker>
               </base-input>
             </div>
-            <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
+            <i class="ni ni-fat-remove icon-rm" @click="del(index)"></i>
           </div>
           <div class="col-16 dropdown-content" ref="dropdown">
             <div class="col-14">
@@ -63,10 +63,10 @@
             </div>
             <div
               class="col-8 list-group-item item"
-              v-for="(loc,n) in query.result"
+              v-for="(r,n) in query.result"
               :key="n"
-              @click="picked(index, loc)"
-            >{{loc}}</div>
+              @click="picked(index, r)"
+            >{{r.country_name + " "+ r.province_name+ " " + r.city_name}}</div>
             <div class="col-8 list-group-item item">{{query.status}}</div>
           </div>
         </div>
@@ -90,9 +90,7 @@ import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
 
-var search_dummy = ["上海市", "上饶市", "上虞", "北京市", "台北市"];
 var query = {
-  dummy: search_dummy,
   status: "",
   result: []
 };
@@ -106,7 +104,8 @@ export default {
     flatPicker
   },
   props: {
-    travel: Array
+    travel: Array,
+    gid: Number
   },
   data() {
     return {
@@ -122,24 +121,75 @@ export default {
   },
   methods: {
     add: function() {
+      var vue = this;
+      var session = this.$session;
       this.travel.push({ location: "", coordinate: "", start: "", end: "" });
+
+      this.$backend.add_travel(
+        {
+          user_id: session.get("user_id"),
+          session_id: session.id().replace("sess:", ""),
+          travel_group_id: vue.gid,
+          city_id: 1,
+          date_start: '20090109',
+          date_end: '20090109',
+          visibility: 1,
+          travel_note: ""
+        },
+        function(response) {
+          vue.travel[vue.travel.length - 1].travel_id = response.data.travel_id;
+          alert("success remove travel");
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
+    },
+    del: function(index) {
+      var vue = this;
+      var session = this.$session;
+      this.$backend.remove_travel(
+        {
+          user_id: session.get("user_id"),
+          session_id: session.id().replace("sess:", ""),
+          travel_group_id: vue.gid,
+          travel_id: vue.travel[index].travel_id
+        },
+        function(response) {
+          vue.travel.splice(index, 1);
+          alert("success add travel");
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
     },
     search: function(index) {
+      var vue = this;
       this.query.result = [];
-      this.query.status="";
+      this.query.status = "";
       var locStr = this.$refs.locStr[index].value;
       if (locStr == "") {
         this.query.status = "无匹配城市";
         return;
       } else {
-        this.query.dummy.forEach(element => {
-          if (element.match(locStr)) {
-            this.query.result.push(element);
+        this.$backend.address_to_city(
+          { address: locStr },
+          function(response) {
+            vue.query.result.push({
+              city_id: response.data.city_id,
+              country_name: response.data.country_name,
+              province_name: response.data.province_name,
+              city_name: response.data.city_name,
+              latitude: response.data.latitude,
+              longitude: response.data.longitude
+            });
+            alert("success: address_to_city");
+          },
+          function(response) {
+            alert(response.data.error_message);
           }
-        });
-        if(this.query.result.empty()){
-          this.query.status = "无匹配城市";
-        }
+        );
       }
     },
     expand: function(index) {
@@ -148,9 +198,11 @@ export default {
     collapse: function(index) {
       this.$refs.dropdown[index].style.display = "none";
     },
-    picked: function(index, loc){
-      this.travel[index].location = loc;
-      this.query.result=[];
+    picked: function(index, r) {
+      this.travel[index].location = r.city_name;
+      this.travel[index].city_id = r.city_id;
+      this.travel[index].coordinate = [r.latitude, r.longitude];
+      this.query.result = [];
       this.collapse(index);
     }
   }
@@ -229,7 +281,7 @@ export default {
 }
 
 .my-button:hover {
-  background-color:gray /* Green */;
+  background-color: gray /* Green */;
   color: white;
 }
 </style>

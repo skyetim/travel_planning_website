@@ -17,6 +17,7 @@
 var travelGroup = [
   {
     name: "广州自驾游",
+    travel_group_id: "",
     travel: [
       {
         location: "广州",
@@ -43,6 +44,7 @@ var travelGroup = [
   },
   {
     name: "云南穷游",
+    travel_group_id: "",
     travel: [
       {
         location: "丽江",
@@ -75,6 +77,7 @@ var travelGroup = [
   },
   {
     name: "江南之旅",
+    travel_group_id: "",
     travel: [
       {
         location: "南京",
@@ -107,6 +110,7 @@ var travelGroup = [
   },
   {
     name: "北方之旅",
+    travel_group_id: "",
     travel: [
       {
         location: "北京",
@@ -139,6 +143,51 @@ export default {
       map: null,
       markers: []
     };
+  },
+  beforeCreate: function() {
+    var post_data = new Object();
+    post_data.user_id = this.$session.get("user_id");
+    post_data.session_id = this.$session.id().replace("sess:", "");
+    console.log(post_data);
+
+    var vue = this;
+    var backend = this.$backend;
+
+    backend.get_travel_group_list(
+      post_data,
+      function(response) {
+        var travel_group_list = response.data.travel_group_list;
+        travel_group_list.forEach(travel_group => {
+          var travel_list = [];
+          travel_group.travel_list.forEach(travel => {
+            travel_list.push({
+              travel_id: travel.travel_id,
+              location: travel.city_name,
+              coordinate: [travel.latitude, travel.longtitude],
+              start: travel.date_start,
+              end: travel.data.date_end,
+              citi_id: travel.city_id,
+              status: travel.visibility
+            });
+          });
+          vue.travelGroup.push({
+            name: travel_group.travel_group_name,
+            travel_group_id: travel_group.travel_group_id,
+            travel: travel_list,
+            dates: {
+              start: "",
+              end: ""
+            },
+            status: "",
+            color: travel_group.travel_group_color
+          });
+        });
+        alert("success");
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
   }
 };
 </script>

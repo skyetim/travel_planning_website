@@ -9,14 +9,17 @@ import VueSession from 'vue-session';
 import VueResource from 'vue-resource';
 import md5 from 'js-md5';
 import {status} from './status';
+import {backend} from './backend_config';
 import Vuelidate from 'vuelidate';
+
 
 Vue.use(VueSession);
 Vue.use(VueResource);
 Vue.use(Vuelidate);
 Vue.prototype.$md5 = md5;
 Vue.prototype.$status = status;
-
+Vue.prototype.$backend = backend;
+Vue.config.silent = true;
 
 Vue.http.options.emulateJSON = true;
 
