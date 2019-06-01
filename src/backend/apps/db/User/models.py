@@ -50,13 +50,16 @@ class UserInfo(models.Model):
                               choices=GENDER_CHOICES,
                               null=False,
                               editable=True)
-    comment = models.CharField(max_length=20,
-                               null=False,
-                               editable=True)
     resident_city_id = models.ForeignKey(city.City,
                                          to_field='city_id',
                                          related_name='U_UI_residentcityid',
                                          on_delete=models.PROTECT)
+    comment = models.CharField(max_length=40,
+                               null=False,
+                               editable=True)
+    avatar_url = models.URLField(default='',
+                                 null=False,
+                                 editable=True)
     register_date = models.DateField(auto_now_add=True,
                                      editable=False)
 

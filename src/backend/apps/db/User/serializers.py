@@ -13,7 +13,10 @@ class UserInfoSerializer(serializers.ModelSerializer):
         fields = ['user_id',
                   'user_name',
                   'gender',
-                  'resident_city']
+                  'resident_city',
+                  'comment',
+                  'avatar_url',
+                  'register_date']
 
 
 class FriendRelationSerializer(serializers.ModelSerializer):
@@ -33,5 +36,5 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['user_id',
                   'email',
                   'user_info',
-                  'friend_set',
+                  'friend_list',
                   'travel_group_list']
