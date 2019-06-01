@@ -35,7 +35,7 @@ if DEBUG:
 
 LOGGED_IN_USERS = {}
 
-SESSION_TIMEOUT = timedelta(minutes=10)
+SESSION_TIMEOUT = timedelta(minutes=20)
 
 
 def prepare_request_data(func):
