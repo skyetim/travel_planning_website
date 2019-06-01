@@ -28,7 +28,8 @@ def check_user_existence(user_id, need_existence=True):
 
 
 def is_friend(user_id, friend_user_id):
-    return db_user.FriendRelation.objects.filter(user_id=user_id, friend_user_id=friend_user_id).exists()
+    return db_user.FriendRelation.objects.filter(user_id=user_id,
+                                                 friend_user_id=friend_user_id).exists()
 
 
 def check_friend_relation_existence(user_id, friend_user_id, need_existence=True):
@@ -64,7 +65,8 @@ class User(object):
 
         self.user_info = UserInfo(user_id=self.get_user_id())
 
-        self.travel_group_set = set(self.get_others_travel_group_list(other_user_id=self.get_user_id()))
+        travel_group_list = self.get_others_travel_group_list(other_user_id=self.get_user_id())
+        self.travel_group_set = set(travel_group_list)
 
         self.friend_set = set()
         friend_relations = db_user.FriendRelation.objects.filter(user_id=self.get_user_id())
@@ -107,30 +109,39 @@ class User(object):
     def set_email(self, email):
         self.user_dbobj.email = email
         self.user_dbobj.save()
-        return self.user_dbobj.email
 
     def set_friend_note(self, friend_user_id, friend_note):
-        check_friend_relation_existence(self.get_user_id(), friend_user_id, need_existence=True)
+        check_friend_relation_existence(user_id=self.get_user_id(),
+                                        friend_user_id=friend_user_id,
+                                        need_existence=True)
+
         friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
         friend_info.set_friend_note(friend_note=friend_note)
 
     def reset_password(self, old_pswd_hash, new_pswd_hash):
+        check_pswd_hash_format(pswd_hash=new_pswd_hash)
+
         if self.user_dbobj.pswd_hash != old_pswd_hash:
             raise WrongPasswordException('Wrong password.')
-        check_pswd_hash_format(new_pswd_hash)
+
         self.user_dbobj.pswd_hash = new_pswd_hash
         self.user_dbobj.save()
 
-    # 和类图定义不一致
-
     def add_friend(self, friend_user_id, friend_note):
+        check_friend_relation_existence(user_id=self.get_user_id(),
+                                        friend_user_id=friend_user_id,
+                                        need_existence=False)
+
         friend_info = FriendInfo.new_friend_info(user_id=self.get_user_id(),
                                                  friend_user_id=friend_user_id,
                                                  friend_note=friend_note)
         self.friend_set.add(friend_info.get_user_id())
 
     def remove_friend(self, friend_user_id):
-        check_friend_relation_existence(self.get_user_id(), friend_user_id, need_existence=True)
+        check_friend_relation_existence(user_id=self.get_user_id(),
+                                        friend_user_id=friend_user_id,
+                                        need_existence=True)
+
         self.friend_set.remove(friend_user_id)
         friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
         friend_info.delete()
@@ -169,8 +180,8 @@ class User(object):
         user_info = db_user.UserInfo.objects.create(user_id=user,
                                                     user_name=user_name,
                                                     gender=gender,
-                                                    comment='',
-                                                    resident_city_id=resident_city)
+                                                    resident_city_id=resident_city,
+                                                    comment='')
 
         return cls(email=email, pswd_hash=pswd_hash)
 
@@ -238,7 +249,10 @@ class UserInfo(UserInfoBase):
 
 class FriendInfo(UserInfoBase):
     def __init__(self, user_id, friend_user_id):
-        check_friend_relation_existence(user_id=user_id, friend_user_id=friend_user_id)
+        check_friend_relation_existence(user_id=user_id,
+                                        friend_user_id=friend_user_id,
+                                        need_existence=True)
+
         self.friend_relation_dbobj = db_user.FriendRelation.objects.get(user_id=user_id,
                                                                         friend_user_id=friend_user_id)
         self.self_user_id = user_id
@@ -262,8 +276,10 @@ class FriendInfo(UserInfoBase):
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
-        check_user_existence(friend_user_id)
-        check_friend_relation_existence(user_id, friend_user_id, need_existence=False)
+        check_user_existence(user_id=friend_user_id)
+        check_friend_relation_existence(user_id=user_id,
+                                        friend_user_id=friend_user_id,
+                                        need_existence=False)
 
         if friend_note == '':
             friend_info = db_user.UserInfo.objects.get(user_id=friend_user_id)

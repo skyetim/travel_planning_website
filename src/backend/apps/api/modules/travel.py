@@ -10,28 +10,26 @@ def check_visibility(visibility):
     Return the standard version of visibility.
     """
     assert isinstance(visibility, str)
-    v = visibility.upper()
-    if v not in (db_travel.Travel.ME,
-                 db_travel.Travel.FRIEND,
-                 db_travel.Travel.PUBLIC):
+    visibility = visibility.upper()
+    if visibility not in (db_travel.Travel.ME,
+                          db_travel.Travel.FRIEND,
+                          db_travel.Travel.PUBLIC):
         raise VisibilityError(f'Visibility {visibility} is illegal.')
-    return v
+    return visibility
 
 
 def get_travel_instance_by_id(travel_id):
     try:
         return db_travel.Travel.objects.get(travel_id=travel_id)
     except db_travel.Travel.DoesNotExist:
-        raise TravelDoesNotExistException(
-                f'Travel (ID={travel_id}) does not exist.')
+        raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
 
 
 def get_travel_group_instance_by_id(travel_group_id):
     try:
         return db_travel.TravelGroup.objects.get(travel_group_id=travel_group_id)
     except db_travel.TravelGroup.DoesNotExist:
-        raise TravelGroupDoesNotExistException(
-                f'Travel Group (ID={travel_group_id}) does not exist.')
+        raise TravelGroupDoesNotExistException(f'Travel Group (ID={travel_group_id}) does not exist.')
 
 
 def get_travel_group_instance_by_travel_id(travel_id):
@@ -44,16 +42,13 @@ def get_travel_group_instance_by_travel_id(travel_id):
 
 
 def get_travel_group_owner_user_instance(travel_group_id):
-    travel_group = get_travel_group_instance_by_id(
-            travel_group_id=travel_group_id)
-    ownership = db_travel.TravelGroupOwnership.objects.get(
-            travel_group_id=travel_group)
+    travel_group = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
+    ownership = db_travel.TravelGroupOwnership.objects.get(travel_group_id=travel_group)
     return ownership.user_id
 
 
 def get_travel_group_permission_level(user_id, travel_group_id):
-    owner_user = get_travel_group_owner_user_instance(
-            travel_group_id=travel_group_id)
+    owner_user = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
     if user_id == owner_user.user_id:
         permission_level = db_travel.Travel.ME
     elif is_friend(user_id=user_id, friend_user_id=owner_user.user_id):
@@ -73,25 +68,26 @@ class TravelInfo(object):
     def __init__(self, user_id, travel_id):
         travel_info = get_travel_instance_by_id(travel_id=travel_id)
 
-        self.permission_level = get_travel_permission_level(
-                user_id=user_id, travel_id=travel_id)
+        self.permission_level = get_travel_permission_level(user_id=user_id,
+                                                            travel_id=travel_id)
+
         visibility_list = {self.permission_level, db_travel.Travel.PUBLIC}
         if self.permission_level == db_travel.Travel.ME:
             visibility_list.add(db_travel.Travel.FRIEND)
         if travel_info.visibility not in visibility_list:
             raise PermissionDeniedException(f'No permission to access '
                                             f'Travel (ID={self.get_travel_id()}).')
+
         self.travel_info_dbobj = travel_info
 
     @classmethod
     def new_travel_info(cls, user_id, city_id, date_start, date_end, visibility, travel_note):
-        city = mod_city.get_city_instance_by_id(city_id)
+        visibility = check_visibility(visibility=visibility)
 
-        if date_start >= date_end:
+        if date_start > date_end:
             raise DateStartLaterThanDateEndError('The date_start should be earlier than date_end.')
 
-        visibility = check_visibility(visibility)
-
+        city = mod_city.get_city_instance_by_id(city_id=city_id)
         travel_info = db_travel.Travel.objects.create(city_id=city,
                                                       date_start=date_start, date_end=date_end,
                                                       visibility=visibility,
@@ -111,8 +107,7 @@ class TravelInfo(object):
         return self.travel_info_dbobj.travel_note
 
     def get_city_id(self):
-        city = mod_city.get_city_instance_by_id(self.travel_info_dbobj.city_id)
-        return city.city_id
+        return self.travel_info_dbobj.city_id.city_id
 
     def get_date_start(self):
         return self.travel_info_dbobj.date_start.isoformat()
@@ -163,11 +158,11 @@ class TravelInfo(object):
         Receive "M"(ME),"F" (Friend) or "P"(Public).
         """
         self.check_permission()
-        v = check_visibility(visibility)
+        visibility = check_visibility(visibility)
 
         # TODO: send message to companies
         # to set visibility ME is same to delete, remove all companies
-        self.travel_info_dbobj.visibility = v
+        self.travel_info_dbobj.visibility = visibility
         self.travel_info_dbobj.save()
 
     def keys(self):
@@ -184,8 +179,8 @@ class TravelInfo(object):
 
 class Travel(object):
     def __init__(self, user_id, travel_id):
-        self.permission_level = get_travel_permission_level(
-                user_id=user_id, travel_id=travel_id)
+        self.permission_level = get_travel_permission_level(user_id=user_id,
+                                                            travel_id=travel_id)
 
         self.travel_dbobj = get_travel_instance_by_id(travel_id=travel_id)
         self.travel_info = TravelInfo(user_id=user_id, travel_id=travel_id)
@@ -196,7 +191,7 @@ class Travel(object):
             self.company_set.add(company.company_user_id.user_id)
 
     @classmethod
-    def new_travel(cls, user_id, travel_group_id,
+    def new_travel(cls, user_id, travel_group,
                    city_id, date_start, date_end,
                    visibility, travel_note):
         travel_info = TravelInfo.new_travel_info(user_id=user_id,
@@ -204,9 +199,9 @@ class Travel(object):
                                                  date_start=date_start, date_end=date_end,
                                                  visibility=visibility,
                                                  travel_note=travel_note)
-        travel_group_id = get_travel_group_instance_by_id(travel_group_id)
+        travel_group = get_travel_group_instance_by_id(travel_group)
         db_travel.TravelGrouping.objects.create(travel_id=travel_info.get_travel_id(),
-                                                travel_group_id=travel_group_id)
+                                                travel_group_id=travel_group)
 
         return cls(user_id=user_id, travel_id=travel_info.get_travel_id())
 
@@ -275,10 +270,10 @@ class TravelGroup(object):
 
         self.travel_set = set()
         travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
-
-        for travel in travel_list:
+        for travel_dbobj in travel_list:
             try:
-                self.travel_set.add(travel.travel_id)
+                travel = Travel(user_id=user_id, travel_id=travel_dbobj.travel_id)
+                self.travel_set.add(travel.get_travel_id())
             except PermissionDeniedException:
                 pass
 
@@ -298,7 +293,7 @@ class TravelGroup(object):
         db_travel.TravelGroupOwnership.objects.create(user_id=user,
                                                       travel_group_id=travel_group)
 
-        return cls(user_id, travel_group.travel_group_id)
+        return cls(user_id=user_id, travel_group_id=travel_group.travel_group_id)
 
     def check_permission(self):
         if self.permission_level != db_travel.Travel.ME:
@@ -320,7 +315,7 @@ class TravelGroup(object):
         self.check_permission()
 
         travel = Travel.new_travel(user_id=self.get_owner_user_id(),
-                                   travel_group_id=self.get_travel_group_id(),
+                                   travel_group=self.get_travel_group_id(),
                                    city_id=city_id,
                                    date_start=date_start, date_end=date_end,
                                    visibility=visibility,
