@@ -3,7 +3,7 @@ import axios from 'axios';
 import qs from 'qs';
 
 export const backend = {
-    remote: "http://185.239.71.198:9000/api/",
+    remote: "http://139.162.123.242:9000/api/",
 
     response_handler: function (response, success, fail) {
         if (response.status === 200) {
@@ -17,7 +17,6 @@ export const backend = {
 
     err_handler: function (err) {
         console.log(err);
-        alert("fail1");
     },
 
     post_wrapper: function (api_name, data, success, fail) {
@@ -29,6 +28,10 @@ export const backend = {
             function (err) {
                 backend.err_handler(err);
             })
+    },
+
+    get_all_travel_group_details: function (data, success, fail) {
+        return backend.post_wrapper("get_all_travel_group_details", data, success, fail);
     },
 
     get_travel_group_list: function (data, success, fail) {

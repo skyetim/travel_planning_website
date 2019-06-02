@@ -27,7 +27,6 @@
           <th>行迹</th>
           <th>开始</th>
           <th>结束</th>
-          <th>可见</th>
           <th>行程</th>
           <th>同伴</th>
         </template>
@@ -50,16 +49,6 @@
 
           <td>
             <div>{{row.dates.end}}</div>
-          </td>
-
-          <td class="show-edit">
-            <div>
-              <div>
-                <badge class="badge-dot mr-4" :type="statusType[row.status]">
-                  <span class="status">{{status[row.status]}}</span>
-                </badge>
-              </div>
-            </div>
           </td>
 
           <td>
@@ -125,40 +114,17 @@
           </div>
         </div>
         <div class="row">
-          <div :class="[edit.collapsed?'collapse': 'expand']">
-            <div class="col-11">
+          <div class="col-11">
+            <div :class="[edit.collapsed?'collapse': 'expand']">
               <draggablelist :travel="editRow.travel" :gid="editRow.travel_group_id"></draggablelist>
             </div>
-          </div>
-        </div>
-
-        <small class="text-muted text-center">行程状态</small>
-        <br>
-        <div class="row">
-          <div class="col-11">
-            <base-input
-              @click.native="expandPicker()"
-              v-model="status[editRow.status]"
-              ref="travel_group_visibility"
-              readonly
-            ></base-input>
-          </div>
-        </div>
-        <div class="row" margin-top="-30px">
-          <div ref="picker" class="col-11 dropdown-content">
-            <div
-              class="list-group-item item"
-              v-for="(n,index) in [0, 1, 2]"
-              :key="index"
-              @click="changeStatus(n, editRow)"
-            >{{status[n]}}</div>
           </div>
         </div>
       </div>
       <template slot="footer">
         <base-button
           type="primary"
-          @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow);edit.modal = false;"
+          @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
         >Save changes</base-button>
       </template>
     </modal>
@@ -171,9 +137,6 @@ import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
 import moment from "moment";
 
-var statusType = ["danger", "info", "success"];
-var status = ["仅自己可见", "好友可见", "所有可见"];
-
 var edit = {
   addMode: false,
   modal: false,
@@ -184,8 +147,6 @@ export default {
   name: "edit-projects-table",
   data() {
     return {
-      statusType: statusType,
-      status: status,
       edit: edit,
       editRow: this.newTravelGroup(),
       editIndex: null
@@ -206,8 +167,7 @@ export default {
         name: "",
         travel_group_id: null,
         travel: [],
-        dates: { start: "", end: "" },
-        status: 0
+        dates: { start: "", end: "" }
       };
       return travelGroupProto;
     },
@@ -215,17 +175,22 @@ export default {
       let newObj = JSON.parse(JSON.stringify(obj));
       return newObj;
     },
-    indexOf: function(arr, el){
-      for(var i=0; i<arr.length; ++i){
-        if(arr[i] == el){
+    indexOf: function(arr, el) {
+      for (var i = 0; i < arr.length; ++i) {
+        if (arr[i] == el) {
           return i;
         }
       }
     },
     displayStatus: function(dates) {
+      if (!dates.start || !dates.end) {
+        return "";
+      }
+
       var begin = moment(dates.start);
       var end = moment(dates.end);
       var today = moment(Date());
+
       if (begin.isBefore(today) && today.isBefore(end)) {
         return "行程中";
       } else if (end.isBefore(today)) {
@@ -236,15 +201,12 @@ export default {
     },
     editTravel: function(row) {
       this.editRow = this.copy(row);
+      // this.editRow = row;
       this.editIndex = this.indexOf(this.tableData, row);
-      console.log(this.editRow);
       this.edit.addMode = false;
       this.edit.modal = true;
     },
-    changeStatus: function(n, row) {
-      row.status = n;
-      this.$refs.picker.style.display = "none";
-    },
+
     del: function(row) {
       for (var i = 0; i < this.tableData.length; ++i) {
         if (row == this.tableData[i]) {
@@ -256,7 +218,7 @@ export default {
             },
             function(response) {
               this.tableData.splice(i, 1);
-              alert("success");
+              console.log(response);
             },
             function(response) {
               alert(response.data.error_message);
@@ -265,9 +227,6 @@ export default {
           break;
         }
       }
-    },
-    expandPicker: function() {
-      this.$refs.picker.style.display = "block";
     },
 
     // ajax
@@ -291,14 +250,14 @@ export default {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
                 city_id: travel.city_id,
-                date_start: travel.start,
-                date_end: travel.end,
-                visibility: 0,
+                date_start: travel.date_start,
+                date_end: travel.date_end,
+                visibility: travel.visibility,
                 travel_note: ""
               },
               function(response) {
                 travel.travel_id = response.data.travel_id;
-                alert("success add travel");
+                console.log(response);
               },
               function(response) {
                 alert(response.data.error_message);
@@ -307,7 +266,8 @@ export default {
           });
           row.travel_group_id = response.data.travel_group_id;
           vue.tableData.push(row);
-          alert("success add travel group");
+          vue.$emit("update", vue.tableData);
+          console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
@@ -315,9 +275,7 @@ export default {
       );
     },
 
-    set_travel_group: function(row) {
-      console.log(row);
-
+    set_travel_group: function(editRow) {
       var vue = this;
       var backend = this.$backend;
       var session = this.$session;
@@ -326,40 +284,42 @@ export default {
         {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
-          travel_group_id: row.travel_group_id,
-          travel_group_name: row.name,
+          travel_group_id: editRow.travel_group_id,
+          travel_group_name: editRow.name,
           travel_group_note: "hello",
           travel_group_color: "#ffffff"
         },
         function(response) {
-          row.travel.forEach(travel => {
+          editRow.travel.forEach(travel => {
             backend.set_travel_info(
               {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
                 travel_id: travel.travel_id,
                 city_id: travel.city_id,
-                date_start: travel.start,
-                date_end: travel.end,
-                visibility: 0,
+                date_start: travel.date_start,
+                date_end: travel.date_end,
+                visibility: travel.visibility,
                 travel_note: ""
               },
               function(response) {
-                alert("success set travel");
+                console.log(response);
               },
               function(response) {
                 alert(response.data.error_message);
               }
             );
           });
-          vue.tableData[vue.editIndex] = row;
-          alert("success set travel group");
+
+          vue.tableData[vue.editIndex] = editRow;
+          vue.$emit("update", vue.tableData);
+          console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
         }
       );
-    },
+    }
   }
 };
 </script>
