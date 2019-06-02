@@ -34,6 +34,11 @@ from apps.api.modules.exceptions import *
 
 
 # 以下所有user如无意外均指User类的实例对象
+def get_time_delta_days(target_date):
+    today = ddate.today()
+    time_delta = today-ddate(*[int(x) for x in target_date.split("-")])
+    time_delta_days = abs(time_delta.days)
+
 
 def recommend_friend_list(user, amount=10):
     # 从用户数据库中找不是自己好友的那些
@@ -48,13 +53,36 @@ def recommend_travel_group_list(user, amount=10):
     # 遍历好友的旅行记录
     # 根据时间和今天的距离排序进行推荐
     # 总数不超过amount
-    friend_list=user.get_friend_list()
-    other_travel_group_list=[]
 
-    return
+    user_id = user.get_user_id()
+
+    friend_list = user.get_friend_list()
+    other_travel_group_list = []
+    for fr in friend_list:
+        for tg_id in user.get_other_travel_group_list(fr):
+            travel_group = mod_travel.TravelGroup(
+                user_id=user_id, travel_group_id=tg_id)
+            travel_list = travel_group.get_travel_list()
+            if travel_list == []:
+                continue
+            rep_time = mod_travel.Travel(
+                user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
+            # represent time in isoformat
+            # e.g. "1989-06-04"
+
+            other_travel_group_list.append(
+                {"travel_group_id": tg_id, "time_delta_days": get_time_delta_days(rep_time)})
+    other_travel_group_list.sort(key=lambda x: x["time_Delta_days"])
+    if len(other_travel_group_list) < amount:
+        amount = len(other_travel_group_list)
+
+    recommend_list = []
+    for i in range(amount):
+        recommend_list.append(other_travel_group_list[i]["travel_group_id"])
+    return recommend_list
 
 
-def recommend_city_list_by_travel(user_id, travel_id, amount=3):
+def recommend_city_list_by_travel(user, travel_id, amount=3):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离排序进行推荐
     # 不包括本城市
@@ -62,7 +90,7 @@ def recommend_city_list_by_travel(user_id, travel_id, amount=3):
     return
 
 
-def recommend_city_list_by_travel_group(user_id, travel_group_id, amount=3):
+def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中已有的距离排序进行推荐
     # 不包括该travel_group中已有的city
@@ -70,14 +98,14 @@ def recommend_city_list_by_travel_group(user_id, travel_group_id, amount=3):
     return
 
 
-def recommend_travel_list_by_travel(user_id, travel_id, amount=5):
+def recommend_travel_list_by_travel(user, travel_id, amount=5):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离、时间间隔排序进行推荐
     # 总数不超过amount
     return
 
 
-def recommend_travel_list_by_travel_group(user_id, travel_group_id, amount=5):
+def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中城市的距离、时间间隔排序进行推荐
     # 总数不超过amount
