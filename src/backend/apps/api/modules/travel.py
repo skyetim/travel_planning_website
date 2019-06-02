@@ -194,6 +194,7 @@ class TravelInfo(object):
             db_travel.TravelAssociation.objects.filter(travel_id=self.get_travel_id()).delete()
         self.travel_info_dbobj.visibility = visibility
         self.travel_info_dbobj.save()
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
 
     def keys(self):
         return ['travel_id',

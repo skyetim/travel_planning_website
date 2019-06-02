@@ -153,7 +153,7 @@ class User(object):
         self_user_dbobj = get_user_instance_by_id(self.get_user_id())
         other_user_dbobj = get_user_instance_by_id(friend_user_id)
 
-        db_msg.FriendRequest.objects.create(user_id=other_user_dbobj,friend_user_id=self_user_dbobj,msg_type=db_msg.FriendRequest.DELETE,msg_content=f"You friend {self.get_user_name()} has deleted you from friend list.")
+        db_msg.FriendRequest.objects.create(user_id=other_user_dbobj,friend_user_id=self_user_dbobj,msg_type=db_msg.FriendRequest.DELETE,msg_content=f"You friend {self.user_info.get_user_name()} has deleted you from friend list.")
 
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
