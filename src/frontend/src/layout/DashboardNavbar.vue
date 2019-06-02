@@ -66,7 +66,7 @@
           this.user_name = this.$session.get('user_name');
         } else {
           if (this.$session.exists()) {
-            this.$http.post('http://185.239.71.198:9000/api/get_user_info', {
+            this.$http.post('http://139.162.123.242:9000/api/get_user_info', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', '')
           }).then(function (response) {
@@ -109,7 +109,7 @@
       },
       logout(){
         if (this.$session.exists()) {
-          this.$http.post('http://185.239.71.198:9000/api/logout', {
+          this.$http.post('http://139.162.123.242:9000/api/logout', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', '')
           }).then(function (response) {
