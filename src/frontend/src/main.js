@@ -19,6 +19,17 @@ Vue.use(Vuelidate);
 Vue.prototype.$md5 = md5;
 Vue.prototype.$status = status;
 Vue.prototype.$backend = backend;
+Vue.prototype.compare = function(id) {
+  return function(obj1, obj2) {
+    if (obj1[id] < obj2[id]) {
+      return -1;
+    } else if (obj1[id] > obj2[id]) {
+      return 1;
+    } else {
+      return 0;
+    }
+  };
+}
 Vue.config.silent = true;
 
 Vue.http.options.emulateJSON = true;
