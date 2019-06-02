@@ -1,19 +1,19 @@
 <template>
-  <div class="row">
-    <div class="col-16">
-      <draggable
-        tag="transition-group"
-        :componentData="componentData"
-        :list="travel"
-        class="list-group"
-        draggable=".item"
-        :animation="100"
-        @start="dragging = true"
-        @end="dragging = false"
-      >
-        <div class="list-group-item item show-rm" v-for="(element,index) in travel" :key="index">
-          <div class="col-16">
-            <div class="input-list">
+  <draggable
+    tag="transition-group"
+    :componentData="componentData"
+    :list="travel"
+    class="list-group"
+    draggable=".item"
+    :animation="100"
+    @start="dragging = true"
+    @end="dragging = false"
+  >
+    <div class="list-group-item item show-rm" v-for="(element,index) in travel" :key="index">
+      <div class="row">
+        <div class="col-10">
+          <div class="row">
+            <div class="col">
               <small class="text-muted text-center">地点</small>
               <br>
 
@@ -25,7 +25,7 @@
               ></base-input>
             </div>
 
-            <div class="input-list">
+            <div class="col">
               <small class="text-muted text-center">开始</small>
               <br>
               <base-input>
@@ -35,11 +35,11 @@
                   @on-close="blur"
                   :config="{allowInput: true}"
                   class="form-control datepicker"
-                  v-model="travel[index].start"
+                  v-model="travel[index].date_start"
                 ></flat-picker>
               </base-input>
             </div>
-            <div class="input-list">
+            <div class="col">
               <small class="text-muted text-center">结束</small>
               <br>
               <base-input>
@@ -49,40 +49,72 @@
                   @on-close="blur"
                   :config="{allowInput: true}"
                   class="form-control datepicker"
-                  v-model="travel[index].end"
+                  v-model="travel[index].date_end"
                 ></flat-picker>
               </base-input>
             </div>
-            <i class="ni ni-fat-remove icon-rm" @click="travel.splice(index, 1)"></i>
-          </div>
-          <div class="col-16 dropdown-content" ref="dropdown">
-            <div class="col-14">
-              <input class="col-8 my-input" type="text" placeholder="查找地点" ref="locStr">
-              <button class="my-button" @click="search(index)">查找</button>
-              <button class="my-button" @click="collapse(index)">取消</button>
+            <div class="col">
+              <small class="text-muted text-center">可见</small>
+              <br>
+              <base-input
+                v-model="visibility_list[travel[index].visibility]"
+                @click.native="expandPicker(index)"
+                ref="travel_group_visibility"
+                readonly
+              ></base-input>
             </div>
-            <div
-              class="col-8 list-group-item item"
-              v-for="(loc,n) in query.result"
-              :key="n"
-              @click="picked(index, loc)"
-            >{{loc}}</div>
-            <div class="col-8 list-group-item item">{{query.status}}</div>
           </div>
         </div>
-
-        <div
-          slot="footer"
-          class="btn-group list-group-item"
-          role="group"
-          aria-label="Basic example"
-          key="footer"
-        >
-          <button class="btn btn-secondary" @click="add">Add</button>
+        <div class="col-1">
+          <i class="ni ni-fat-remove icon-rm" @click="del(index)"></i>
         </div>
-      </draggable>
+      </div>
+      <div ref="picker" class="dropdown-content">
+        <div
+          class="list-group-item item"
+          v-for="(v,n) in ['F', 'P']"
+          :key="n"
+          @click="changeStatus(v, travel,index)"
+        >{{visibility_list[v]}}</div>
+      </div>
+      <div class="dropdown-content" ref="dropdown">
+        <div class="row">
+          <div class="col-5">
+            <base-input v-model="query.content" placeholder="查找地点"></base-input>
+          </div>
+          <div class="col-5">
+            <div class="row">
+              <div class="col">
+                <button dislplay="inline-block" class="btn btn-primary" @click="search()">查找</button>
+                <button
+                  dislplay="inline-block"
+                  class="btn btn-primary"
+                  @click="collapse(index)"
+                >取消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="row list-group-item item"
+          v-for="(r,n) in query.result"
+          :key="n"
+          @click="picked(index, r)"
+        >{{r.country_name + " "+ r.province_name+ " " + r.city_name}}</div>
+        <div class="row list-group-item item">{{query.status}}</div>
+      </div>
     </div>
-  </div>
+
+    <div
+      slot="footer"
+      class="btn-group list-group-item"
+      role="group"
+      aria-label="Basic example"
+      key="footer"
+    >
+      <button class="btn btn-secondary" @click="add">Add</button>
+    </div>
+  </draggable>
 </template>
 
 <script>
@@ -90,13 +122,17 @@ import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
 
-var search_dummy = ["上海市", "上饶市", "上虞", "北京市", "台北市"];
 var query = {
-  dummy: search_dummy,
+  content: "",
   status: "",
+  searchMode: false,
   result: []
 };
 
+var visibility_list = {
+  F: "仅好友可见",
+  P: "所有人可见"
+};
 export default {
   name: "draggablelist",
   display: "Footer slot",
@@ -106,10 +142,12 @@ export default {
     flatPicker
   },
   props: {
-    travel: Array
+    travel: Array,
+    gid: Number
   },
   data() {
     return {
+      visibility_list: visibility_list,
       dragging: false,
       componentData: {
         props: {
@@ -121,36 +159,106 @@ export default {
     };
   },
   methods: {
-    add: function() {
-      this.travel.push({ location: "", coordinate: "", start: "", end: "" });
+    expandPicker: function(index) {
+      this.$refs.picker[index].style.display = "block";
     },
-    search: function(index) {
+    changeStatus: function(v, travel, index) {
+      travel[index].visibility = v;
+      this.$refs.picker[index].style.display = "none";
+    },
+    add: function() {
+      var vue = this;
+      var session = this.$session;
+      this.travel.push({
+        location: "",
+        coordinate: "",
+        date_start: "",
+        date_end: ""
+      });
+
+      this.$backend.add_travel(
+        {
+          user_id: session.get("user_id"),
+          session_id: session.id().replace("sess:", ""),
+          travel_group_id: vue.gid,
+          city_id: 3,
+          date_start: "2009-01-09",
+          date_end: "2009-01-09",
+          visibility: "P",
+          travel_note: ""
+        },
+        function(response) {
+          vue.travel[vue.travel.length - 1].travel_id = response.data.travel_id;
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
+    },
+    del: function(index) {
+      var vue = this;
+      var session = this.$session;
+      this.$backend.remove_travel(
+        {
+          user_id: session.get("user_id"),
+          session_id: session.id().replace("sess:", ""),
+          travel_group_id: vue.gid,
+          travel_id: vue.travel[index].travel_id
+        },
+        function(response) {
+          vue.travel.splice(index, 1);
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
+    },
+    search: function() {
+      var vue = this;
       this.query.result = [];
-      this.query.status="";
-      var locStr = this.$refs.locStr[index].value;
-      if (locStr == "") {
+      this.query.status = "";
+
+      if (this.query.content == "") {
         this.query.status = "无匹配城市";
         return;
       } else {
-        this.query.dummy.forEach(element => {
-          if (element.match(locStr)) {
-            this.query.result.push(element);
+        this.$backend.address_to_city(
+          { address: vue.query.content },
+          function(response) {
+            vue.query.result.push({
+              city_id: response.data.city_id,
+              country_name: response.data.country_name,
+              province_name: response.data.province_name,
+              city_name: response.data.city_name,
+              latitude: response.data.latitude,
+              longitude: response.data.longitude
+            });
+            console.log(response);
+          },
+          function(response) {
+            alert(response.data.error_message);
           }
-        });
-        if(this.query.result.empty()){
-          this.query.status = "无匹配城市";
-        }
+        );
       }
     },
     expand: function(index) {
-      this.$refs.dropdown[index].style.display = "block";
+      if (!this.query.searchMode) {
+        this.query.searchMode = true;
+        this.$refs.dropdown[index].style.display = "block";
+      }
     },
     collapse: function(index) {
+      this.query.searchMode = false;
       this.$refs.dropdown[index].style.display = "none";
     },
-    picked: function(index, loc){
-      this.travel[index].location = loc;
-      this.query.result=[];
+    picked: function(index, r) {
+      this.travel[index].location = r.city_name;
+      this.travel[index].city_id = r.city_id;
+      this.travel[index].coordinate = [r.latitude, r.longitude];
+      this.query.result = [];
+      this.query.content = "";
       this.collapse(index);
     }
   }
@@ -218,7 +326,6 @@ export default {
 
 /* input and button */
 .my-input {
-  display: inline-block;
   border-radius: 2px;
 }
 
@@ -229,7 +336,13 @@ export default {
 }
 
 .my-button:hover {
-  background-color:gray /* Green */;
+  background-color: gray /* Green */;
   color: white;
+}
+
+.dropdown-absolute {
+  display: none;
+  position: absolute;
+  z-index: 2;
 }
 </style>

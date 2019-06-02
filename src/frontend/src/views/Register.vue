@@ -97,6 +97,7 @@
         </div>
     </div>
 </template>
+
 <script>
   import {email} from 'vuelidate/lib/validators';
   import { setTimeout } from 'timers';
@@ -131,7 +132,7 @@
                 this.login_error.message = '以上内容均为必填项, 请全部填写';
                 return
             }
-            this.$http.post('http://185.239.71.198:9000/api/register', {
+            this.$http.post(`${this.$backend.remote}register`, {
                 pswd_hash: this.$md5(this.model.password),
                 email: this.model.email, 
                 user_name: this.model.name, 
@@ -166,3 +167,4 @@
 </script>
 <style>
 </style>
+>>>>>>> travel_info_edit
