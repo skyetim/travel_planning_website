@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-3 order-lg-2">
                 <div class="card-profile-image">
-                    <a @click="toggleShow()">
+                    <a v-b-tooltip.hover.top title="点击以更改头像" @click="toggleShow()" >
                         <img :src="imgDataUrl" class="rounded-circle">
                     </a>
                 </div>
@@ -69,6 +69,7 @@
 <script>
     // import 'babel-polyfill'; // es6 shim
     import Upload from '@/plugins/vue-image-crop-upload/upload.vue';
+    import BTooltipDirective from 'bootstrap-vue/es/directives/tooltip'
     export default {
         name: 'user_card_preview',
         props: {
@@ -85,6 +86,9 @@
                 'default': '未设置'
             }
         }, 
+        directives: {
+            'b-tooltip': BTooltipDirective
+        },
         data() {
             return {
                 show: false,
@@ -124,9 +128,36 @@
              */
             cropUploadSuccess(jsonData, field){
                 console.log('-------- upload success --------');
-                console.log(jsonData);
-                console.log('field: ' + field);
-                this.imgDataUrl = jsonData.url;
+                if (this.$session.exists()) {
+                    this.$http.post('http://139.162.123.242:9000/api/set_user_avatar_url', {
+                        user_id: this.$session.get('user_id'),
+                        session_id: this.$session.id().replace('sess:', ''), 
+                        avatar_url: jsonData.url
+                }).then(function (response) {
+                    if (response.status === 200) {
+                        if (response.body.status == this.$status['normal']){
+                            this.imgDataUrl = jsonData.url;
+                        } else if (response.body.status == this.$status['user_anthorization_error']) {
+                            window.alert('用户登录信息有误, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else if (response.body.status == this.$status['user_session_timeout']){
+                            window.alert('用户长时间未操作, 自动退出, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else {
+                            console.error('获取信息时发生未知错误', response.body);
+                        }
+                    } else {
+                        console.error('网络连接有问题', response.body);
+                    }
+                }, function (err) {
+                    console.error('err', err);
+                    }); 
+                } else {
+                    window.alert('用户已退出, 请重新登录');
+                    this.$router.push('/login');
+                }
             },
             /**
              * upload fail
