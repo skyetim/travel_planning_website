@@ -1,4 +1,4 @@
-from datatime import date as ddate
+from datetime import date as ddate
 
 import apps.db.User.models as db_user
 import apps.db.Travel.models as db_travel
@@ -7,7 +7,7 @@ import apps.api.modules.city as mod_city
 import apps.api.modules.travel as mod_travel
 import apps.api.modules.user as mod_user
 
-from apss.api.modules.exceptions import *
+from apps.api.modules.exceptions import *
 
 def recommend(user_id):
     mod_user.check_user_existence(user_id)

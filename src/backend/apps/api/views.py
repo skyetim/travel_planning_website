@@ -22,11 +22,14 @@ __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 __all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
+                'get_travel_group_info_list', 'get_others_travel_group_info_list',
                 'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['get_travel_list'])
 __all__.extend(['add_travel', 'remove_travel', 'move_travel',
+                'get_travel_info_list',
                 'get_travel_info', 'set_travel_info'])
-__all__.extend(['address_to_city', 'gps_to_city', 'city_id_to_city'])
+__all__.extend(['address_to_city', 'address_to_city_list',
+                'gps_to_city', 'city_id_to_city'])
 
 REQUEST_METHOD_LIST = ['POST']
 
@@ -331,6 +334,34 @@ def remove_travel_group(request_data):
 
 
 @api(check_tokens=True)
+def get_travel_group_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_group_list = user.get_travel_group_list()
+
+    response = {
+        'count': len(travel_group_list),
+        'travel_group_info_list': [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                          travel_group_id=travel_group_id)
+                                   for travel_group_id in travel_group_list]
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_others_travel_group_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
+
+    response = {
+        'count': len(others_travel_group_list),
+        'travel_group_info_list': [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                          travel_group_id=travel_group_id)
+                                   for travel_group_id in others_travel_group_list]
+    }
+    return response
+
+
+@api(check_tokens=True)
 def get_travel_group_info(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -407,6 +438,24 @@ def move_travel(request_data):
 
 
 @api(check_tokens=True)
+def get_travel_info_list(request_data):
+    user_id = request_data['user_id']
+
+    travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_list = travel_group.get_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_info_list': [mod_travel.TravelInfo(user_id=user_id,
+                                                   travel_id=travel_id)
+                             for travel_id in travel_list]
+    }
+    return response
+
+
+@api(check_tokens=True)
 def get_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
@@ -420,8 +469,8 @@ def set_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
 
-    travel_info.set_date_start(**request_data['date_start'])
-    travel_info.set_date_end(**request_data['date_end'])
+    travel_info.set_date_start(date_start=request_data['date_start'])
+    travel_info.set_date_end(date_end=request_data['date_end'])
     travel_info.set_city_id(city_id=request_data['city_id'])
     travel_info.set_travel_note(note=request_data['travel_note'])
     travel_info.set_visibility(visibility=request_data['visibility'])
@@ -432,16 +481,27 @@ def set_travel_info(request_data):
 
 @api(check_tokens=False)
 def address_to_city(request_data):
-    city = mod_city.get_or_create_city_instance(address=request_data['address'])
+    city = mod_city.get_city_instance_by_address(address=request_data['address'])
 
     response = dict(city)
     return response
 
 
 @api(check_tokens=False)
+def address_to_city_list(request_data):
+    city_list = mod_city.get_city_instance_list_by_address(address=request_data['address'])
+
+    response = {
+        'count': len(city_list),
+        'city_list': list(map(dict, city_list))
+    }
+    return response
+
+
+@api(check_tokens=False)
 def gps_to_city(request_data):
-    city = mod_city.get_or_create_city_instance(latitude=request_data['latitude'],
-                                                longitude=request_data['longitude'])
+    city = mod_city.get_city_instance_by_gps(latitude=request_data['latitude'],
+                                             longitude=request_data['longitude'])
 
     response = dict(city)
     return response
