@@ -481,8 +481,7 @@ class TravelGroup(object):
                 'travel_group_id',
                 'travel_group_name',
                 'travel_group_note',
-                'travel_group_color',
-                'travel_list']
+                'travel_group_color']
 
     def __getitem__(self, item):
         return getattr(self, f'get_{item}')()

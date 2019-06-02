@@ -421,8 +421,8 @@ def set_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
 
-    travel_info.set_date_start(**request_data['date_start'])
-    travel_info.set_date_end(**request_data['date_end'])
+    travel_info.set_date_start(date_start=request_data['date_start'])
+    travel_info.set_date_end(date_end=request_data['date_end'])
     travel_info.set_city_id(city_id=request_data['city_id'])
     travel_info.set_travel_note(note=request_data['travel_note'])
     travel_info.set_visibility(visibility=request_data['visibility'])
