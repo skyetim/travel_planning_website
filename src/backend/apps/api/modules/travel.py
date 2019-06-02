@@ -132,6 +132,9 @@ class TravelInfo(object):
     def get_company_list(self):
         return Travel(self.user_id, self.get_travel_id()).get_company_list()
 
+    def set_travel_info(self):
+        self.check_permission()
+
     def set_city_id(self, city_id):
         self.check_permission()
 
@@ -192,7 +195,8 @@ class TravelInfo(object):
         self.travel_info_dbobj.save()
 
         # send message to companies
-        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
+        if visibility == db_travel.Travel.ME:
+            self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
 
     def keys(self):
         return ['travel_id',
@@ -295,6 +299,10 @@ class Travel(object):
                 msg_type=db_msg.TravelAssociation.DELETE, target_list=self.get_company_list())
 
         self.travel_dbobj.delete()
+
+    def set_travel_info(self):
+        # TODO: only send one message
+        pass
 
     def add_company(self, company_user_id):
         self.check_permission()
