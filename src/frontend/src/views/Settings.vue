@@ -23,6 +23,7 @@
                                        :gender='model.gender'
                                        :resident_city='model.resident_city'
                                        :comment='model.comment'
+                                       :avatar_url='model.avatar_url'
                     ></user-card-preview>
                 </div>
 
@@ -224,7 +225,8 @@ import UserCardPreview from './UserCardPreview';
           resident_city_id: 1, 
           old_password: '', 
           new_password: '', 
-          verify_password: ''
+          verify_password: '', 
+          avatar_url: ''
         },
         error: {
             visible: false, 
@@ -276,6 +278,10 @@ import UserCardPreview from './UserCardPreview';
                   this.model.gender = this.$gender[response.body.gender];
                   this.model.resident_city_id = response.body.resident_city_id;
                   this.model.comment = response.body.comment;
+                  this.model.avatar_url = response.body.avatar_url;
+                  if (this.model.avatar_url == '') {
+                      this.model.avatar_url = 'img/theme/team-4-800x800.jpg'
+                  }
                 } else if (response.body.status == this.$status['user_anthorization_error']) {
                   window.alert('用户登录信息有误, 请重新登录');
                   this.$session.destroy();

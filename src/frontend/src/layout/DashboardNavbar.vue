@@ -17,7 +17,7 @@
                 <base-dropdown class="nav-link pr-0">
                     <div class="media align-items-center" slot="title">
                 <span class="avatar avatar-sm rounded-circle">
-                  <img alt="Image placeholder" src="img/theme/team-4-800x800.jpg">
+                  <img alt="Image placeholder" :src="avatar_url">
                 </span>
                         <div class="media-body ml-2 d-none d-lg-block">
                             <span class="mb-0 text-sm  font-weight-bold" :key="this.$session.get('user_name')">{{this.user_name}}</span>
@@ -58,12 +58,14 @@
         activeNotifications: false,
         showMenu: false,
         searchQuery: '', 
-        user_name: ''
+        user_name: '', 
+        avatar_url: ''
       };
     },
     mounted() {
-        if (this.$session.has('user_name')) {
+        if (this.$session.has('user_name') && this.$session.has('avatar_url')) {
           this.user_name = this.$session.get('user_name');
+          this.avatar_url = this.$session.get('avatar_url');
         } else {
           if (this.$session.exists()) {
             this.$http.post('http://139.162.123.242:9000/api/get_user_info', {
@@ -74,6 +76,10 @@
                 if (response.body.status == this.$status['normal']){
                   this.$session.set('user_name', response.body.user_name);
                   this.user_name = response.body.user_name;
+                  this.avatar_url = response.body.avatar_url;
+                  if (this.avatar_url == ''){
+                    this.avatar_url = 'img/theme/team-4-800x800.jpg';
+                  }
                 } else if (response.body.status == this.$status['user_anthorization_error']) {
                   window.alert('用户登录信息有误, 请重新登录');
                   this.$session.destroy();

@@ -102,7 +102,7 @@
                 headers: {
                 },
                 friends_num: 0, 
-                travel_groups_num: 0, 
+                travel_groups_num: 0
             }
         },
         components: {
@@ -120,7 +120,6 @@
              */
             cropSuccess(avatar_url, field){
                 console.log('-------- crop success --------');
-                this.avatar_url = avatar_url;
             },
             /**
              * upload success
@@ -138,7 +137,7 @@
                 }).then(function (response) {
                     if (response.status === 200) {
                         if (response.body.status == this.$status['normal']){
-                            this.avatar_url = jsonData.url;
+                            this.$router.go();
                         } else if (response.body.status == this.$status['user_anthorization_error']) {
                             window.alert('用户登录信息有误, 请重新登录');
                             this.$session.destroy();
