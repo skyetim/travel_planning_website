@@ -16,7 +16,7 @@
             <div class="col-lg-3 order-lg-2">
                 <div class="card-profile-image">
                     <a v-b-tooltip.hover.top title="点击以更改头像" @click="toggleShow()" >
-                        <img :src="imgDataUrl" class="rounded-circle">
+                        <img :src="avatar_url" class="rounded-circle">
                     </a>
                 </div>
             </div>
@@ -84,6 +84,9 @@
             }, 
             comment: {
                 'default': '未设置'
+            }, 
+            avatar_url: {
+                'dafault': 'img/theme/team-4-800x800.jpg'
             }
         }, 
         directives: {
@@ -98,7 +101,6 @@
                 },
                 headers: {
                 },
-                imgDataUrl: 'img/theme/team-4-800x800.jpg', // the datebase64 url of created image
                 friends_num: 0, 
                 travel_groups_num: 0, 
             }
@@ -113,12 +115,12 @@
             /**
              * crop success
              *
-             * [param] imgDataUrl
+             * [param] avatar_url
              * [param] field
              */
-            cropSuccess(imgDataUrl, field){
+            cropSuccess(avatar_url, field){
                 console.log('-------- crop success --------');
-                this.imgDataUrl = imgDataUrl;
+                this.avatar_url = avatar_url;
             },
             /**
              * upload success
@@ -136,7 +138,7 @@
                 }).then(function (response) {
                     if (response.status === 200) {
                         if (response.body.status == this.$status['normal']){
-                            this.imgDataUrl = jsonData.url;
+                            this.avatar_url = jsonData.url;
                         } else if (response.body.status == this.$status['user_anthorization_error']) {
                             window.alert('用户登录信息有误, 请重新登录');
                             this.$session.destroy();
