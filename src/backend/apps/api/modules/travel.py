@@ -188,12 +188,14 @@ class TravelInfo(object):
         self.check_permission()
         visibility = check_visibility(visibility)
 
-        # TODO: send message to companies
+        
         # to set visibility ME is same to delete, remove all companies
         if self.get_visibility() != db_travel.Travel.ME and visibility == db_travel.Travel.ME:
             db_travel.TravelAssociation.objects.filter(travel_id=self.get_travel_id()).delete()
         self.travel_info_dbobj.visibility = visibility
         self.travel_info_dbobj.save()
+        
+        # send message to companies
         self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
 
     def keys(self):
