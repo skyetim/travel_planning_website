@@ -92,3 +92,7 @@ class UserSessionTimeoutException(BackendBaseException):
 
 class PermissionDeniedException(BackendBaseException):
     CODE = 24
+
+
+class MsgTypeError(BackendBaseException):
+    CODE = 25
