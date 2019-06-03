@@ -1,10 +1,6 @@
 <template>
 <div>
-    <base-city-search input_placeholder='请输入你的常住地'
-                      button_name='搜索'
-                      v-model='resident_city'
-    />
-    <p>{{resident_city}}</p>
+    {{login()}}
 </div>
 </template>
 <script>
@@ -12,14 +8,26 @@
         name: 'test',
         data() {
             return {
-                resident_city: '北京市',
-                fruit: '苹果'
+                post_data : {
+                    email: 'w@w.edu', 
+                    pswd_hash : this.$md5('w')
+                }
             }
         },
         components: {
         }, 
         methods: {
-            
+            login(){
+                let success = function (response){
+                    console.log('success');
+                    console.log(response);
+                };
+                let fail = function (response){
+                    console.log('success');
+                    console.log(response);
+                };
+                this.$backend_conn('get_user_info', {}, this, success, fail, true);
+            }
         }
     }
 </script>
