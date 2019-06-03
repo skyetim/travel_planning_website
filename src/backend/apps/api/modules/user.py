@@ -235,11 +235,18 @@ class UserInfoBase(object):
                 'user_name',
                 'gender',
                 'resident_city_id',
+                'resident_city',
                 'comment',
                 'avatar_url']
 
     def __getitem__(self, item):
-        return getattr(self, f'get_{item}')()
+        try:
+            return getattr(self, f'get_{item}')()
+        except AttributeError:
+            if item == 'resident_city':
+                return dict(mod_city.get_city_instance_by_id(city_id=self.get_resident_city_id()))
+            else:
+                raise
 
 
 class UserInfo(UserInfoBase):
@@ -318,5 +325,6 @@ class FriendInfo(UserInfoBase):
                 'friend_note',
                 'gender',
                 'resident_city_id',
+                'resident_city',
                 'comment',
                 'avatar_url']

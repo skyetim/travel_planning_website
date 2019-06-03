@@ -154,14 +154,15 @@ def get_travel_group_detail(user_id, travel_group_id):
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=travel_group_id)
     travel_list = travel_group.get_travel_list()
-    detail = dict(travel_group)
-    detail['travel_infos'] = {
+
+    travel_group_detail = dict(travel_group)
+    travel_group_detail['travel_infos'] = {
         'count': len(travel_list),
         'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user_id,
                                                         travel_id=travel_id))
                              for travel_id in travel_list]
     }
-    return detail
+    return travel_group_detail
 
 
 # Create your views here.
