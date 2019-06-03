@@ -1,4 +1,4 @@
-import { status } from './status';
+import { status } from './const';
 import axios from 'axios';
 import qs from 'qs';
 

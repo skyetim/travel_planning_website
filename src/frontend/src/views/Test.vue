@@ -8,7 +8,6 @@
 </div>
 </template>
 <script>
-    import BaseCitySearch from './BaseCitySearch'
     export default {
         name: 'test',
         data() {
@@ -18,7 +17,6 @@
             }
         },
         components: {
-            'base-city-search': BaseCitySearch
         }, 
         methods: {
             

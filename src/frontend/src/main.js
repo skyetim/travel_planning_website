@@ -12,7 +12,6 @@ import {status, gender, gender_reverse} from './const';
 import {backend} from './backend_config';
 import Vuelidate from 'vuelidate';
 import axios from 'axios';
-import VueSelect from 'vue-select';
 
 Vue.use(VueSession);
 Vue.use(VueResource);
