@@ -76,6 +76,9 @@ export default {
           }  
         }, 
         generate_result(){
+            if (this.select.options.length()==0){
+              this.$emit('search-failure', '找不到该城市');
+            }
             let best_option = this.select.options[0];
             this.$emit('search-success', best_option['city_id'], best_option['country_name']+' '+best_option['province_name']+' '+best_option['city_name']);
         }
