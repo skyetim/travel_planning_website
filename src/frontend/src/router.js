@@ -26,9 +26,9 @@ export default new Router({
           component: () => import(/* webpackChunkName: "demo" */ './views/Icons.vue')
         },
         {
-          path: '/profile',
-          name: 'profile',
-          component: () => import(/* webpackChunkName: "demo" */ './views/UserProfile.vue')
+          path: '/settings',
+          name: 'settings',
+          component: () => import(/* webpackChunkName: "demo" */ './views/Settings.vue')
         },
         {
           path: '/maps',
@@ -58,6 +58,18 @@ export default new Router({
           component: () => import(/* webpackChunkName: "demo" */ './views/Register.vue')
         }
       ]
+    }, 
+    {
+      path: '/test', 
+      name: 'test', 
+      component: () => import(/* webpackChunkName: "demo" */ './views/Test.vue')
     }
-  ]
+  ], 
+  scrollBehavior(to,from,saveTop){
+    if(saveTop){
+      return saveTop;
+    }else{
+      return {x:0,y:0}
+    }
+  }
 })

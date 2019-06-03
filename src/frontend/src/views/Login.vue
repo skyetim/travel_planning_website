@@ -96,7 +96,7 @@
                 return
             }
             // TODO: POST
-            this.$http.post(`${this.$backend.remote}login`, {
+            this.$http.post('http://139.162.123.242:9000/api/login', {
                 pswd_hash: this.$md5(this.model.password),
                 email: this.model.email
             }).then(function (response) {

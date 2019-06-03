@@ -17,10 +17,10 @@
                 <base-dropdown class="nav-link pr-0">
                     <div class="media align-items-center" slot="title">
                 <span class="avatar avatar-sm rounded-circle">
-                  <img alt="Image placeholder" src="img/theme/team-4-800x800.jpg">
+                  <img alt="Image placeholder" :src="avatar_url">
                 </span>
                         <div class="media-body ml-2 d-none d-lg-block">
-                            <span class="mb-0 text-sm  font-weight-bold">Tim Wang</span>
+                            <span class="mb-0 text-sm  font-weight-bold" :key="this.$session.get('user_name')">{{this.user_name}}</span>
                         </div>
                     </div>
 
@@ -28,15 +28,11 @@
                         <div class=" dropdown-header noti-title">
                             <h6 class="text-overflow m-0">Welcome!</h6>
                         </div>
-                        <router-link to="/profile" class="dropdown-item">
-                            <i class="ni ni-single-02"></i>
-                            <span>My profile</span>
+                        <router-link to="/settings" class="dropdown-item">
+                            <i class="ni ni-settings-gear-65"></i>
+                            <span>设置</span>
                         </router-link>
                         <!-- <router-link to="/profile" class="dropdown-item">
-                            <i class="ni ni-settings-gear-65"></i>
-                            <span>Settings</span>
-                        </router-link>
-                        <router-link to="/profile" class="dropdown-item">
                             <i class="ni ni-calendar-grid-58"></i>
                             <span>Activity</span>
                         </router-link>
@@ -61,9 +57,52 @@
       return {
         activeNotifications: false,
         showMenu: false,
-        searchQuery: ''
+        searchQuery: '', 
+        user_name: '', 
+        avatar_url: ''
       };
     },
+    mounted() {
+        if (this.$session.has('user_name') && this.$session.has('avatar_url')) {
+          this.user_name = this.$session.get('user_name');
+          this.avatar_url = this.$session.get('avatar_url');
+        } else {
+          if (this.$session.exists()) {
+            this.$http.post('http://139.162.123.242:9000/api/get_user_info', {
+                user_id: this.$session.get('user_id'),
+                session_id: this.$session.id().replace('sess:', '')
+          }).then(function (response) {
+              if (response.status === 200) {
+                if (response.body.status == this.$status['normal']){
+                  this.$session.set('user_name', response.body.user_name);
+                  this.user_name = response.body.user_name;
+                  this.avatar_url = response.body.avatar_url;
+                  if (this.avatar_url == ''){
+                    this.avatar_url = 'img/theme/team-4-800x800.jpg';
+                  }
+                } else if (response.body.status == this.$status['user_anthorization_error']) {
+                  window.alert('用户登录信息有误, 请重新登录');
+                  this.$session.destroy();
+                  this.$router.push('/login');
+                } else if (response.body.status == this.$status['user_session_timeout']){
+                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
+                  this.$session.destroy();
+                  this.$router.push('/login');
+                } else {
+                  console.error('获取信息时发生未知错误', response.body);
+                }
+              } else {
+                console.error('网络连接有问题', response.body);
+              }
+          }, function (err) {
+              console.error('err', err);
+            }); 
+          } else {
+            window.alert('用户已退出, 请重新登录');
+            this.$router.push('/login');
+          }
+        }
+    }, 
     methods: {
       toggleSidebar() {
         this.$sidebar.displaySidebar(!this.$sidebar.showSidebar);
@@ -76,7 +115,7 @@
       },
       logout(){
         if (this.$session.exists()) {
-          this.$http.post('http://185.239.71.198:9000/api/logout', {
+          this.$http.post('http://139.162.123.242:9000/api/logout', {
                 user_id: this.$session.get('user_id'),
                 session_id: this.$session.id().replace('sess:', '')
           }).then(function (response) {
@@ -96,7 +135,7 @@
                   console.error('退出时发生未知错误', response.body);
                 }
               } else {
-                console.error('网络连接有问题');
+                console.error('网络连接有问题', response.body);
               }
           }, function (err) {
               console.error('err', err);
@@ -105,7 +144,7 @@
           window.alert('用户已退出, 请重新登录');
           this.$router.push('/login');
         }
-      }
+      }, 
     }
   };
 </script>
