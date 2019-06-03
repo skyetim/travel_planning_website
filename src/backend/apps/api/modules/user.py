@@ -34,6 +34,9 @@ def is_friend(user_id, friend_user_id):
 
 
 def check_friend_relation_existence(user_id, friend_user_id, need_existence=True):
+    if user_id == friend_user_id:
+        raise FriendAlreadyExistsException(f'User (ID={user_id})'
+                                           f' can not have friendship with itself.')
     if is_friend(user_id=user_id, friend_user_id=friend_user_id):
         if not need_existence:
             raise FriendAlreadyExistsException(f'The friendship between '
@@ -305,7 +308,7 @@ class FriendInfo(UserInfoBase):
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
-        check_user_existence(user_id=friend_user_id)
+        check_user_existence(user_id=friend_user_id, need_existence=True)
         check_friend_relation_existence(user_id=user_id,
                                         friend_user_id=friend_user_id,
                                         need_existence=False)
