@@ -77,7 +77,7 @@ export default {
         }, 
         generate_result(){
             let best_option = this.select.options[0];
-            this.$emit('update', best_option['country_name']+" "+best_option['province_name']+" "+best_option['city_name']);
+            this.$emit('search-success', best_option['city_id'], best_option['country_name']+' '+best_option['province_name']+' '+best_option['city_name']);
         }
     }
 }
