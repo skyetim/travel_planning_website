@@ -150,21 +150,6 @@ def api(check_tokens):
     return decorator
 
 
-def get_travel_group_detail(user_id, travel_group_id):
-    travel_group = mod_travel.TravelGroup(user_id=user_id,
-                                          travel_group_id=travel_group_id)
-    travel_list = travel_group.get_travel_list()
-
-    travel_group_detail = dict(travel_group)
-    travel_group_detail['travel_infos'] = {
-        'count': len(travel_list),
-        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user_id,
-                                                        travel_id=travel_id))
-                             for travel_id in travel_list]
-    }
-    return travel_group_detail
-
-
 # Create your views here.
 @api(check_tokens=False)
 def register(request_data):
@@ -375,13 +360,15 @@ def remove_travel_group(request_data):
 @api(check_tokens=True)
 def get_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
-    travel_group_list = user.get_travel_group_list()
+
+    travel_group_list = [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                travel_group_id=travel_group_id)
+                         for travel_group_id in user.get_travel_group_list()]
 
     response = {
         'count': len(travel_group_list),
-        'travel_group_info_list': [get_travel_group_detail(user_id=user.get_user_id(),
-                                                           travel_group_id=travel_group_id)
-                                   for travel_group_id in travel_group_list]
+        'travel_group_info_list': [travel_group.get_travel_group_detail()
+                                   for travel_group in travel_group_list]
     }
     return response
 
@@ -389,13 +376,15 @@ def get_all_travel_group_details(request_data):
 @api(check_tokens=True)
 def get_others_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
-    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
 
+    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
+    travel_group_list = [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                travel_group_id=travel_group_id)
+                         for travel_group_id in others_travel_group_list]
     response = {
         'count': len(travel_group_list),
-        'travel_group_info_list': [get_travel_group_detail(user_id=user.get_user_id(),
-                                                           travel_group_id=travel_group_id)
-                                   for travel_group_id in others_travel_group_list]
+        'travel_group_info_list': [travel_group.get_travel_group_detail()
+                                   for travel_group in travel_group_list]
     }
     return response
 
