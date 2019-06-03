@@ -313,8 +313,10 @@ class FriendInfo(UserInfoBase):
         if friend_note == '':
             friend_info = db_user.UserInfo.objects.get(user_id=friend_user_id)
             friend_note = friend_info.user_name
-        db_user.FriendRelation.objects.create(user_id=user_id,
-                                              friend_user_id=friend_user_id,
+        user_dbobj = get_user_instance_by_id(user_id=user_id)
+        friend_user_dbobj = get_user_instance_by_id(user_id=friend_user_id)
+        db_user.FriendRelation.objects.create(user_id=user_dbobj,
+                                              friend_user_id=friend_user_dbobj,
                                               friend_note=friend_note)
 
         return cls(user_id=user_id, friend_user_id=friend_user_id)
