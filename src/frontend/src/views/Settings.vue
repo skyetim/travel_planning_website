@@ -21,7 +21,7 @@
                 <div class="col-xl-4 order-xl-2 mb-5 mb-xl-0">
                     <user-card-preview :user_name='model_user_name'
                                        :gender='model.gender'
-                                       :resident_city='model.resident_city'
+                                       :resident_city='model.resident_city_name'
                                        :comment='model.comment'
                                        :avatar_url='model.avatar_url'
                     ></user-card-preview>
@@ -85,12 +85,14 @@
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
-                                            <base-input alternative=""
-                                                        label="常住地"
-                                                        input-classes="form-control-alternative"
-                                                        placeholder='请输入你的常住地'
-                                                        v-model="model.resident_city"
-                                            />
+                                            <div class='form-group has-label'>
+                                                <label class='form-control-label'> 常住地 </label>
+                                                <base-city-search input_placeholder='请输入你的常住地'
+                                                                button_name='搜索'
+                                                                v-model='model.resident_city_name'
+                                                                @search-success='search_success'
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -219,14 +221,14 @@ import UserCardPreview from './UserCardPreview';
           email: '',
           first_name: '',
           last_name: '',
-          resident_city: '',
           gender: '', 
           comment: '', 
-          resident_city_id: 1, 
+          resident_city_id: '', 
           old_password: '', 
           new_password: '', 
           verify_password: '', 
-          avatar_url: ''
+          avatar_url: '', 
+          resident_city_name: ''
         },
         error: {
             visible: false, 
@@ -276,7 +278,9 @@ import UserCardPreview from './UserCardPreview';
                   this.model.last_name = user_name.split(' ')[0]
                   this.model.email = response.body.email;
                   this.model.gender = this.$gender[response.body.gender];
-                  this.model.resident_city_id = response.body.resident_city_id;
+                  this.model.resident_city_id = response.body.resident_city.city_id;
+                  this.model.resident_city_name = response.body.resident_city.city_name;
+                  console.log(this.model.resident_city_id, this.model.resident_city_name)
                   this.model.comment = response.body.comment;
                   this.model.avatar_url = response.body.avatar_url;
                   if (this.model.avatar_url == '') {
@@ -392,6 +396,10 @@ import UserCardPreview from './UserCardPreview';
             window.alert('用户已退出, 请重新登录');
             this.$router.push('/login');
           }
+        }, 
+        search_success(city_id, city_name){
+            this.model.resident_city_id = city_id;
+            this.model.resident_city_name = city_name;
         }
     }
   };

@@ -10,14 +10,19 @@ import VueResource from 'vue-resource';
 import md5 from 'js-md5';
 import {status, gender, gender_reverse} from './const';
 import Vuelidate from 'vuelidate';
+import axios from 'axios';
+import VueSelect from 'vue-select';
 
 Vue.use(VueSession);
 Vue.use(VueResource);
 Vue.use(Vuelidate);
+Vue.use(VueSelect);
+
 Vue.prototype.$md5 = md5;
 Vue.prototype.$status = status;
 Vue.prototype.$gender = gender;
 Vue.prototype.$gender_reverse = gender_reverse;
+Vue.prototype.$axios = axios;
 
 
 Vue.http.options.emulateJSON = true;
