@@ -24,6 +24,7 @@
                                        :resident_city='model.resident_city_name'
                                        :comment='model.comment'
                                        :avatar_url='model.avatar_url'
+                                       :preview='true'
                     ></user-card-preview>
                 </div>
 
