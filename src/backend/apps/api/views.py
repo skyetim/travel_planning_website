@@ -53,6 +53,8 @@ def prepare_request_data(func):
 
         request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
+        cast(name='friend_user_id', cast_func=int)
+        cast(name='other_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
         cast(name='old_pswd_hash', cast_func=str.upper)
@@ -61,9 +63,12 @@ def prepare_request_data(func):
         cast(name='resident_city_id', cast_func=int)
         cast(name='latitude', cast_func=float)
         cast(name='longitude', cast_func=float)
+        cast(name='travel_group_id', cast_func=int)
+        cast(name='other_travel_group_id', cast_func=int)
+        cast(name='travel_group_color', cast_func=str.upper)
+        cast(name='travel_id', cast_func=int)
         cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
         cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
-        cast(name='travel_group_color', cast_func=str.upper)
 
         return func(request_data=request_data)
 
