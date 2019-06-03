@@ -89,6 +89,10 @@
                 'dafault': 'img/theme/team-4-800x800.jpg'
             }
         }, 
+        mounted(){
+            this.get_friends_num();
+            this.get_travel_groups_num();
+        }, 
         directives: {
             'b-tooltip': BTooltipDirective
         },
@@ -170,6 +174,68 @@
                 console.log('-------- upload fail --------');
                 console.log(status);
                 console.log('field: ' + field);
+            }, 
+            get_friends_num(){
+                if (this.$session.exists()) {
+                    this.$http.post('http://139.162.123.242:9000/api/get_friend_list', {
+                        user_id: this.$session.get('user_id'),
+                        session_id: this.$session.id().replace('sess:', ''), 
+                }).then(function (response) {
+                    if (response.status === 200) {
+                        if (response.body.status == this.$status['normal']){
+                            this.friends_num = response.body.count;
+                        } else if (response.body.status == this.$status['user_anthorization_error']) {
+                            window.alert('用户登录信息有误, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else if (response.body.status == this.$status['user_session_timeout']){
+                            window.alert('用户长时间未操作, 自动退出, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else {
+                            console.error('获取信息时发生未知错误', response.body);
+                        }
+                    } else {
+                        console.error('网络连接有问题', response.body);
+                    }
+                }, function (err) {
+                    console.error('err', err);
+                    }); 
+                } else {
+                    window.alert('用户已退出, 请重新登录');
+                    this.$router.push('/login');
+                }
+            }, 
+            get_travel_groups_num(){
+                if (this.$session.exists()) {
+                    this.$http.post('http://139.162.123.242:9000/api/get_travel_group_list', {
+                        user_id: this.$session.get('user_id'),
+                        session_id: this.$session.id().replace('sess:', ''), 
+                }).then(function (response) {
+                    if (response.status === 200) {
+                        if (response.body.status == this.$status['normal']){
+                            this.travel_groups_num = response.body.count;
+                        } else if (response.body.status == this.$status['user_anthorization_error']) {
+                            window.alert('用户登录信息有误, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else if (response.body.status == this.$status['user_session_timeout']){
+                            window.alert('用户长时间未操作, 自动退出, 请重新登录');
+                            this.$session.destroy();
+                            this.$router.push('/login');
+                        } else {
+                            console.error('获取信息时发生未知错误', response.body);
+                        }
+                    } else {
+                        console.error('网络连接有问题', response.body);
+                    }
+                }, function (err) {
+                    console.error('err', err);
+                    }); 
+                } else {
+                    window.alert('用户已退出, 请重新登录');
+                    this.$router.push('/login');
+                }
             }
         }
     }
