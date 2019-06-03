@@ -43,7 +43,7 @@
                         <div class="dropdown-divider"></div>
                         <router-link v-on:click.native='logout' to='/login' class="dropdown-item">
                             <i class="ni ni-user-run"></i>
-                            <span>Logout</span>
+                            <span>注销</span>
                         </router-link>
                     </template>
                 </base-dropdown>
