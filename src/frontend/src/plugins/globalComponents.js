@@ -21,7 +21,8 @@ import Modal from "../components/Modal";
 import TabPane from "../components/Tabs/TabPane";
 import Tabs from "../components/Tabs/Tabs";
 import TravelStats from "../components/TravelStats";
-import EditableProjectsTable from "../views/Tables/EditableProjectsTable"
+import EditableProjectsTable from "../views/Tables/EditableProjectsTable";
+import BaseCitySearch from '../components/BaseCitySearch';
 
 export default {
   install(Vue) {
@@ -49,5 +50,6 @@ export default {
     Vue.component(TabPane.name, TabPane);
     Vue.component(Tabs.name, Tabs);
     Vue.component(TravelStats.name, TravelStats);
+    Vue.component(BaseCitySearch.name, BaseCitySearch);
   }
 };
