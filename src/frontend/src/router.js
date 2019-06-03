@@ -58,6 +58,11 @@ export default new Router({
           component: () => import(/* webpackChunkName: "demo" */ './views/Register.vue')
         }
       ]
+    }, 
+    {
+      path: '/test', 
+      name: 'test', 
+      component: () => import(/* webpackChunkName: "demo" */ './views/Test.vue')
     }
   ], 
   scrollBehavior(to,from,saveTop){
