@@ -4,7 +4,8 @@ import apps.api.modules.city as mod_city
 import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, is_friend, get_user_info_instance_by_id
+from apps.api.modules.user import get_user_instance_by_id, get_user_info_instance_by_id, \
+    is_friend, check_friend_relation_existence
 
 
 # Static Methods
@@ -341,6 +342,17 @@ class Travel(object):
                                                    travel_id=self.travel_dbobj)
 
         self.company_set.remove(company_user_id)
+
+    def invite_company(self, company_user_id):
+        self.check_permission()
+
+        check_friend_relation_existence(user_id=self.user_id,
+                                        friend_user_id=company_user_id,
+                                        need_existence=True)
+
+        # TODO: send invitation to friend
+
+        raise NotImplementedError
 
     def move_to_travel_group(self, new_travel_group_id):
         self.check_permission()
