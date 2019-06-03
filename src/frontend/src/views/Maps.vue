@@ -67,10 +67,11 @@
         </div>
       </div>
       <template slot="footer">
+        <base-button type="primary" @click="edit.addMode?null:del(editIndex);edit.modal = false;">{{edit.addMode?"取消":"删除"}}</base-button>
         <base-button
           type="primary"
           @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
-        >Save changes</base-button>
+        >保存</base-button>
       </template>
     </modal>
   </div>
@@ -137,7 +138,6 @@ var edit = {
 };
 
 export default {
-
   data() {
     return {
       edit: {
@@ -169,25 +169,9 @@ export default {
           tmp_list.sort(vue.compare("date_start"));
 
           tmp_list.forEach(travel => {
-            backend.city_id_to_city(
-              { city_id: travel.city_id },
-              function(response1) {
-                travel.vbool = (travel.visibility == 'F');
-                travel.location = response1.data.city_name;
-                travel.coordinate = [
-                  response1.data.latitude,
-                  response1.data.longitude
-                ];
-                try {
-                  vue.markersGroup = mountMap(vue.map, vue.travel_group_list);
-                } catch (err) {
-                  console.log(err);
-                }
-              },
-              function() {
-                alert(response.data.error_message);
-              }
-            );
+            travel.vbool = travel.visibility == "F";
+            travel.location = travel.city.city_name;
+            travel.coordinate = [travel.city.latitude, travel.city.longitude];
           });
 
           var start = tmp_list.length > 0 ? tmp_list[0].date_start : "";
@@ -205,6 +189,7 @@ export default {
             color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
+        vue.markersGroup = mountMap(vue.map, vue.travel_group_list);
       },
       function(response) {
         alert(response.data.error_message);
@@ -255,26 +240,23 @@ export default {
       this.edit.addMode = false;
       this.edit.modal = true;
     },
-    del: function(row) {
-      for (var i = 0; i < this.travel_group_list.length; ++i) {
-        if (row == this.travel_group_list[i]) {
+    del: function(index) {
+      var vue = this;
           this.$backend.remove_travel_group(
             {
               user_id: this.$session.get("user_id"),
               session_id: this.$session.id().replace("sess:", ""),
-              travel_group_id: row.travel_group_id
+              travel_group_id: this.travel_group_list[index].travel_group_id
             },
             function(response) {
-              this.travel_group_list.splice(i, 1);
+              vue.travel_group_list.splice(index, 1);
+              vue.edit.modal = false;
               console.log(response);
             },
             function(response) {
               alert(response.data.error_message);
             }
           );
-          break;
-        }
-      }
     },
     // ajax
     add_travel_group: function(row) {
@@ -313,7 +295,7 @@ export default {
           });
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(row);
-          vue.$set(vue.travel_group_list, vue.editIndex, editRow);
+          vue.$set(vue.travel_group_list, vue.editIndex, row);
           vue.reMount();
           console.log(response);
         },

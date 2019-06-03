@@ -201,6 +201,7 @@ export default {
     },
 
     del: function(row) {
+      var vue = this;
       for (var i = 0; i < this.travel_group_list.length; ++i) {
         if (row == this.travel_group_list[i]) {
           this.$backend.remove_travel_group(
@@ -210,7 +211,8 @@ export default {
               travel_group_id: row.travel_group_id
             },
             function(response) {
-              this.travel_group_list.splice(i, 1);
+              vue.travel_group_list.splice(i, 1);
+              vue.$emit("update", vue.travel_group_list);
               console.log(response);
             },
             function(response) {
