@@ -18,6 +18,7 @@ from apps.db.User import models as db_user, serializers as srl_user
 __all__ = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
+__all__.extend(['add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 __all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
@@ -244,6 +245,27 @@ def set_user_avatar_url(request_data):
     user_info = user.get_user_info()
 
     user_info.set_avatar_url(avatar_url=request_data['avatar_url'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def add_friend(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.add_friend(friend_user_id=request_data['friend_user_id'],
+                    friend_note=request_data['friend_note'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def remove_friend(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.remove_friend(friend_user_id=request_data['friend_user_id'])
 
     response = {}
     return response

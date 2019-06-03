@@ -4,7 +4,7 @@ import apps.api.modules.city as mod_city
 import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, is_friend, get_userinfo_instance_by_id
+from apps.api.modules.user import get_user_instance_by_id, is_friend, get_user_info_instance_by_id
 
 
 # Static Methods
@@ -224,7 +224,7 @@ class TravelInfo(object):
             return
 
         self_user_dbobj = get_user_instance_by_id(self.user_id)
-        self_user_name = get_userinfo_instance_by_id(self.user_id).user_name
+        self_user_name = get_user_info_instance_by_id(self.user_id).user_name
         travel_dbobj = get_travel_instance_by_id(
                 travel_id=self.get_travel_id())
         city_name = self.get_city_name()

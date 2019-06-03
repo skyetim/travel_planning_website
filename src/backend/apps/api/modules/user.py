@@ -1,10 +1,9 @@
 import re
 
 import apps.api.modules.city as mod_city
+import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
-import apps.db.Message.models as db_msg
-
 from apps.api.modules.exceptions import *
 
 
@@ -47,13 +46,15 @@ def check_friend_relation_existence(user_id, friend_user_id, need_existence=True
 
 
 def get_user_instance_by_id(user_id):
-    check_user_existence(user_id=user_id)
+    check_user_existence(user_id=user_id, need_existence=True)
     return db_user.User.objects.get(user_id=user_id)
 
-def get_userinfo_instance_by_id(user_id):
-    check_user_existence(user_id=user_id)
+
+def get_user_info_instance_by_id(user_id):
+    check_user_existence(user_id=user_id, need_existence=True)
     return db_user.UserInfo.objects.get(user_id=user_id)
-    
+
+
 class User(object):
     def __init__(self, email, pswd_hash):
         try:
@@ -150,11 +151,14 @@ class User(object):
         self.friend_set.remove(friend_user_id)
         friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
         friend_info.delete()
-        self_user_dbobj = get_user_instance_by_id(self.get_user_id())
-        other_user_dbobj = get_user_instance_by_id(friend_user_id)
 
-        db_msg.FriendRequest.objects.create(user_id=other_user_dbobj,friend_user_id=self_user_dbobj,msg_type=db_msg.FriendRequest.DELETE,msg_content=f"You friend {self.user_info.get_user_name()} has deleted you from friend list.")
+        friend_user_dbobj = get_user_instance_by_id(user_id=friend_user_id)
 
+        db_msg.FriendRequest.objects.create(user_id=friend_user_dbobj,
+                                            friend_user_id=self.user_dbobj,
+                                            msg_type=db_msg.FriendRequest.DELETE,
+                                            msg_content=f'Your friend {self.get_user_info().get_user_name()}'
+                                            f' has deleted you from friend list.')
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
         from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
