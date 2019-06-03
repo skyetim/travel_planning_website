@@ -94,7 +94,7 @@ def check_authentication(func):
 
 def check_token(func):
     @wraps(wrapped=func)
-    def ck_wrapper(request_data):
+    def ct_wrapper(request_data):
         user_id = request_data['user_id']
         session_id = request_data['session_id']
         if user_id not in LOGGED_IN_USERS:
@@ -115,7 +115,7 @@ def check_token(func):
             user_session.save()
             return func(request_data=request_data)
 
-    return ck_wrapper
+    return ct_wrapper
 
 
 def pack_response(func):
@@ -137,10 +137,10 @@ def pack_response(func):
 def api(check_tokens):
     def decorator(api_func):
 
-        wrapped_func = pack_response(func=api_func)
-        wrapped_func = check_authentication(func=wrapped_func)
+        wrapped_func = check_authentication(func=api_func)
         if check_tokens:
-            wrapped_func = check_token(wrapped_func)
+            wrapped_func = check_token(func=wrapped_func)
+        wrapped_func = pack_response(func=wrapped_func)
         wrapped_func = prepare_request_data(func=wrapped_func)
         wrapped_func = api_view(http_method_names=REQUEST_METHOD_LIST)(func=wrapped_func)
         wrapped_func = require_http_methods(request_method_list=REQUEST_METHOD_LIST)(func=wrapped_func)
