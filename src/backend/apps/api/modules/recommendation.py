@@ -87,6 +87,16 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
     # 根据城市和该travel的距离排序进行推荐
     # 不包括本城市
     # 总数不超过amount
+
+    user_id = user.get_user_id()
+    travel = mod_travel.Travel(user_id,travel_id) # travel 是Travel类实例对象
+    friend_list = user.get_friend_list()
+
+    other_travel_group_list = []
+    for fr in friend_list:
+        for tg_id in user
+        
+
     return
 
 
