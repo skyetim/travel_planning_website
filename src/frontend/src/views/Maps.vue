@@ -6,7 +6,7 @@
       <div class="row">
         <div class="col">
           <div class="card shadow border-0">
-            <div class="color-picker">
+            <div class="edit-panel">
               <button
                 v-for="(travel_group, index) in travel_group_list"
                 :key="index"
@@ -20,7 +20,7 @@
                 @click="edit.addMode = true;edit.modal = true;editRow=newTravelGroup();"
               >添加新的行程</base-button>
             </div>
-            <div id="map-canvas" class="map-canvas" style="height: 600px;"></div>
+            <div id="map-canvas" class="map-canvas" style="height: 600px;z-index: 10"></div>
           </div>
         </div>
       </div>
@@ -77,7 +77,6 @@
 </template>
 <script>
 import L from "leaflet";
-import swatches from "vue-color/src/components/Swatches.vue";
 
 function makeColorStyle(color) {
   return `
@@ -138,9 +137,7 @@ var edit = {
 };
 
 export default {
-  components: {
-    swatches
-  },
+
   data() {
     return {
       edit: {
@@ -175,6 +172,7 @@ export default {
             backend.city_id_to_city(
               { city_id: travel.city_id },
               function(response1) {
+                travel.vbool = (travel.visibility == 'F');
                 travel.location = response1.data.city_name;
                 travel.coordinate = [
                   response1.data.latitude,
@@ -289,7 +287,7 @@ export default {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
           travel_group_name: row.name,
-          travel_group_note: "hello",
+          travel_group_note: "",
           travel_group_color: row.color.hex
         },
         function(response) {
@@ -375,7 +373,7 @@ export default {
 };
 </script>
 <style scoped>
-.color-picker {
+.edit-panel {
   position: absolute;
   margin-top: 20px;
   margin-left: 20px;

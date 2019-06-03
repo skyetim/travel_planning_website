@@ -22,6 +22,7 @@ import TabPane from "../components/Tabs/TabPane";
 import Tabs from "../components/Tabs/Tabs";
 import TravelStats from "../components/TravelStats";
 import EditableProjectsTable from "../views/Tables/EditableProjectsTable"
+import swatches from "vue-color/src/components/Swatches.vue";
 
 export default {
   install(Vue) {
@@ -49,5 +50,6 @@ export default {
     Vue.component(TabPane.name, TabPane);
     Vue.component(Tabs.name, Tabs);
     Vue.component(TravelStats.name, TravelStats);
+    Vue.component('swatches', swatches);
   }
 };

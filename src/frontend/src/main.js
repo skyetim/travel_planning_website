@@ -35,7 +35,7 @@ Vue.prototype.newTravelGroup = function () {
     travel_group_id: null,
     travel: [],
     dates: { start: "", end: "" },
-    color:{hex: "#ffffff", a:0.8}
+    color:{hex: "#5e72e4", a:0.8}
   };
   return travelGroupProto;
 }

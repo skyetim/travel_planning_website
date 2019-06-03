@@ -4,10 +4,10 @@
       <travel-stats :travelGroup="travel_group_list"/>
     </base-header>
 
-    <div class="container-fluid mt--7 div-table">
+    <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
-          <edit-projects-table title="我的行迹" :tableData="travel_group_list" @update="update"></edit-projects-table>
+          <edit-projects-table title="我的行迹" :travel_group_list="travel_group_list" @update="update"></edit-projects-table>
         </div>
       </div>
 
@@ -23,9 +23,7 @@
 export default {
   data() {
     return {
-      travel_group_list: [],
-      map: null,
-      markers: []
+      travel_group_list: []
     };
   },
 
@@ -49,6 +47,7 @@ export default {
             backend.city_id_to_city(
               { city_id: travel.city_id },
               function(response1) {
+                travel.vbool = (travel.visibility == 'F');
                 travel.location = response1.data.city_name;
                 travel.coordinate = [
                   response1.data.latitude,
@@ -56,7 +55,7 @@ export default {
                 ];
               },
               function() {
-                alert("fail city id to city");
+                alert(response.data.error_message);
               }
             );
           });
@@ -73,7 +72,7 @@ export default {
               start: start,
               end: end
             },
-            color: travel_group.travel_group_color
+            color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
         console.log(travel_group_list);
@@ -99,23 +98,9 @@ export default {
             ? travel_group.travel[travel_group.travel.length - 1].date_end
             : "";
       });
-    },
-    compare: function(id) {
-      return function(obj1, obj2) {
-        if (obj1[id] < obj2[id]) {
-          return -1;
-        } else if (obj1[id] > obj2[id]) {
-          return 1;
-        } else {
-          return 0;
-        }
-      };
     }
   }
 };
 </script>
 <style scoped>
-.div-table {
-  overflow-y: hidden;
-}
 </style>
