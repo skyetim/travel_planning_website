@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from functools import wraps
+from typing import Dict, List
 
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -15,7 +16,7 @@ from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
 
 
-__all__ = []
+__all__: List[str] = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 __all__.extend(['add_friend', 'remove_friend'])
@@ -33,14 +34,14 @@ __all__.extend(['add_travel', 'remove_travel', 'move_travel',
 __all__.extend(['address_to_city', 'address_to_city_list',
                 'gps_to_city', 'city_id_to_city'])
 
-REQUEST_METHOD_LIST = ['POST']
+REQUEST_METHOD_LIST: List[str] = ['POST']
 
 if DEBUG:
     REQUEST_METHOD_LIST.append('GET')
 
-LOGGED_IN_USERS = {}
+LOGGED_IN_USERS: Dict[int, mod_user.User] = {}
 
-SESSION_TIMEOUT = timedelta(minutes=20)
+SESSION_TIMEOUT: timedelta = timedelta(minutes=20)
 
 
 def prepare_request_data(func):
