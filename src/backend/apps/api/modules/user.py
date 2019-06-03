@@ -167,7 +167,7 @@ class User(object):
                                                                travel_group_name=travel_group_name,
                                                                travel_group_note=travel_group_note,
                                                                travel_group_color=travel_group_color)
-        self.travel_group_set.add(travel_group)
+        self.travel_group_set.add(travel_group.get_travel_group_id())
         return travel_group
 
     def remove_travel_group(self, travel_group_id):
