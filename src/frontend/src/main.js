@@ -8,10 +8,9 @@ import 'leaflet/dist/leaflet.css';
 import VueSession from 'vue-session';
 import VueResource from 'vue-resource';
 import md5 from 'js-md5';
-import {status} from './status';
-import {backend} from './backend_config';
+import { status } from './status';
+import { backend } from './backend_config';
 import Vuelidate from 'vuelidate';
-
 
 Vue.use(VueSession);
 Vue.use(VueResource);
@@ -19,8 +18,8 @@ Vue.use(Vuelidate);
 Vue.prototype.$md5 = md5;
 Vue.prototype.$status = status;
 Vue.prototype.$backend = backend;
-Vue.prototype.compare = function(id) {
-  return function(obj1, obj2) {
+Vue.prototype.compare = function (id) {
+  return function (obj1, obj2) {
     if (obj1[id] < obj2[id]) {
       return -1;
     } else if (obj1[id] > obj2[id]) {
@@ -30,6 +29,27 @@ Vue.prototype.compare = function(id) {
     }
   };
 }
+Vue.prototype.newTravelGroup = function () {
+  var travelGroupProto = {
+    name: "",
+    travel_group_id: null,
+    travel: [],
+    dates: { start: "", end: "" },
+    color:{hex: "#ffffff", a:0.8}
+  };
+  return travelGroupProto;
+}
+Vue.prototype.copy = function(obj) {
+  let newObj = JSON.parse(JSON.stringify(obj));
+  return newObj;
+}
+Vue.prototype.indexOf =  function(arr, el) {
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] == el) {
+      return i;
+    }
+  }
+},
 Vue.config.silent = true;
 
 Vue.http.options.emulateJSON = true;
@@ -48,20 +68,20 @@ Vue.use(ArgonDashboard)
 
 new Vue({
   router,
-  render: h => h(App), 
+  render: h => h(App),
   created() {
     this.checkLogin();
-  }, 
+  },
   methods: {
-    checkLogin(){
-      if (!this.$session.exists() && this.$route.name!='register') { // 如果没有login且不在register页自动跳转
+    checkLogin() {
+      if (!this.$session.exists() && this.$route.name != 'register') { // 如果没有login且不在register页自动跳转
         this.$router.push('/login');
-      } else if (this.$session.exists() && (this.$route.name=='login' || this.$route.name=='register')){ // 如果已经login进入login页自动跳转
+      } else if (this.$session.exists() && (this.$route.name == 'login' || this.$route.name == 'register')) { // 如果已经login进入login页自动跳转
         this.$router.push('/');
       }
     }
-  }, 
-  watch:{
+  },
+  watch: {
     '$route': 'checkLogin'
   }
 }).$mount('#app')
