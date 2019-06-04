@@ -8,30 +8,55 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from server.settings import DEBUG
-from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
+from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel, recommendation as mod_rcmd
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
+from apps.db.Message import models as db_msg
 from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
+from server.settings import DEBUG
 
 
 __all__: List[str] = []
+
+# User
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
-__all__.extend(['add_friend', 'remove_friend'])
+
+# Friend
+__all__.extend(['get_user_by_email', 'get_user_list_by_user_name'])
+__all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 __all__.extend(['get_others_user_info'])
+
+# Travel Group
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
+__all__.extend(['get_all_travel_group_details', 'get_others_all_travel_group_details',
+                'get_travel_group_info_list', 'get_others_travel_group_info_list'])
 __all__.extend(['add_travel_group', 'remove_travel_group',
-                'get_all_travel_group_details', 'get_others_all_travel_group_details',
-                'get_travel_group_info_list', 'get_others_travel_group_info_list',
                 'get_travel_group_details',
                 'get_travel_group_info', 'set_travel_group_info'])
-__all__.extend(['get_travel_list'])
-__all__.extend(['add_travel', 'remove_travel', 'move_travel',
-                'get_travel_info_list',
+__all__.extend(['get_travel_list', 'get_travel_info_list'])
+
+# Travel
+__all__.extend(['add_travel', 'copy_travel',
+                'remove_travel', 'move_travel',
                 'get_travel_info', 'set_travel_info'])
+
+# Travel Association
+__all__.extend(['invite_travel_company', 'join_friends_travel',
+                'remove_travel_company', 'get_travel_company_list'])
+
+# Recommendation
+__all__.extend(['recommend_friend_list',
+                'recommend_city_list_by_travel', 'recommend_city_list_by_travel_group',
+                'recommend_travel_list_by_travel', 'recommend_travel_list_by_travel_group'])
+
+# Message
+__all__.extend(['get_friend_msg_list', 'del_friend_msg',
+                'get_travel_msg_list', 'del_travel_msg'])
+
+# City
 __all__.extend(['address_to_city', 'address_to_city_list',
                 'gps_to_city', 'city_id_to_city'])
 
@@ -43,6 +68,10 @@ if DEBUG:
 LOGGED_IN_USERS: Dict[int, mod_user.User] = {}
 
 SESSION_TIMEOUT: timedelta = timedelta(minutes=20)
+
+
+def isoformat_to_date(date_string):
+    return date(*map(int, date_string.split('-')))
 
 
 def prepare_request_data(func):
@@ -57,6 +86,7 @@ def prepare_request_data(func):
         cast(name='friend_user_id', cast_func=int)
         cast(name='other_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
+        cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
         cast(name='old_pswd_hash', cast_func=str.upper)
         cast(name='new_pswd_hash', cast_func=str.upper)
@@ -68,8 +98,10 @@ def prepare_request_data(func):
         cast(name='other_travel_group_id', cast_func=int)
         cast(name='travel_group_color', cast_func=str.upper)
         cast(name='travel_id', cast_func=int)
-        cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
-        cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
+        cast(name='source_travel_id', cast_func=int)
+        cast(name='date_start', cast_func=isoformat_to_date)
+        cast(name='date_end', cast_func=isoformat_to_date)
+        cast(name='add_association', cast_func=bool)
 
         return func(request_data=request_data)
 
@@ -157,6 +189,8 @@ def api(check_tokens):
 
 
 # Create your views here.
+
+# User
 @api(check_tokens=False)
 def register(request_data):
     user = mod_user.User.new_user(email=request_data['email'],
@@ -243,6 +277,47 @@ def set_user_avatar_url(request_data):
     return response
 
 
+# Friend
+@api(check_tokens=True)
+def get_user_by_email(request_data):
+    query_email = request_data['query_email']
+    try:
+        target_user = db_user.User.objects.get(email=query_email)
+    except db_user.User.DoesNotExist:
+        raise UserDoesNotExistException(f'User (Email={query_email}) does not exist.')
+
+    response = {
+        'target_user_id': target_user.user_id
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_user_list_by_user_name(request_data):
+    target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
+
+    user_list = [target_user.user_id.user_id
+                 for target_user in target_user_list]
+    user_list.sort()
+
+    response = {
+        'count': len(user_list),
+        'user_list': user_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def send_friend_request(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.send_friend_request(others_user_id=request_data['others_user_id'],
+                             request_note=request_data[' request_note'])
+
+    response = {}
+    return response
+
+
 @api(check_tokens=True)
 def add_friend(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
@@ -315,6 +390,7 @@ def get_others_user_info(request_data):
     return response
 
 
+# Travel Group
 @api(check_tokens=True)
 def get_travel_group_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
@@ -336,30 +412,6 @@ def get_others_travel_group_list(request_data):
         'count': len(others_travel_group_list),
         'travel_group_list': others_travel_group_list
     }
-    return response
-
-
-@api(check_tokens=True)
-def add_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
-                                         travel_group_note=request_data['travel_group_note'],
-                                         travel_group_color=request_data['travel_group_color'])
-
-    response = {
-        'travel_group_id': travel_group.get_travel_group_id()
-    }
-    return response
-
-
-@api(check_tokens=True)
-def remove_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
-
-    response = {}
     return response
 
 
@@ -424,6 +476,30 @@ def get_others_travel_group_info_list(request_data):
 
 
 @api(check_tokens=True)
+def add_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
+                                         travel_group_note=request_data['travel_group_note'],
+                                         travel_group_color=request_data['travel_group_color'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
 def get_travel_group_details(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -469,6 +545,25 @@ def get_travel_list(request_data):
 
 
 @api(check_tokens=True)
+def get_travel_info_list(request_data):
+    user_id = request_data['user_id']
+
+    travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                          travel_group_id=request_data['travel_group_id'])
+
+    travel_list = travel_group.get_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user_id,
+                                                        travel_id=travel_id))
+                             for travel_id in travel_list]
+    }
+    return response
+
+
+# Travel
+@api(check_tokens=True)
 def add_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -481,6 +576,32 @@ def add_travel(request_data):
 
     response = {
         'travel_id': travel.get_travel_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def copy_travel(request_data):
+    user_id = request_data['user_id']
+    src_travel = mod_travel.Travel(user_id=user_id,
+                                   travel_id=request_data['source_travel_id'])
+    src_travel_info = src_travel.get_travel_info()
+    src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
+    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(travel_group_id=src_travel_group_dbobj.travel_group_id)
+    travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                          travel_group_id=request_data['travel_group_id'])
+
+    new_travel = travel_group.add_travel(city_id=src_travel_info.get_city_id(),
+                                         date_start=isoformat_to_date(src_travel_info.get_date_start()),
+                                         date_end=isoformat_to_date(src_travel_info.get_date_end()),
+                                         travel_note=src_travel_info.get_travel_note(),
+                                         visibility=src_travel_info.get_visibility())
+
+    if user_id in src_travel.get_company_list() and request_data['add_association']:
+        new_travel.add_company(company_user_id=src_travel_owner_user_dbobj.user_id)
+
+    response = {
+        'new_travel_id': new_travel.get_travel_id()
     }
     return response
 
@@ -509,24 +630,6 @@ def move_travel(request_data):
 
 
 @api(check_tokens=True)
-def get_travel_info_list(request_data):
-    user_id = request_data['user_id']
-
-    travel_group = mod_travel.TravelGroup(user_id=user_id,
-                                          travel_group_id=request_data['travel_group_id'])
-
-    travel_list = travel_group.get_travel_list()
-
-    response = {
-        'count': len(travel_list),
-        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user_id,
-                                                        travel_id=travel_id))
-                             for travel_id in travel_list]
-    }
-    return response
-
-
-@api(check_tokens=True)
 def get_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
@@ -550,6 +653,162 @@ def set_travel_info(request_data):
     return response
 
 
+# Travel Association
+@api(check_tokens=True)
+def invite_travel_company(request_data):
+    travel = mod_travel.Travel(user_id=request_data['user_id'],
+                               travel_id=request_data['travel_id'])
+
+    travel.invite_company(company_user_id=request_data['friend_user_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def join_friends_travel(request_data):
+    travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
+                               travel_id=request_data['friend_travel_id'])
+
+    travel.add_company(company_user_id=request_data['user_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel_company(request_data):
+    travel = mod_travel.Travel(user_id=request_data['user_id'],
+                               travel_id=request_data['travel_id'])
+
+    travel.remove_company(company_user_id=request_data['friend_user_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_company_list(request_data):
+    travel = mod_travel.Travel(user_id=request_data['user_id'],
+                               travel_id=request_data['travel_id'])
+    company_list = travel.get_company_list()
+
+    response = {
+        'count': len(company_list),
+        'company_list': company_list
+    }
+    return response
+
+
+# Recommendation
+@api(check_tokens=True)
+def recommend_friend_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    user_list = mod_rcmd.recommend_friend_list(user=user)
+
+    response = {
+        'count': len(user_list),
+        'user_list': user_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def recommend_city_list_by_travel(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    city_list = mod_rcmd.recommend_city_list_by_travel(user=user,
+                                                       travel_id=request_data['travel_id'])
+
+    response = {
+        'count': len(city_list),
+        'city_list': [dict(mod_city.get_city_instance_by_id(city_id=city_id))
+                      for city_id in city_list]
+    }
+    return response
+
+
+@api(check_tokens=True)
+def recommend_city_list_by_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    city_list = mod_rcmd.recommend_city_list_by_travel_group(user=user,
+                                                             travel_group_id=request_data['travel_group_id'])
+
+    response = {
+        'count': len(city_list),
+        'city_list': [dict(mod_city.get_city_instance_by_id(city_id=city_id))
+                      for city_id in city_list]
+    }
+    return response
+
+
+@api(check_tokens=True)
+def recommend_travel_list_by_travel(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = mod_rcmd.recommend_travel_list_by_travel(user=user,
+                                                           travel_id=request_data['travel_id'])
+
+    response = {
+        'count': len(travel_list),
+        'travel_list': travel_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def recommend_travel_list_by_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = mod_rcmd.recommend_travel_list_by_travel_group(user=user,
+                                                                 travel_group_id=request_data['travel_group_id'])
+
+    response = {
+        'count': len(travel_list),
+        'travel_list': travel_list
+    }
+    return response
+
+
+# Message
+@api(check_tokens=True)
+def get_friend_msg_list(request_data):
+    friend_msg_list = db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'])
+
+    response = {
+        'count': len(friend_msg_list),
+        'msg_list': list(map(dict, friend_msg_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def del_friend_msg(request_data):
+    db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
+                                        msg_id=request_data['msg_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_msg_list(request_data):
+    travel_msg_list = db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'])
+
+    response = {
+        'count': len(travel_msg_list),
+        'msg_list': list(map(dict, travel_msg_list))
+    }
+    return response
+
+
+@api(check_tokens=True)
+def del_travel_msg(request_data):
+    db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
+                                            msg_id=request_data['msg_id'])
+
+    response = {}
+    return response
+
+
+# City
 @api(check_tokens=False)
 def address_to_city(request_data):
     city = mod_city.get_city_instance_by_address(address=request_data['address'])

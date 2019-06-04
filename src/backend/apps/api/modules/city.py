@@ -96,8 +96,7 @@ def get_city_instance_by_id(city_id):
     try:
         city = db_city.City.objects.get(city_id=city_id)
     except db_city.City.DoesNotExist:
-        raise CityIdDoesNotExistException(
-            f'City (ID={city_id}) does not exist.')
+        raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
     return city
 
 

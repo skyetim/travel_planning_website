@@ -4,8 +4,7 @@ import apps.api.modules.city as mod_city
 import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, get_user_info_instance_by_id, \
-    is_friend, check_friend_relation_existence
+from apps.api.modules.user import get_user_instance_by_id, is_friend, check_friend_relation_existence
 
 
 # Static Methods
@@ -67,6 +66,19 @@ def get_travel_permission_level(user_id, travel_id):
     travel_group = get_travel_group_instance_by_travel_id(travel_id=travel_id)
     return get_travel_group_permission_level(user_id=user_id,
                                              travel_group_id=travel_group.travel_group_id)
+
+
+def delete_asso_travel(user_dbobj_1, user_dbobj_2):
+    travel_asso_list = db_travel.TravelAssociation.objects.filter(
+            company_user_id=user_dbobj_2)
+    for travel_asso in travel_asso_list:
+        travel_dbobj = get_travel_instance_by_id(travel_asso.travel_id)
+        tg_id = db_travel.TravelGrouping.objects.get(
+                travel_id=travel_dbobj).travel_group_id
+        travel_group_dbobj = get_travel_group_instance_by_id(tg_id)
+        if db_travel.TravelGroupOwnership.objects.filter(user_id=user_dbobj_1, travel_group_id=travel_group_dbobj).exists():
+            db_travel.TravelAssociation.objects.delete(
+                    travel_id=travel_dbobj, company_user_id=user_dbobj_2)
 
 
 class TravelInfo(object):
@@ -142,8 +154,6 @@ class TravelInfo(object):
         city = mod_city.get_city_instance_by_id(city_id=city_id)
         self.travel_info_dbobj.city_id = city
         self.travel_info_dbobj.save()
-
-    # date_start必须比date_end早，但是这一步检查应该在哪里做？
 
     def set_date_start(self, date_start):
         self.check_permission()
@@ -237,8 +247,7 @@ class Travel(object):
 
     def delete(self):
         self.check_permission()
-        self._send_msg_to_company(
-            msg_type=db_msg.TravelAssociation.DELETE)
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
 
         self.travel_dbobj.delete()
 
@@ -264,8 +273,7 @@ class Travel(object):
             travel_info.set_date_end(date_end)
 
         if travel_info.get_visibility() != db_travel.Travel.ME and visibility == db_travel.Travel.ME:
-            self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.DELETE)
+            self._send_msg_to_company(msg_type=db_msg.TravelAssociation.DELETE)
             flag = False
         travel_info.set_visibility(visibility)
 
@@ -286,11 +294,11 @@ class Travel(object):
 
         # send messages to existed company users
         target_user_name = company.user_name
-        self._send_msg_to_company(
-            msg_type=db_msg.TravelAssociation.ADD, content=target_user_name)
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.ADD,
+                                  content=target_user_name)
 
-        db_travel.TravelAssociation.objects.create(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.create(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
         self.company_set.add(company_user_id)
 
     def remove_company(self, company_user_id):
@@ -304,11 +312,11 @@ class Travel(object):
         company = get_user_instance_by_id(user_id=company_user_id)
 
         # send message to the user being removed from this trip
-        self._send_msg_to_company(
-            msg_type=db_msg.TravelAssociation.LEAVE, company_list=[company_user_id])
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.LEAVE,
+                                  company_list=[company_user_id])
 
-        db_travel.TravelAssociation.objects.delete(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
 
         self.company_set.remove(company_user_id)
 
@@ -321,7 +329,7 @@ class Travel(object):
 
         # send invitation to friend
         self._send_msg_to_company(
-            msg_type=db_msg.TravelAssociation.INVITE, company_list=[company_user_id])
+                msg_type=db_msg.TravelAssociation.INVITE, company_list=[company_user_id])
 
     def move_to_travel_group(self, new_travel_group_id):
         self.check_permission()
@@ -365,6 +373,7 @@ class Travel(object):
 
         if msg_type == db_msg.TravelAssociation.DELETE:
             msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
+            travel_dbobj = None
 
         if msg_type == db_msg.TravelAssociation.ADD:
             msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."
@@ -393,12 +402,11 @@ class Travel(object):
 
         for c_id in target_list:
             other_user_dbobj = get_user_instance_by_id(c_id)
-            db_msg.TravelAssociation.objects.create(
-                user_id=other_user_dbobj,
-                friend_user_id=self_user_dbobj,
-                travel_id=travel_dbobj,
-                msg_type=msg_type,
-                msg_content=msg_content)
+            db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj,
+                                                    friend_user_id=self_user_dbobj,
+                                                    friend_travel_id=travel_dbobj,
+                                                    msg_type=msg_type,
+                                                    msg_content=msg_content)
 
 
 class TravelGroup(object):

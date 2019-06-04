@@ -116,8 +116,13 @@ class User(object):
         return sorted(travel_group_list)
 
     def set_email(self, email):
-        self.user_dbobj.email = email
-        self.user_dbobj.save()
+        if email == self.get_email():
+            return
+        elif db_user.User.objects.filter(email=email).exists():
+            raise UserAlreadyExistsException(f'User (Email={email}) already exists.')
+        else:
+            self.user_dbobj.email = email
+            self.user_dbobj.save()
 
     def set_friend_note(self, friend_user_id, friend_note):
         check_friend_relation_existence(user_id=self.get_user_id(),
@@ -136,11 +141,20 @@ class User(object):
         self.user_dbobj.pswd_hash = new_pswd_hash
         self.user_dbobj.save()
 
-    def add_friend(self, friend_user_id, friend_note):
+    def send_friend_request(self, others_user_id, request_note):
+        check_user_existence(user_id=others_user_id, need_existence=True)
         check_friend_relation_existence(user_id=self.get_user_id(),
-                                        friend_user_id=friend_user_id,
+                                        friend_user_id=others_user_id,
                                         need_existence=False)
 
+        others_user = get_user_instance_by_id(user_id=others_user_id)
+
+        db_msg.FriendRequest.objects.create(user_id=others_user,
+                                            friend_user_id=self.user_dbobj,
+                                            msg_type=db_msg.FriendRequest.ADD,
+                                            msg_content=request_note)
+
+    def add_friend(self, friend_user_id, friend_note):
         friend_info = FriendInfo.new_friend_info(user_id=self.get_user_id(),
                                                  friend_user_id=friend_user_id,
                                                  friend_note=friend_note)
@@ -300,10 +314,18 @@ class FriendInfo(UserInfoBase):
         self.friend_relation_dbobj.save()
 
     def delete(self):
-        # TODO: remove all travel association for both user
+        # remove all travel association for both user
         # user1 associate with user2's travel
         # user2 associate with user1's travel
-        # do not send message?
+        # not message will be sent
+        from apps.api.modules.travel import delete_asso_travel
+
+        self_user_dbobj = db_user.User.objects.get(user_id=self.self_user_id)
+        friend_user_dbobj = get_user_instance_by_id(self.get_user_id())
+
+        delete_asso_travel(self_user_dbobj, friend_user_dbobj)
+        delete_asso_travel(friend_user_dbobj, self_user_dbobj)
+
         self.friend_relation_dbobj.delete()
 
     @classmethod
