@@ -30,7 +30,8 @@ __all__.extend(['add_travel_group', 'remove_travel_group',
                 'get_travel_group_details',
                 'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['get_travel_list'])
-__all__.extend(['add_travel', 'remove_travel', 'move_travel',
+__all__.extend(['add_travel', 'copy_travel',
+                'remove_travel', 'move_travel',
                 'get_travel_info_list',
                 'get_travel_info', 'set_travel_info'])
 __all__.extend(['invite_travel_company', 'join_friends_travel',
@@ -51,6 +52,10 @@ if DEBUG:
 LOGGED_IN_USERS: Dict[int, mod_user.User] = {}
 
 SESSION_TIMEOUT: timedelta = timedelta(minutes=20)
+
+
+def isoformat_to_date(date_string):
+    return date(*map(int, date_string.split('-')))
 
 
 def prepare_request_data(func):
@@ -76,8 +81,10 @@ def prepare_request_data(func):
         cast(name='other_travel_group_id', cast_func=int)
         cast(name='travel_group_color', cast_func=str.upper)
         cast(name='travel_id', cast_func=int)
-        cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
-        cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
+        cast(name='source_travel_id', cast_func=int)
+        cast(name='date_start', cast_func=isoformat_to_date)
+        cast(name='date_end', cast_func=isoformat_to_date)
+        cast(name='add_association', cast_func=bool)
 
         return func(request_data=request_data)
 
@@ -489,6 +496,32 @@ def add_travel(request_data):
 
     response = {
         'travel_id': travel.get_travel_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def copy_travel(request_data):
+    user_id = request_data['user_id']
+    src_travel = mod_travel.Travel(user_id=user_id,
+                                   travel_id=request_data['source_travel_id'])
+    src_travel_info = src_travel.get_travel_info()
+    src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
+    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(travel_group_id=src_travel_group_dbobj.travel_group_id)
+    travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                          travel_group_id=request_data['travel_group_id'])
+
+    new_travel = travel_group.add_travel(city_id=src_travel_info.get_city_id(),
+                                         date_start=isoformat_to_date(src_travel_info.get_date_start()),
+                                         date_end=isoformat_to_date(src_travel_info.get_date_end()),
+                                         travel_note=src_travel_info.get_travel_note(),
+                                         visibility=src_travel_info.get_visibility())
+
+    if user_id in src_travel.get_company_list() and request_data['add_association']:
+        new_travel.add_company(company_user_id=src_travel_owner_user_dbobj.user_id)
+
+    response = {
+        'new_travel_id': new_travel.get_travel_id()
     }
     return response
 
