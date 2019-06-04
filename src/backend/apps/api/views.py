@@ -20,7 +20,7 @@ from server.settings import DEBUG
 __all__: List[str] = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
-__all__.extend(['add_friend', 'remove_friend'])
+__all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 __all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
@@ -253,6 +253,17 @@ def set_user_avatar_url(request_data):
     user_info = user.get_user_info()
 
     user_info.set_avatar_url(avatar_url=request_data['avatar_url'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def send_friend_request(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.send_friend_request(others_user_id=request_data['others_user_id'],
+                             request_note=request_data[' request_note'])
 
     response = {}
     return response

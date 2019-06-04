@@ -141,11 +141,20 @@ class User(object):
         self.user_dbobj.pswd_hash = new_pswd_hash
         self.user_dbobj.save()
 
-    def add_friend(self, friend_user_id, friend_note):
+    def send_friend_request(self, others_user_id, request_note):
+        check_user_existence(user_id=others_user_id, need_existence=True)
         check_friend_relation_existence(user_id=self.get_user_id(),
-                                        friend_user_id=friend_user_id,
+                                        friend_user_id=others_user_id,
                                         need_existence=False)
 
+        others_user = get_user_instance_by_id(user_id=others_user_id)
+
+        db_msg.FriendRequest.objects.create(user_id=others_user,
+                                            friend_user_id=self.user_dbobj,
+                                            msg_type=db_msg.FriendRequest.ADD,
+                                            msg_content=request_note)
+
+    def add_friend(self, friend_user_id, friend_note):
         friend_info = FriendInfo.new_friend_info(user_id=self.get_user_id(),
                                                  friend_user_id=friend_user_id,
                                                  friend_note=friend_note)
