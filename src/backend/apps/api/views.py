@@ -37,7 +37,7 @@ __all__.extend(['invite_travel_company', 'join_friends_travel',
                 'remove_travel_company', 'get_travel_company_list'])
 __all__.extend(['recommend_friend_list',
                 'recommend_city_list_by_travel', 'recommend_city_list_by_travel_group',
-                'recommend_travel_list_by_travel'])
+                'recommend_travel_list_by_travel', 'recommend_travel_list_by_travel_group'])
 __all__.extend(['get_friend_msg_list', 'del_friend_msg',
                 'get_travel_msg_list', 'del_travel_msg'])
 __all__.extend(['address_to_city', 'address_to_city_list',
@@ -649,6 +649,19 @@ def recommend_travel_list_by_travel(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_list = mod_rcmd.recommend_travel_list_by_travel(user=user,
                                                            travel_id=request_data['travel_id'])
+
+    response = {
+        'count': len(travel_list),
+        'travel_list': travel_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def recommend_travel_list_by_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = mod_rcmd.recommend_travel_list_by_travel_group(user=user,
+                                                                 travel_group_id=request_data['travel_group_id'])
 
     response = {
         'count': len(travel_list),
