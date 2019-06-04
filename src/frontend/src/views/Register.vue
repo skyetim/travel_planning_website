@@ -19,7 +19,7 @@
                 </div> -->
                 <div class="card-body px-lg-5 py-lg-5">
                     <div class="text-center text-muted mb-4">
-                        <small>填写姓名, 邮箱, 密码以注册</small>
+                        <small>安全信息</small>
                     </div>
                     <form role="form">
                         <div class='row'>
@@ -61,6 +61,38 @@
                                     v-model="model.password"
                                     @focus="login_error.visible=false">
                         </base-input>
+
+                        <hr>
+
+                        <div class="text-center text-muted mb-4">
+                            <small>个人信息</small>
+                        </div>
+
+                        <div class='input-group-alternative has-label'>
+                            <label class='form-control-label'> 常住地 </label>
+                            <base-city-search input_placeholder='请输入你的常住地'
+                                            button_name='搜索'
+                                            v-model='model.resident_city_name'
+                                            @search-success='search_success'
+                            />
+                        </div>
+
+                        <div class='input-group-alternative has-label container'>
+                            <div class='row'>
+                                <label class='form-control-label'> 性别 </label>
+                            </div>
+                            <div class='row'>
+                                <div class="col-lg-6">
+                                    <base-button block outline type="primary" aria-pressed="true" v-bind:class="{active: model.gender=='男', 'btn-sm': true}" @click="model.gender='男'">男</base-button>
+                                </div>
+                                <div class="col-lg-6">
+                                    <base-button block outline type="primary" aria-pressed="true" v-bind:class="{active: model.gender=='女', 'btn-sm': true}" @click="model.gender='女'">女</base-button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        
 
                         <div v-show="login_error.visible">
                             <base-alert type='primary'>
@@ -175,7 +207,11 @@
             })
 
 
-        }
+        },
+        search_success(city_id, city_name){
+            this.model.resident_city_id = city_id;
+            this.model.resident_city_name = city_name;
+        } 
     }
   }
 </script>
