@@ -13,47 +13,23 @@ def get_time_delta_days(target_date):
     time_delta_days = abs(time_delta.days)
 
 
-def get_rad(theta):
-    # 将经纬度变换为弧度
-    return theta * math.pi / 180.0
-
-
 def get_city_distance(city_id_1, city_id_2):
+    def cosine_similarity(city_id_1, city_id_2):
+        sin = lambda theta: math.sin(theta * math.pi / 180.0)
+        cos = lambda theta: math.cos(theta * math.pi / 180.0)
+
+        city_1 = mod_city.get_city_instance_by_id(city_id_1)
+        city_2 = mod_city.get_city_instance_by_id(city_id_2)
+
+        return sin(city_1.latitude) * sin(city_2.latitude) \
+               + cos(city_1.latitude) * cos(city_2.latitude) \
+               * cos(city_2.longitude - city_1.longitude)
+
     # 求两个城市之间的距离
     Earth_Radius = 6378
 
-    city_1 = mod_city.get_city_instance_by_id(city_id_1)  # database对象
-    rad_Lat_1 = get_rad(city_1.latitutde)
-    rad_Lon_1 = get_rad(city_1.longtitude)
-
-    city_2 = mod_city.get_city_instance_by_id(city_id_2)
-    rad_Lat_2 = get_rad(city_2.latitutde)
-    rad_Lon_2 = get_rad(city_2.longtitude)
-
-    if rad_Lat_1 < 0:
-        rad_Lat_1 = math.pi / 2 + abs(rad_Lat_1)  # south
-    if rad_Lat_1 > 0:
-        rad_Lat_1 = math.pi / 2 - abs(rad_Lat_1)  # north
-    if rad_Lon_1 < 0:
-        rad_Lon_1 = math.pi * 2 - abs(rad_Lon_1)  # west
-    if rad_Lat_2 < 0:
-        rad_Lat_2 = math.pi / 2 + abs(rad_Lat_2)  # south
-    if rad_Lat_2 > 0:
-        rad_Lat_2 = math.pi / 2 - abs(rad_Lat_2)  # north
-    if rad_Lon_2 < 0:
-        rad_Lon_2 = math.pi * 2 - abs(rad_Lon_2)  # west
-
-    x1 = Earth_Radius * math.cos(rad_Lon_1) * math.sin(rad_Lat_1)
-    y1 = Earth_Radius * math.sin(rad_Lon_1) * math.sin(rad_Lat_1)
-    z1 = Earth_Radius * math.cos(rad_Lat_1)
-
-    x2 = Earth_Radius * math.cos(rad_Lon_2) * math.sin(rad_Lat_2)
-    y2 = Earth_Radius * math.sin(rad_Lon_2) * math.sin(rad_Lat_2)
-    z2 = Earth_Radius * math.cos(rad_Lat_2)
-
-    d = math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2)
-    theta = math.acos((Earth_Radius ** 2 + Earth_Radius ** 2 - d ** 2) / (2 * Earth_Radius * Earth_Radius))
-    dist = theta * Earth_Radius
+    theta = math.acos(cosine_similarity(city_id_1=city_id_1, city_id_2=city_id_2))
+    dist = Earth_Radius * theta
 
     return dist
 
