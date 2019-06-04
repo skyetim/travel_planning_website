@@ -300,10 +300,10 @@ class FriendInfo(UserInfoBase):
         self.friend_relation_dbobj.save()
 
     def delete(self):
-        # TODO: remove all travel association for both user
+        # remove all travel association for both user
         # user1 associate with user2's travel
         # user2 associate with user1's travel
-        # do not send message?
+        # not message will be sent
         from apps.api.modules.travel import delete_asso_travel
 
         self_user_dbobj=db_user.User.objects.get(user_id=self.self_user_id)
