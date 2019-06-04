@@ -109,7 +109,7 @@
       aria-label="Basic example"
       key="footer"
     >
-      <button class="btn btn-secondary" @click="add">Add</button>
+      <button class="btn btn-secondary" @click="add">添加城市</button>
     </div>
   </draggable>
 </template>
@@ -118,6 +118,7 @@
 import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
+import moment from "moment";
 
 var query = {
   content: "",
@@ -151,46 +152,42 @@ export default {
     };
   },
   methods: {
-    newChangeStatus: function(travel, index){
+    newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
-      travel[index].visibility = travel[index].vbool? 'F':'P';
+      travel[index].visibility = travel[index].vbool ? "F" : "P";
     },
     add: function() {
       var vue = this;
       var session = this.$session;
-      this.travel.push({
-        location: "",
-        coordinate: "",
-        date_start: "2019-06-13",
-        date_end: "2019-06-13",
-        visibility: "P",
-        vbool: true
-      });
+      this.travel.push(this.newTravel());
       this.$set(
         this.travel,
         this.travel.length - 1,
         this.travel[this.travel.length - 1]
       );
 
-      this.$backend.add_travel(
-        {
-          user_id: session.get("user_id"),
-          session_id: session.id().replace("sess:", ""),
-          travel_group_id: vue.gid,
-          city_id: 3,
-          date_start: "2019-07-01",
-          date_end: "2019-07-01",
-          visibility: "P",
-          travel_note: ""
-        },
-        function(response) {
-          vue.travel[vue.travel.length - 1].travel_id = response.data.travel_id;
-          console.log(response);
-        },
-        function(response) {
-          alert(response.data.error_message);
-        }
-      );
+      if (vue.gid != null) {
+        this.$backend.add_travel(
+          {
+            user_id: session.get("user_id"),
+            session_id: session.id().replace("sess:", ""),
+            travel_group_id: vue.gid,
+            city_id: 3,
+            date_start: moment(Date()).format('YYYY-MM-DD'),
+            date_end: moment(Date()).format('YYYY-MM-DD'),
+            visibility: "P",
+            travel_note: ""
+          },
+          function(response) {
+            vue.travel[vue.travel.length - 1].travel_id =
+              response.data.travel_id;
+            console.log(response);
+          },
+          function(response) {
+            alert(response.data.error_message);
+          }
+        );
+      }
     },
     del: function(index) {
       var vue = this;

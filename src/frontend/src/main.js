@@ -13,7 +13,7 @@ import { status } from './status';
 import { backend } from './backend_config';
 import Vuelidate from 'vuelidate';
 import BootstrapVue from 'bootstrap-vue'
-
+import moment from 'moment';
 
 Vue.use(BootstrapVue)
 Vue.use(VueSession);
@@ -44,6 +44,21 @@ Vue.prototype.newTravelGroup = function () {
   };
   return travelGroupProto;
 }
+
+Vue.prototype.newTravel = function(){
+  var travel = {
+    location: "",
+    coordinate: "",
+    date_start: moment(Date()).format('YYYY-MM-DD'),
+    date_end: moment(Date()).format('YYYY-MM-DD'),
+    visibility: "P",
+    vbool: false,
+    city_id: null,
+    travel_note: ""
+  };
+  return travel;
+}
+
 Vue.prototype.copy = function(obj) {
   let newObj = JSON.parse(JSON.stringify(obj));
   return newObj;

@@ -253,6 +253,7 @@ export default {
               {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
+                travel_group_id: response.data.travel_group_id,
                 city_id: travel.city_id,
                 date_start: travel.date_start,
                 date_end: travel.date_end,
