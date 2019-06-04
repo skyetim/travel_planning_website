@@ -116,8 +116,13 @@ class User(object):
         return sorted(travel_group_list)
 
     def set_email(self, email):
-        self.user_dbobj.email = email
-        self.user_dbobj.save()
+        if email == self.get_email():
+            return
+        elif db_user.User.objects.filter(email=email).exists():
+            raise UserAlreadyExistsException(f'User (Email={email}) already exists.')
+        else:
+            self.user_dbobj.email = email
+            self.user_dbobj.save()
 
     def set_friend_note(self, friend_user_id, friend_note):
         check_friend_relation_existence(user_id=self.get_user_id(),
@@ -306,12 +311,12 @@ class FriendInfo(UserInfoBase):
         # do not send message?
         from apps.api.modules.travel import delete_asso_travel
 
-        self_user_dbobj=db_user.User.objects.get(user_id=self.self_user_id)
-        friend_user_dbobj=get_user_instance_by_id(self.get_user_id())
+        self_user_dbobj = db_user.User.objects.get(user_id=self.self_user_id)
+        friend_user_dbobj = get_user_instance_by_id(self.get_user_id())
 
-        delete_asso_travel(self_user_dbobj,friend_user_dbobj)       
-        delete_asso_travel(friend_user_dbobj,self_user_dbobj)
-    
+        delete_asso_travel(self_user_dbobj, friend_user_dbobj)
+        delete_asso_travel(friend_user_dbobj, self_user_dbobj)
+
         self.friend_relation_dbobj.delete()
 
     @classmethod
@@ -341,4 +346,3 @@ class FriendInfo(UserInfoBase):
                 'resident_city',
                 'comment',
                 'avatar_url']
-
