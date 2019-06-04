@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from functools import wraps
+from typing import Dict, List
 
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -15,9 +16,10 @@ from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
 
 
-__all__ = []
+__all__: List[str] = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
+__all__.extend(['add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 __all__.extend(['get_others_user_info'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
@@ -32,14 +34,14 @@ __all__.extend(['add_travel', 'remove_travel', 'move_travel',
 __all__.extend(['address_to_city', 'address_to_city_list',
                 'gps_to_city', 'city_id_to_city'])
 
-REQUEST_METHOD_LIST = ['POST']
+REQUEST_METHOD_LIST: List[str] = ['POST']
 
 if DEBUG:
     REQUEST_METHOD_LIST.append('GET')
 
-LOGGED_IN_USERS = {}
+LOGGED_IN_USERS: Dict[int, mod_user.User] = {}
 
-SESSION_TIMEOUT = timedelta(minutes=20)
+SESSION_TIMEOUT: timedelta = timedelta(minutes=20)
 
 
 def prepare_request_data(func):
@@ -51,6 +53,8 @@ def prepare_request_data(func):
 
         request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
+        cast(name='friend_user_id', cast_func=int)
+        cast(name='other_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
         cast(name='old_pswd_hash', cast_func=str.upper)
@@ -59,9 +63,12 @@ def prepare_request_data(func):
         cast(name='resident_city_id', cast_func=int)
         cast(name='latitude', cast_func=float)
         cast(name='longitude', cast_func=float)
+        cast(name='travel_group_id', cast_func=int)
+        cast(name='other_travel_group_id', cast_func=int)
+        cast(name='travel_group_color', cast_func=str.upper)
+        cast(name='travel_id', cast_func=int)
         cast(name='date_start', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
         cast(name='date_end', cast_func=lambda date_string: date(*map(int, date_string.split('-'))))
-        cast(name='travel_group_color', cast_func=str.upper)
 
         return func(request_data=request_data)
 
@@ -92,7 +99,7 @@ def check_authentication(func):
 
 def check_token(func):
     @wraps(wrapped=func)
-    def ck_wrapper(request_data):
+    def ct_wrapper(request_data):
         user_id = request_data['user_id']
         session_id = request_data['session_id']
         if user_id not in LOGGED_IN_USERS:
@@ -113,14 +120,14 @@ def check_token(func):
             user_session.save()
             return func(request_data=request_data)
 
-    return ck_wrapper
+    return ct_wrapper
 
 
 def pack_response(func):
     @wraps(wrapped=func)
-    def pr_wrapper(*args, **kwargs):
+    def pr_wrapper(request_data):
         try:
-            response = func(*args, **kwargs)
+            response = func(request_data=request_data)
             response.setdefault('status', 0)
         except BackendBaseException as e:
             response = {
@@ -135,10 +142,10 @@ def pack_response(func):
 def api(check_tokens):
     def decorator(api_func):
 
-        wrapped_func = pack_response(func=api_func)
-        wrapped_func = check_authentication(func=wrapped_func)
+        wrapped_func = check_authentication(func=api_func)
         if check_tokens:
-            wrapped_func = check_token(wrapped_func)
+            wrapped_func = check_token(func=wrapped_func)
+        wrapped_func = pack_response(func=wrapped_func)
         wrapped_func = prepare_request_data(func=wrapped_func)
         wrapped_func = api_view(http_method_names=REQUEST_METHOD_LIST)(func=wrapped_func)
         wrapped_func = require_http_methods(request_method_list=REQUEST_METHOD_LIST)(func=wrapped_func)
@@ -146,20 +153,6 @@ def api(check_tokens):
         return wrapped_func
 
     return decorator
-
-
-def get_travel_group_detail(user_id, travel_group_id):
-    travel_group = mod_travel.TravelGroup(user_id=user_id,
-                                          travel_group_id=travel_group_id)
-    travel_list = travel_group.get_travel_list()
-    detail = dict(travel_group)
-    detail['travel_infos'] = {
-        'count': len(travel_list),
-        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user_id,
-                                                        travel_id=travel_id))
-                             for travel_id in travel_list]
-    }
-    return detail
 
 
 # Create your views here.
@@ -244,6 +237,27 @@ def set_user_avatar_url(request_data):
     user_info = user.get_user_info()
 
     user_info.set_avatar_url(avatar_url=request_data['avatar_url'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def add_friend(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.add_friend(friend_user_id=request_data['friend_user_id'],
+                    friend_note=request_data['friend_note'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def remove_friend(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.remove_friend(friend_user_id=request_data['friend_user_id'])
 
     response = {}
     return response
@@ -351,13 +365,15 @@ def remove_travel_group(request_data):
 @api(check_tokens=True)
 def get_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
-    travel_group_list = user.get_travel_group_list()
+
+    travel_group_list = [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                travel_group_id=travel_group_id)
+                         for travel_group_id in user.get_travel_group_list()]
 
     response = {
         'count': len(travel_group_list),
-        'travel_group_info_list': [get_travel_group_detail(user_id=user.get_user_id(),
-                                                           travel_group_id=travel_group_id)
-                                   for travel_group_id in travel_group_list]
+        'travel_group_info_list': [travel_group.get_travel_group_detail()
+                                   for travel_group in travel_group_list]
     }
     return response
 
@@ -365,13 +381,15 @@ def get_all_travel_group_details(request_data):
 @api(check_tokens=True)
 def get_others_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
-    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
 
+    others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
+    travel_group_list = [mod_travel.TravelGroup(user_id=user.get_user_id(),
+                                                travel_group_id=travel_group_id)
+                         for travel_group_id in others_travel_group_list]
     response = {
         'count': len(travel_group_list),
-        'travel_group_info_list': [get_travel_group_detail(user_id=user.get_user_id(),
-                                                           travel_group_id=travel_group_id)
-                                   for travel_group_id in others_travel_group_list]
+        'travel_group_info_list': [travel_group.get_travel_group_detail()
+                                   for travel_group in travel_group_list]
     }
     return response
 
