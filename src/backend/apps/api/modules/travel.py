@@ -250,7 +250,7 @@ class Travel(object):
         self.travel_dbobj.delete()
 
     def set_travel_info(self, city_id, date_start, date_end, visibility, travel_note):
-        # TODO: only send one message
+        # only when something changed, send one message
         if date_start>date_end:
             raise DateStartLaterThanDateEndError
 
@@ -325,10 +325,11 @@ class Travel(object):
         check_friend_relation_existence(user_id=self.watcher_user_id,
                                         friend_user_id=company_user_id,
                                         need_existence=True)
+                                
+        # send invitation to friend
+        self._send_msg_to_company(
+            msg_type=db_msg.TravelAssociation.INVITE, company_list=[company_user_id])
 
-        # TODO: send invitation to friend
-        
-        raise NotImplementedError
 
     def move_to_travel_group(self, new_travel_group_id):
         self.check_permission()
@@ -378,6 +379,9 @@ class Travel(object):
 
         if msg_type == db_msg.TravelAssociation.LEAVE:
             msg_content = f"Your friend {self_user_name} has removed you from the associated trip to {city_name}."
+
+        if msg_type == db_msg.TravelAssociation.INVITE:
+            msg_content = f"Your friend {self_user_name} has invited you to join the associated trip to {city_name}."
 
         if msg_type == db_msg.TravelAssociation.MODIFY:
             if modify_term not in {"city", "date_start", "date_end", "general"}:
