@@ -9,7 +9,7 @@ skinparam DefaultFont {
 skinparam ClassAttributeIconSize 0
 
 namespace Backend {
-    class Server {
+    class server {
         __ private data __
         - user_dict: dict
         __ methods __
@@ -181,7 +181,7 @@ namespace Backend {
         + set_date(year: int, month: int, day: int): int
     }
 
-    Server       "1"    *-down-  "0..*" User
+    server       "1"    *-down-  "0..*" User
     User         "1"    *-down-  "1"    UserInfo
     User         "1"    *-down-  "0..*" FriendInfo
     User         "1"    *-right- "0..*" TravelGroup : "     "

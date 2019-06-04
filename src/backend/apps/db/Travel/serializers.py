@@ -33,7 +33,7 @@ class TravelGroupingSerializer(serializers.ModelSerializer):
 
 
 class TravelGroupSerializer(serializers.ModelSerializer):
-    travel_list = TravelGroupingSerializer('T_TG_travelgroupid', many=True, read_only=True)
+    travel_list = TravelGroupingSerializer(source='T_TG_travelgroupid', many=True, read_only=True)
 
     class Meta:
         model = TravelGroup

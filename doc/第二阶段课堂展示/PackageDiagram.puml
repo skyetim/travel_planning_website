@@ -9,7 +9,7 @@ skinparam DefaultFont {
 
 namespace Backend {
     package _server{
-        class Server
+        class server
         interface Interface
     }
 
@@ -93,7 +93,7 @@ _server .right.> django : <<import>>
 MapView .right.>  Map
 Vue.js --[hidden] Map
 
-Model .right.> Server
+Model .right.> server
 
 LoginView   -[hidden] RegisterView
 ProfileView -[hidden] FriendView
@@ -118,7 +118,7 @@ ProfileView       .down.> FriendRequestComponent
 MapView           .down.> MapComponent
 
 
-Server       .right.|> Interface
+server       .right.|> Interface
 User         *-down-   UserInfo
 User         *-down-   FriendInfo
 User         *-right-  TravelGroup

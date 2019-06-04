@@ -16,7 +16,7 @@ Including another URLconf
 
 from django.urls import path
 
-from Server.settings import DEBUG
+from server.settings import DEBUG
 from apps.api import views
 
 
