@@ -28,13 +28,19 @@ export const backend = function(api_name, data, that, success, fail, withAuthori
     };
 
     function err_handler(err) {
+        console.log('backend connection error handler');
         console.log(err);
     };
 
     function data_wrapper(data, that, withAuthorization){
         if (withAuthorization){
-            data.user_id = that.$session.get('user_id');
-            data.session_id = that.$session.id().replace('sess:', '');
+            if (that.$session.exists()){
+                data.user_id = that.$session.get('user_id');
+                data.session_id = that.$session.id().replace('sess:', '');
+            } else {
+                window.alert('用户已退出, 请重新登录');
+                that.$router.push('/login');
+            }
         }
         return qs.stringify(data);
     }; 
