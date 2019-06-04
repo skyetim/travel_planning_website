@@ -76,6 +76,7 @@ class TravelAssociation(models.Model):
     friend_travel_id = models.ForeignKey(travel.Travel,
                                          to_field='travel_id',
                                          related_name='M_TA_travelid',
+                                         null=True,
                                          on_delete=models.CASCADE)
     msg_type = models.CharField(max_length=1,
                                 choices=MSG_TYPE_CHOICES,
