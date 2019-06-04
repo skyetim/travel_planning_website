@@ -3,7 +3,7 @@
         <input type="checkbox"
                v-model="model"
                v-bind="$attrs"
-               v-on="$listeners">
+               @click.native="this.value=!this.value">
         <span class="custom-toggle-slider rounded-circle"></span>
     </label>
 </template>

@@ -1,13 +1,13 @@
 <template>
   <div>
     <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
-      <travel-stats :travel_group_list="travel_group_list"/>
+      <travel-stats :travelGroup="travel_group_list"/>
     </base-header>
 
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
-          <edit-projects-table title="我的行迹" :travel_group_list="travel_group_list" @update="update"></edit-projects-table>
+          <my-projects-table title="他的行迹" :travel_group_list="travel_group_list" @update="update"></my-projects-table>
         </div>
       </div>
 
@@ -20,13 +20,18 @@
   </div>
 </template>
 <script>
+// TODO : 从router获取参数并请求
+import myProjectsTable from './utils/myProjectsTable.vue';
+
 export default {
   data() {
     return {
       travel_group_list: []
     };
   },
-
+  components:{
+      "my-projects-table": myProjectsTable
+  },
   created: function() {
     var post_data = new Object();
     post_data.user_id = this.$session.get("user_id");
@@ -71,24 +76,6 @@ export default {
         alert(response.data.error_message);
       }
     );
-  },
-
-  methods: {
-    update: function(data) {
-      var vue = this;
-      this.travel_group_list = JSON.parse(JSON.stringify(data));
-      this.travel_group_list.forEach(travel_group => {
-        travel_group.travel.sort(vue.compare("date_start"));
-        travel_group.dates.start =
-          travel_group.travel.length > 0
-            ? travel_group.travel[0].date_start
-            : "";
-        travel_group.dates.end =
-          travel_group.travel.length > 0
-            ? travel_group.travel[travel_group.travel.length - 1].date_end
-            : "";
-      });
-    }
   }
 };
 </script>

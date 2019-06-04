@@ -54,14 +54,22 @@
               </base-input>
             </div>
             <div class="col">
-              <small class="text-muted text-center">可见</small>
+              <small class="text-muted text-center">仅好友可见</small>
               <br>
-              <base-input
+              <label class="custom-toggle" style="margin-top:10px;">
+                <input
+                  type="checkbox"
+                  v-model="travel[index].vbool"
+                  @click="newChangeStatus(travel, index)"
+                >
+                <span class="custom-toggle-slider rounded-circle"></span>
+              </label>
+              <!-- <base-input
                 v-model="visibility_list[travel[index].visibility]"
                 @click.native="expandPicker(index)"
                 ref="travel_group_visibility"
                 readonly
-              ></base-input>
+              ></base-input>-->
             </div>
           </div>
         </div>
@@ -69,14 +77,7 @@
           <i class="ni ni-fat-remove icon-rm" @click="del(index)"></i>
         </div>
       </div>
-      <div ref="picker" class="dropdown-content">
-        <div
-          class="list-group-item item"
-          v-for="(v,n) in ['F', 'P']"
-          :key="n"
-          @click="changeStatus(v, travel,index)"
-        >{{visibility_list[v]}}</div>
-      </div>
+
       <div class="dropdown-content" ref="dropdown">
         <div class="row">
           <div class="col-5">
@@ -86,11 +87,7 @@
             <div class="row">
               <div class="col">
                 <button dislplay="inline-block" class="btn btn-primary" @click="search()">查找</button>
-                <button
-                  dislplay="inline-block"
-                  class="btn btn-primary"
-                  @click="collapse(index)"
-                >取消</button>
+                <button dislplay="inline-block" class="btn btn-primary" @click="collapse(index)">取消</button>
               </div>
             </div>
           </div>
@@ -112,7 +109,7 @@
       aria-label="Basic example"
       key="footer"
     >
-      <button class="btn btn-secondary" @click="add">Add</button>
+      <button class="btn btn-secondary" @click="add">添加城市</button>
     </div>
   </draggable>
 </template>
@@ -121,6 +118,7 @@
 import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
+import moment from "moment";
 
 var query = {
   content: "",
@@ -129,10 +127,6 @@ var query = {
   result: []
 };
 
-var visibility_list = {
-  F: "仅好友可见",
-  P: "所有人可见"
-};
 export default {
   name: "draggablelist",
   display: "Footer slot",
@@ -147,7 +141,6 @@ export default {
   },
   data() {
     return {
-      visibility_list: visibility_list,
       dragging: false,
       componentData: {
         props: {
@@ -159,42 +152,42 @@ export default {
     };
   },
   methods: {
-    expandPicker: function(index) {
-      this.$refs.picker[index].style.display = "block";
-    },
-    changeStatus: function(v, travel, index) {
-      travel[index].visibility = v;
-      this.$refs.picker[index].style.display = "none";
+    newChangeStatus: function(travel, index) {
+      travel[index].vbool = !travel[index].vbool;
+      travel[index].visibility = travel[index].vbool ? "F" : "P";
     },
     add: function() {
       var vue = this;
       var session = this.$session;
-      this.travel.push({
-        location: "",
-        coordinate: "",
-        date_start: "",
-        date_end: ""
-      });
-
-      this.$backend.add_travel(
-        {
-          user_id: session.get("user_id"),
-          session_id: session.id().replace("sess:", ""),
-          travel_group_id: vue.gid,
-          city_id: 3,
-          date_start: "2009-01-09",
-          date_end: "2009-01-09",
-          visibility: "P",
-          travel_note: ""
-        },
-        function(response) {
-          vue.travel[vue.travel.length - 1].travel_id = response.data.travel_id;
-          console.log(response);
-        },
-        function(response) {
-          alert(response.data.error_message);
-        }
+      this.travel.push(this.newTravel());
+      this.$set(
+        this.travel,
+        this.travel.length - 1,
+        this.travel[this.travel.length - 1]
       );
+
+      if (vue.gid != null) {
+        this.$backend.add_travel(
+          {
+            user_id: session.get("user_id"),
+            session_id: session.id().replace("sess:", ""),
+            travel_group_id: vue.gid,
+            city_id: 3,
+            date_start: moment(Date()).format('YYYY-MM-DD'),
+            date_end: moment(Date()).format('YYYY-MM-DD'),
+            visibility: "P",
+            travel_note: ""
+          },
+          function(response) {
+            vue.travel[vue.travel.length - 1].travel_id =
+              response.data.travel_id;
+            console.log(response);
+          },
+          function(response) {
+            alert(response.data.error_message);
+          }
+        );
+      }
     },
     del: function(index) {
       var vue = this;
@@ -322,27 +315,5 @@ export default {
 /* Show the dropdown menu on click */
 .dropdown:hover .dropdown-content {
   display: block;
-}
-
-/* input and button */
-.my-input {
-  border-radius: 2px;
-}
-
-.my-button {
-  display: inline-block;
-  background-color: white;
-  border-radius: 2px;
-}
-
-.my-button:hover {
-  background-color: gray /* Green */;
-  color: white;
-}
-
-.dropdown-absolute {
-  display: none;
-  position: absolute;
-  z-index: 2;
 }
 </style>

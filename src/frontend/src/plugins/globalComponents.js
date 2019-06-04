@@ -23,6 +23,7 @@ import Tabs from "../components/Tabs/Tabs";
 import TravelStats from "../components/TravelStats";
 import EditableProjectsTable from "../views/Tables/EditableProjectsTable";
 import BaseCitySearch from '../components/BaseCitySearch';
+import swatches from "vue-color/src/components/Swatches.vue";
 
 export default {
   install(Vue) {
@@ -51,5 +52,6 @@ export default {
     Vue.component(Tabs.name, Tabs);
     Vue.component(TravelStats.name, TravelStats);
     Vue.component(BaseCitySearch.name, BaseCitySearch);
+    Vue.component('swatches', swatches);
   }
 };

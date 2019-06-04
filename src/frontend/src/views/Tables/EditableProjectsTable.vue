@@ -20,7 +20,7 @@
         class="table align-items-center table-flush"
         :thead-classes="thead-light"
         tbody-classes="list"
-        :data="tableData"
+        :data="travel_group_list"
       >
         <template slot="columns">
           <th></th>
@@ -120,12 +120,35 @@
             </div>
           </div>
         </div>
+        <div class="row">
+          <div class="col-11">
+            <small class="text-muted text-center">行迹笔记</small>
+            <br>
+            <b-form-textarea v-model="editRow.travel_group_note" placeholder="说点什么吧~"></b-form-textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-11">
+            <small class="text-muted text-center">行迹颜色</small>
+            <br>
+            <base-dropdown>
+              <button
+                slot="title"
+                class="btn button-text"
+                :style="{backgroundColor:editRow.color.hex, opacity:editRow.color.a}"
+              ></button>
+              <div>
+                <swatches v-model="editRow.color"></swatches>
+              </div>
+            </base-dropdown>
+          </div>
+        </div>
       </div>
       <template slot="footer">
         <base-button
           type="primary"
           @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
-        >Save changes</base-button>
+        >保存</base-button>
       </template>
     </modal>
   </div>
@@ -158,30 +181,9 @@ export default {
     },
     title: String,
     location: String,
-    tableData: Array
+    travel_group_list: Array
   },
   methods: {
-    // caozuo
-    newTravelGroup: function() {
-      var travelGroupProto = {
-        name: "",
-        travel_group_id: null,
-        travel: [],
-        dates: { start: "", end: "" }
-      };
-      return travelGroupProto;
-    },
-    copy: function(obj) {
-      let newObj = JSON.parse(JSON.stringify(obj));
-      return newObj;
-    },
-    indexOf: function(arr, el) {
-      for (var i = 0; i < arr.length; ++i) {
-        if (arr[i] == el) {
-          return i;
-        }
-      }
-    },
     displayStatus: function(dates) {
       if (!dates.start || !dates.end) {
         return "";
@@ -202,14 +204,15 @@ export default {
     editTravel: function(row) {
       this.editRow = this.copy(row);
       // this.editRow = row;
-      this.editIndex = this.indexOf(this.tableData, row);
+      this.editIndex = this.indexOf(this.travel_group_list, row);
       this.edit.addMode = false;
       this.edit.modal = true;
     },
 
     del: function(row) {
-      for (var i = 0; i < this.tableData.length; ++i) {
-        if (row == this.tableData[i]) {
+      var vue = this;
+      for (var i = 0; i < this.travel_group_list.length; ++i) {
+        if (row == this.travel_group_list[i]) {
           this.$backend.remove_travel_group(
             {
               user_id: this.$session.get("user_id"),
@@ -217,7 +220,8 @@ export default {
               travel_group_id: row.travel_group_id
             },
             function(response) {
-              this.tableData.splice(i, 1);
+              vue.travel_group_list.splice(i, 1);
+              vue.$emit("update", vue.travel_group_list);
               console.log(response);
             },
             function(response) {
@@ -240,8 +244,8 @@ export default {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
           travel_group_name: row.name,
-          travel_group_note: "hello",
-          travel_group_color: "#ffffff"
+          travel_group_note: row.travel_group_note,
+          travel_group_color: row.color.hex
         },
         function(response) {
           row.travel.forEach(travel => {
@@ -249,6 +253,7 @@ export default {
               {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
+                travel_group_id: response.data.travel_group_id,
                 city_id: travel.city_id,
                 date_start: travel.date_start,
                 date_end: travel.date_end,
@@ -265,8 +270,8 @@ export default {
             );
           });
           row.travel_group_id = response.data.travel_group_id;
-          vue.tableData.push(row);
-          vue.$emit("update", vue.tableData);
+          vue.travel_group_list.push(vue.copy(row));
+          vue.$emit("update", vue.travel_group_list);
           console.log(response);
         },
         function(response) {
@@ -286,8 +291,8 @@ export default {
           session_id: session.id().replace("sess:", ""),
           travel_group_id: editRow.travel_group_id,
           travel_group_name: editRow.name,
-          travel_group_note: "hello",
-          travel_group_color: "#ffffff"
+          travel_group_note: editRow.travel_group_note,
+          travel_group_color: editRow.color.hex
         },
         function(response) {
           editRow.travel.forEach(travel => {
@@ -311,8 +316,8 @@ export default {
             );
           });
 
-          vue.tableData[vue.editIndex] = editRow;
-          vue.$emit("update", vue.tableData);
+          vue.travel_group_list[vue.editIndex] = editRow;
+          vue.$emit("update", vue.travel_group_list);
           console.log(response);
         },
         function(response) {
@@ -382,13 +387,5 @@ export default {
 /* modal input*/
 .inline-div {
   display: inline-block;
-}
-
-.item {
-  margin-top: 0px;
-  margin-bottom: 0px;
-  padding-top: 0px;
-  padding-bottom: 0px;
-  cursor: pointer;
 }
 </style>
