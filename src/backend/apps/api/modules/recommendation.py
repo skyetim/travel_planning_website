@@ -98,10 +98,14 @@ def recommend_travel_group_list(user, amount=10):
             travel_group = mod_travel.TravelGroup(
                 user_id=user_id, travel_group_id=tg_id)
             travel_list = travel_group.get_travel_list()
+            travel = mod_travel.Travel(user_id=user_id,travel_id=travel_list[0])
+            company_list = travel.get_company_list() # 得到朋友travel的company，自己不允许出现在里面
+
             if travel_list == []:
                 continue
-            rep_time = mod_travel.Travel(
-                user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
+            if user_id not in company_list:
+                rep_time = mod_travel.Travel(
+                    user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
             # represent time in isoformat
             # e.g. "1989-06-04"
 
@@ -137,11 +141,14 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
             if travel_list == []:
                 continue
             for travel_id in travel_list:
-                city = mod_travel.Travel(user_id=user_id, travel_id=travel_id).get_travel_info().get_city_id()
-                if city != my_city:
-                    other_travel_group_list.append(
-                        {"city_id":city, "city_distance":get_city_distance(my_city, city)}
-                    )
+                travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                company_list = travel.get_company_list()
+                if user_id not in company_list:
+                    city = travel.get_travel_info().get_city_id()
+                    if city != my_city:
+                        other_travel_group_list.append(
+                            {"city_id":city, "city_distance":get_city_distance(my_city, city)}
+                        )
 
     other_travel_group_list.sort(key=lambda x: x["city_distance"])
 
@@ -182,11 +189,14 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
                 if travel_list == []:
                     continue
                 for travel_id in travel_list:
-                    city = mod_travel.Travel(user_id=user_id, travel_id=travel_id).get_travel_info().get_city_id()
-                    if city not in my_city_list:
-                        other_travel_group_list.append(
-                            {"city_id":city, "city_distance":get_city_distance(my_city, city)}
-                        )
+                    travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                    company_list = travel.get_company_list()
+                    if user_id not in company_list:
+                        city = travel.get_travel_info().get_city_id()
+                        if city not in my_city_list:
+                            other_travel_group_list.append(
+                                {"city_id":city, "city_distance":get_city_distance(my_city, city)}
+                            )
 
     other_travel_group_list.sort(key=lambda x: x["city_distance"])
 
@@ -219,13 +229,17 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
             travel_list = travel_group.get_travel_list()
             if travel_list == []:
                 continue
-            rep_time = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
+            #rep_time = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
             for travel_id in travel_list:
-                city = mod_travel.Travel(user_id=user_id, travel_id=travel_id).get_travel_info().get_city_id()
-                if city != my_city:
-                    other_travel_group_list.append(
-                        {"travel_id":travel_id, "time_delta_days": get_time_delta_days(rep_time), "city_distance":get_city_distance(my_city, city)}
-                    ) 
+                travel = mod_travel.Travel(user_id=user_id,travel_id=travel_id)
+                company_list = travel.get_company_list()
+                if user_id not in company_list: 
+                    rep_time = travel.get_travel_info().get_date_start()
+                    city = travel.get_travel_info().get_city_id()
+                    if city != my_city:
+                        other_travel_group_list.append(
+                            {"travel_id":travel_id, "time_delta_days": get_time_delta_days(rep_time), "city_distance":get_city_distance(my_city, city)}
+                    )    
     other_travel_group_list.sort(key=lambda x: np.sqrt((int(x["city_distance"] / 50))**2 + (int(x["time_delta_days"] / 1))**2))
 
     if len(other_travel_group_list) < amount:
@@ -262,13 +276,17 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
                 travel_list = travel_group.get_travel_list()
                 if travel_list == []:
                     continue
-                rep_time = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
+
                 for travel_id in travel_list:                   
-                    city = mod_travel.Travel(user_id=user_id, travel_id=travel_id).get_travel_info().get_city_id()
-                    if city not in my_city_list:
-                        other_travel_group_list.append(
-                            {"travel_id":travel_id, "time_delta_days": get_time_delta_days(rep_time),"city_distance":get_city_distance(my_city, city)}
-                        )
+                    travel = mod_travel.Travel(user_id=user_id,travel_id=travel_id)
+                    company_list = travel.get_company_list()
+                    if user_id not in company_list:
+                        rep_time = travel.get_travel_info().get_date_start()
+                        city = travel.get_travel_info().get_city_id()                     
+                        if city not in my_city_list:
+                            other_travel_group_list.append(
+                                {"travel_id":travel_id, "time_delta_days": get_time_delta_days(rep_time),"city_distance":get_city_distance(my_city, city)}
+                            )
 
     other_travel_group_list.sort(key=lambda x: np.sqrt((int(x["city_distance"] / 50))**2 + (int(x["time_delta_days"] / 1))**2))
 
