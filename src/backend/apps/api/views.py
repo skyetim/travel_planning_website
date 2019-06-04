@@ -47,7 +47,7 @@ __all__.extend(['add_travel', 'copy_travel',
 # Travel Association
 __all__.extend(['invite_travel_company', 'join_friends_travel',
                 'remove_travel_company', 'get_travel_company_list',
-                'get_associated_travel_list'])
+                'get_associated_travel_list', 'get_associated_travel_info_list'])
 
 # Recommendation
 __all__.extend(['recommend_friend_list',
@@ -736,6 +736,20 @@ def get_associated_travel_list(request_data):
     response = {
         'count': len(travel_list),
         'travel_list': travel_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_associated_travel_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = user.get_associated_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user.get_user_id(),
+                                                        travel_id=travel_id))
+                             for travel_id in travel_list]
     }
     return response
 
