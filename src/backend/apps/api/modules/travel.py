@@ -155,8 +155,6 @@ class TravelInfo(object):
         self.travel_info_dbobj.city_id = city
         self.travel_info_dbobj.save()
 
-    # date_start必须比date_end早，但是这一步检查应该在哪里做？
-
     def set_date_start(self, date_start):
         self.check_permission()
 
@@ -296,11 +294,11 @@ class Travel(object):
 
         # send messages to existed company users
         target_user_name = company.user_name
-        self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.ADD, content=target_user_name)
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.ADD,
+                                  content=target_user_name)
 
-        db_travel.TravelAssociation.objects.create(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.create(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
         self.company_set.add(company_user_id)
 
     def remove_company(self, company_user_id):
@@ -314,11 +312,11 @@ class Travel(object):
         company = get_user_instance_by_id(user_id=company_user_id)
 
         # send message to the user being removed from this trip
-        self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.LEAVE, company_list=[company_user_id])
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.LEAVE,
+                                  company_list=[company_user_id])
 
-        db_travel.TravelAssociation.objects.delete(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
 
         self.company_set.remove(company_user_id)
 
@@ -375,6 +373,7 @@ class Travel(object):
 
         if msg_type == db_msg.TravelAssociation.DELETE:
             msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
+            travel_dbobj = None
 
         if msg_type == db_msg.TravelAssociation.ADD:
             msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."

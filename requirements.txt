@@ -1,5 +1,5 @@
 python>=3.6,<3.7
-openssl==1.0.2r
+openssl==1.0.*
 mysqlclient
 django
 djangorestframework
