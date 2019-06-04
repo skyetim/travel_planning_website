@@ -383,7 +383,7 @@ class Travel(object):
         return self.travel_info
 
     def get_company_list(self):
-        return list(self.company_set)
+        return sorted(self.company_set)
 
 
 class TravelGroup(object):
@@ -490,7 +490,7 @@ class TravelGroup(object):
         return self.travel_group_dbobj.travel_group_color
 
     def get_travel_list(self):
-        return list(self.travel_set)
+        return sorted(self.travel_set)
 
     def get_travel_group_detail(self):
         travel_group_detail = dict(self)

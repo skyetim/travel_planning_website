@@ -95,10 +95,10 @@ class User(object):
         return self.user_info
 
     def get_friend_list(self):
-        return list(self.friend_set)
+        return sorted(self.friend_set)
 
     def get_travel_group_list(self):
-        return list(self.travel_group_set)
+        return sorted(self.travel_group_set)
 
     def get_others_travel_group_list(self, other_user_id):
         from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
@@ -113,7 +113,7 @@ class User(object):
             except PermissionDeniedException:
                 pass
 
-        return travel_group_list
+        return sorted(travel_group_list)
 
     def set_email(self, email):
         self.user_dbobj.email = email
