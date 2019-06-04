@@ -33,7 +33,7 @@ __all__.extend(['get_travel_list'])
 __all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info_list',
                 'get_travel_info', 'set_travel_info'])
-__all__.extend(['invite_travel_company'])
+__all__.extend(['invite_travel_company', 'join_friends_travel'])
 __all__.extend(['get_friend_msg_list', 'del_friend_msg',
                 'get_travel_msg_list', 'del_travel_msg'])
 __all__.extend(['address_to_city', 'address_to_city_list',
@@ -560,6 +560,17 @@ def invite_travel_company(request_data):
                                travel_id=request_data['travel_id'])
 
     travel.invite_company(company_user_id=request_data['friend_user_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
+def join_friends_travel(request_data):
+    travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
+                               travel_id=request_data['friend_travel_id'])
+
+    travel.add_company(company_user_id=request_data['user_id'])
 
     response = {}
     return response

@@ -294,11 +294,11 @@ class Travel(object):
 
         # send messages to existed company users
         target_user_name = company.user_name
-        self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.ADD, content=target_user_name)
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.ADD,
+                                  content=target_user_name)
 
-        db_travel.TravelAssociation.objects.create(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.create(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
         self.company_set.add(company_user_id)
 
     def remove_company(self, company_user_id):
