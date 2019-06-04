@@ -19,7 +19,7 @@ from server.settings import DEBUG
 
 __all__: List[str] = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
-__all__.extend(['get_user_by_email'])
+__all__.extend(['get_user_by_email', 'get_user_list_by_user_name'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
@@ -234,6 +234,21 @@ def get_user_by_email(request_data):
 
     response = {
         'target_user_id': target_user.user_id
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_user_list_by_user_name(request_data):
+    target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
+
+    user_list = [target_user.user_id.user_id
+                 for target_user in target_user_list]
+    user_list.sort()
+
+    response = {
+        'count': len(user_list),
+        'user_list': user_list
     }
     return response
 
