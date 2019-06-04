@@ -34,7 +34,7 @@ __all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info_list',
                 'get_travel_info', 'set_travel_info'])
 __all__.extend(['invite_travel_company', 'join_friends_travel',
-                'remove_travel_company'])
+                'remove_travel_company', 'get_travel_company_list'])
 __all__.extend(['get_friend_msg_list', 'del_friend_msg',
                 'get_travel_msg_list', 'del_travel_msg'])
 __all__.extend(['address_to_city', 'address_to_city_list',
@@ -585,6 +585,19 @@ def remove_travel_company(request_data):
     travel.remove_company(company_user_id=request_data['friend_user_id'])
 
     response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_travel_company_list(request_data):
+    travel = mod_travel.Travel(user_id=request_data['user_id'],
+                               travel_id=request_data['travel_id'])
+    company_list = travel.get_company_list()
+
+    response = {
+        'count': len(company_list),
+        'company_list': company_list
+    }
     return response
 
 
