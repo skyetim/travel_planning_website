@@ -24,10 +24,11 @@ __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 
 # Friend
-__all__.extend(['get_user_by_email', 'get_user_list_by_user_name'])
+__all__.extend(['get_others_user_info'])
+__all__.extend(['search_user_by_email', 'search_user_list_by_user_name',
+                'search_user_info_by_email', 'search_user_info_list_by_user_name'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
-__all__.extend(['get_others_user_info'])
 
 # Travel Group
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
@@ -84,7 +85,7 @@ def prepare_request_data(func):
         request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
         cast(name='friend_user_id', cast_func=int)
-        cast(name='other_user_id', cast_func=int)
+        cast(name='others_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
         cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
@@ -279,7 +280,18 @@ def set_user_avatar_url(request_data):
 
 # Friend
 @api(check_tokens=True)
-def get_user_by_email(request_data):
+def get_others_user_info(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info = user.get_others_user_info(others_user_id=request_data['others_user_id'])
+
+    response = dict(others_user_info)
+    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
+    return response
+
+
+@api(check_tokens=True)
+def search_user_by_email(request_data):
     query_email = request_data['query_email']
     try:
         target_user = db_user.User.objects.get(email=query_email)
@@ -293,7 +305,7 @@ def get_user_by_email(request_data):
 
 
 @api(check_tokens=True)
-def get_user_list_by_user_name(request_data):
+def search_user_list_by_user_name(request_data):
     target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
 
     user_list = [target_user.user_id.user_id
@@ -303,6 +315,40 @@ def get_user_list_by_user_name(request_data):
     response = {
         'count': len(user_list),
         'user_list': user_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def search_user_info_by_email(request_data):
+    query_email = request_data['query_email']
+    try:
+        target_user = db_user.User.objects.get(email=query_email)
+    except db_user.User.DoesNotExist:
+        raise UserDoesNotExistException(f'User (Email={query_email}) does not exist.')
+
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info = user.get_others_user_info(others_user_id=target_user.user_id)
+
+    response = dict(others_user_info)
+    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
+    return response
+
+
+@api(check_tokens=True)
+def search_user_info_list_by_user_name(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
+
+    user_info_list = [user.get_others_user_info(others_user_id=target_user.user_id.user_id)
+                      for target_user in target_user_list]
+    user_info_list.sort(key=lambda user_info: user_info.get_user_name())
+
+    response = {
+        'count': len(user_info_list),
+        'user_info_list': list(map(dict, user_info_list))
     }
     return response
 
@@ -368,17 +414,6 @@ def set_friend_note(request_data):
                          friend_note=request_data['friend_note'])
 
     response = {}
-    return response
-
-
-@api(check_tokens=True)
-def get_others_user_info(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    others_user_info = user.get_others_user_info(others_user_id=request_data['others_user_id'])
-
-    response = dict(others_user_info)
-    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
     return response
 
 
