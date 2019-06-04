@@ -134,7 +134,7 @@
             <base-dropdown>
               <button
                 slot="title"
-                class="btn primary"
+                class="btn button-text"
                 :style="{backgroundColor:editRow.color.hex, opacity:editRow.color.a}"
               ></button>
               <div>
@@ -158,7 +158,6 @@
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
-// import 'bootstrap/dist/css/bootstrap.css'
 import moment from "moment";
 
 var edit = {
@@ -270,7 +269,7 @@ export default {
             );
           });
           row.travel_group_id = response.data.travel_group_id;
-          vue.travel_group_list.push(row);
+          vue.travel_group_list.push(vue.copy(row));
           vue.$emit("update", vue.travel_group_list);
           console.log(response);
         },
