@@ -44,31 +44,16 @@ export default {
     }, 
     methods: {
         search(){
-            this.$http.post('http://139.162.123.242:9000/api/address_to_city_list', {
-                address: this.value
-          }).then(function (response) {
-              if (response.status === 200) {
-                if (response.body.status == this.$status['normal']){
-                    this.select.show = true;
-                    this.select.options = response.body.city_list;
-                    this.generate_result();
-                } else if (response.body.status == this.$status['user_anthorization_error']) {
-                  window.alert('用户登录信息有误, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else if (response.body.status == this.$status['user_session_timeout']){
-                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else {
-                  console.error('获取信息时发生未知错误', response.body);
-                }
-              } else {
-                console.error('网络连接有问题', response.body);
-              }
-          }, function (err) {
-              console.error('err', err);
-            }); 
+            var that = this;
+            function success(response){
+                that.select.show = true;
+                that.select.options = response.data.city_list;
+                that.generate_result();
+            };
+            function fail(response){
+                console.error('获取信息时发生未知错误', response.data);
+            };
+            this.$backend_conn('address_to_city_list', {address: this.value}, that, success, fail, false);
         }, 
         generate_result(){
             if (this.select.options.length==0){

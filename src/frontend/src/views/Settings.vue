@@ -267,136 +267,83 @@ import UserCardPreview from './UserCardPreview';
         'user-card-preview': UserCardPreview
     }, 
     mounted() {
-        if (this.$session.exists()) {
-            this.$http.post('http://139.162.123.242:9000/api/get_user_info', {
-                user_id: this.$session.get('user_id'),
-                session_id: this.$session.id().replace('sess:', '')
-          }).then(function (response) {
-              if (response.status === 200) {
-                if (response.body.status == this.$status['normal']){
-                  let user_name = response.body.user_name;
-                  this.model.first_name = user_name.split(' ')[1];
-                  this.model.last_name = user_name.split(' ')[0]
-                  this.model.email = response.body.email;
-                  this.model.gender = this.$gender[response.body.gender];
-                  this.model.resident_city_id = response.body.resident_city.city_id;
-                  this.model.resident_city_name = response.body.resident_city.city_name;
-                  console.log(this.model.resident_city_id, this.model.resident_city_name)
-                  this.model.comment = response.body.comment;
-                  this.model.avatar_url = response.body.avatar_url;
-                  if (this.model.avatar_url == '') {
-                      this.model.avatar_url = 'img/theme/team-4-800x800.jpg'
-                  }
-                } else if (response.body.status == this.$status['user_anthorization_error']) {
-                  window.alert('用户登录信息有误, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else if (response.body.status == this.$status['user_session_timeout']){
-                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else {
-                  console.error('获取信息时发生未知错误', response.body);
+            var that = this;
+            function success(response){
+                let user_name = response.data.user_name;
+                that.model.first_name = user_name.split(' ')[1];
+                that.model.last_name = user_name.split(' ')[0]
+                that.model.email = response.data.email;
+                that.model.gender = that.$gender[response.data.gender];
+                that.model.resident_city_id = response.data.resident_city.city_id;
+                that.model.resident_city_name = response.data.resident_city.city_name;
+                that.model.comment = response.data.comment;
+                that.model.avatar_url = response.data.avatar_url;
+                if (that.model.avatar_url == '') {
+                    that.model.avatar_url = 'img/theme/team-4-800x800.jpg'
                 }
-              } else {
-                console.error('网络连接有问题', response.body);
-              }
-          }, function (err) {
-              console.error('err', err);
-            }); 
-          } else {
+            };
+            function fail(response){
+                console.error('获取信息时发生未知错误', response.data);
+            };
+            this.$backend_conn('get_user_info', {}, that, success, fail);
             window.alert('用户已退出, 请重新登录');
             this.$router.push('/login');
-          }
     }, 
     methods: {
         setUserInfo() {
-            if (this.$session.exists()) {
-            this.$http.post('http://139.162.123.242:9000/api/set_user_info', {
-                user_id: this.$session.get('user_id'),
-                session_id: this.$session.id().replace('sess:', ''),
-                user_name: this.model_user_name, 
-                email: this.model.email, 
-                gender: this.$gender_reverse[this.model.gender], 
-                comment: this.model.comment, 
-                resident_city_id: this.model.resident_city_id
-          }).then(function (response) {
-              if (response.status === 200) {
-                if (response.body.status == this.$status['normal']){
-                    this.message.personal_info.visible = true;
-                    this.message.personal_info.message = '个人信息成功保存, 即将刷新';
-                    this.message.personal_info.type = 'success';
-                    var that = this;
+                var that = this;
+                var data = {
+                    user_name: this.model_user_name, 
+                    email: this.model.email, 
+                    gender: this.$gender_reverse[this.model.gender], 
+                    comment: this.model.comment, 
+                    resident_city_id: this.model.resident_city_id
+                }; 
+                function success(response){
+                    that.message.personal_info.visible = true;
+                    that.message.personal_info.message = '个人信息成功保存, 即将刷新';
+                    that.message.personal_info.type = 'success';
                     setTimeout(function(){
-                        that.$session.set('user_name', this.model_user_name);
+                        that.$session.set('user_name', that.model_user_name);
                         that.$router.go();
                     }, 2000);
-                } else if (response.body.status == this.$status['user_anthorization_error']) {
-                  window.alert('用户登录信息有误, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else if (response.body.status == this.$status['user_session_timeout']){
-                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else {
-                  console.error('获取信息时发生未知错误', response.body);
-                }
-              } else {
-                console.error('网络连接有问题', response.body);
-              }
-          }, function (err) {
-              console.error('err', err);
-            }); 
-          } else {
+                };
+                function fail(response){
+                    console.error('获取信息时发生未知错误', response.data);
+                };
+                this.$backend_conn('set_user_info', data, that, success, fail);
             window.alert('用户已退出, 请重新登录');
             this.$router.push('/login');
-          }
         }, 
         resetPassword() {
-            if (this.$session.exists()) {
-            this.$http.post('http://139.162.123.242:9000/api/reset_password', {
-                user_id: this.$session.get('user_id'),
-                session_id: this.$session.id().replace('sess:', ''),
-                old_pswd_hash: this.$md5(this.model.old_password),
-                new_pswd_hash: this.$md5(this.model.new_password),
-          }).then(function (response) {
-              if (response.status === 200) {
-                if (response.body.status == this.$status['normal']){
-                    this.message.password.visible = true;
-                    this.message.password.message = '密码成功修改';
-                    this.message.password.type = 'success';
-                    this.model.old_password = '';
-                    this.model.new_password = '';
-                    this.model.verify_password = '';
-                } else if (response.body.status == this.$status['user_anthorization_error']) {
-                  window.alert('用户登录信息有误, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else if (response.body.status == this.$status['user_session_timeout']){
-                  window.alert('用户长时间未操作, 自动退出, 请重新登录');
-                  this.$session.destroy();
-                  this.$router.push('/login');
-                } else if (response.body.status == this.$status['wrong_password']) {
-                    this.message.password.visible = true;
-                    this.message.password.message = '旧密码错误, 请重试';
-                    this.message.password.type = 'danger';
-                    this.model.old_password = '';
-                    this.model.new_password = '';
-                    this.model.verify_password = '';
-                } else {
-                  console.error('获取信息时发生未知错误', response.body);
-                }
-              } else {
-                console.error('网络连接有问题', response.body);
-              }
-          }, function (err) {
-              console.error('err', err);
-            }); 
-          } else {
+                var that = this;
+                var data = {
+                    old_pswd_hash: this.$md5(this.model.old_password),
+                    new_pswd_hash: this.$md5(this.model.new_password)
+                }; 
+                function success(response){
+                    that.message.password.visible = true;
+                    that.message.password.message = '密码成功修改';
+                    that.message.password.type = 'success';
+                    that.model.old_password = '';
+                    that.model.new_password = '';
+                    that.model.verify_password = '';
+                };
+                function fail(response){
+                    if (response.body.status == that.$status['wrong_password']) {
+                        that.message.password.visible = true;
+                        that.message.password.message = '旧密码错误, 请重试';
+                        that.message.password.type = 'danger';
+                        that.model.old_password = '';
+                        that.model.new_password = '';
+                        that.model.verify_password = '';
+                    } else {
+                        console.error('获取信息时发生未知错误', response.body);
+                    }
+                };
+                this.$backend_conn('reset_password', data, that, success, fail);
             window.alert('用户已退出, 请重新登录');
             this.$router.push('/login');
-          }
         }, 
         search_success(city_id, city_name){
             this.model.resident_city_id = city_id;
