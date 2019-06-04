@@ -94,6 +94,16 @@ class User(object):
     def get_user_info(self):
         return self.user_info
 
+    def get_others_user_info(self, others_user_id):
+        check_user_existence(user_id=others_user_id, need_existence=True)
+
+        if others_user_id == self.get_user_id():
+            return self.get_user_info()
+        elif is_friend(user_id=self.get_user_id(), friend_user_id=others_user_id):
+            return FriendInfo(user_id=self.get_user_id(), friend_user_id=others_user_id)
+        else:
+            return UserInfoBase(user_id=others_user_id)
+
     def get_friend_list(self):
         return sorted(self.friend_set)
 
@@ -114,6 +124,12 @@ class User(object):
                 pass
 
         return sorted(travel_group_list)
+
+    def get_associated_travel_list(self):
+        associated_travels = db_travel.TravelAssociation.objects.filter(company_user_id=self.get_user_id())
+        travel_list = [travel.travel_id.travel_id for travel in associated_travels]
+
+        return sorted(set(travel_list))
 
     def set_email(self, email):
         if email == self.get_email():

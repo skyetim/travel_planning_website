@@ -24,17 +24,18 @@ __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 
 # Friend
-__all__.extend(['get_user_by_email', 'get_user_list_by_user_name'])
+__all__.extend(['get_others_user_info'])
+__all__.extend(['search_user_by_email', 'search_user_list_by_user_name',
+                'search_user_info_by_email', 'search_user_info_list_by_user_name'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
-__all__.extend(['get_others_user_info'])
 
 # Travel Group
+__all__.extend(['add_travel_group', 'remove_travel_group'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['get_all_travel_group_details', 'get_others_all_travel_group_details',
                 'get_travel_group_info_list', 'get_others_travel_group_info_list'])
-__all__.extend(['add_travel_group', 'remove_travel_group',
-                'get_travel_group_details',
+__all__.extend(['get_travel_group_details',
                 'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['get_travel_list', 'get_travel_info_list'])
 
@@ -45,7 +46,8 @@ __all__.extend(['add_travel', 'copy_travel',
 
 # Travel Association
 __all__.extend(['invite_travel_company', 'join_friends_travel',
-                'remove_travel_company', 'get_travel_company_list'])
+                'remove_travel_company', 'get_travel_company_list',
+                'get_associated_travel_list', 'get_associated_travel_info_list'])
 
 # Recommendation
 __all__.extend(['recommend_friend_list',
@@ -84,7 +86,7 @@ def prepare_request_data(func):
         request_data = getattr(request, request.method).dict()
         cast(name='user_id', cast_func=int)
         cast(name='friend_user_id', cast_func=int)
-        cast(name='other_user_id', cast_func=int)
+        cast(name='others_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
         cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
@@ -279,7 +281,18 @@ def set_user_avatar_url(request_data):
 
 # Friend
 @api(check_tokens=True)
-def get_user_by_email(request_data):
+def get_others_user_info(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info = user.get_others_user_info(others_user_id=request_data['others_user_id'])
+
+    response = dict(others_user_info)
+    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
+    return response
+
+
+@api(check_tokens=True)
+def search_user_by_email(request_data):
     query_email = request_data['query_email']
     try:
         target_user = db_user.User.objects.get(email=query_email)
@@ -293,16 +306,49 @@ def get_user_by_email(request_data):
 
 
 @api(check_tokens=True)
-def get_user_list_by_user_name(request_data):
+def search_user_list_by_user_name(request_data):
     target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
 
-    user_list = [target_user.user_id.user_id
-                 for target_user in target_user_list]
-    user_list.sort()
+    user_list = sorted([target_user.user_id.user_id
+                        for target_user in target_user_list])
 
     response = {
         'count': len(user_list),
         'user_list': user_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def search_user_info_by_email(request_data):
+    query_email = request_data['query_email']
+    try:
+        target_user = db_user.User.objects.get(email=query_email)
+    except db_user.User.DoesNotExist:
+        raise UserDoesNotExistException(f'User (Email={query_email}) does not exist.')
+
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info = user.get_others_user_info(others_user_id=target_user.user_id)
+
+    response = dict(others_user_info)
+    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
+    return response
+
+
+@api(check_tokens=True)
+def search_user_info_list_by_user_name(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
+
+    user_info_list = [user.get_others_user_info(others_user_id=target_user.user_id.user_id)
+                      for target_user in target_user_list]
+    user_info_list.sort(key=lambda user_info: user_info.get_user_name())
+
+    response = {
+        'count': len(user_info_list),
+        'user_info_list': list(map(dict, user_info_list))
     }
     return response
 
@@ -371,26 +417,31 @@ def set_friend_note(request_data):
     return response
 
 
+# Travel Group
 @api(check_tokens=True)
-def get_others_user_info(request_data):
-    user_id = request_data['user_id']
-    other_user_id = request_data['other_user_id ']
-    is_friend = mod_user.is_friend(user_id=user_id, friend_user_id=other_user_id)
+def add_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
-    if other_user_id == user_id:
-        user = LOGGED_IN_USERS[request_data['user_id']]
-        other_user_info = user.get_user_info()
-    elif is_friend:
-        other_user_info = mod_user.FriendInfo(user_id=user_id, friend_user_id=other_user_id)
-    else:
-        other_user_info = mod_user.UserInfoBase(user_id=other_user_id)
+    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
+                                         travel_group_note=request_data['travel_group_note'],
+                                         travel_group_color=request_data['travel_group_color'])
 
-    response = dict(other_user_info)
-    response['is_friend'] = is_friend
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
     return response
 
 
-# Travel Group
+@api(check_tokens=True)
+def remove_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
+
+    response = {}
+    return response
+
+
 @api(check_tokens=True)
 def get_travel_group_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
@@ -472,30 +523,6 @@ def get_others_travel_group_info_list(request_data):
                                                                travel_group_id=travel_group_id))
                                    for travel_group_id in others_travel_group_list]
     }
-    return response
-
-
-@api(check_tokens=True)
-def add_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
-                                         travel_group_note=request_data['travel_group_note'],
-                                         travel_group_color=request_data['travel_group_color'])
-
-    response = {
-        'travel_group_id': travel_group.get_travel_group_id()
-    }
-    return response
-
-
-@api(check_tokens=True)
-def remove_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
-
-    response = {}
     return response
 
 
@@ -587,7 +614,8 @@ def copy_travel(request_data):
                                    travel_id=request_data['source_travel_id'])
     src_travel_info = src_travel.get_travel_info()
     src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
-    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(travel_group_id=src_travel_group_dbobj.travel_group_id)
+    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(
+            travel_group_id=src_travel_group_dbobj.travel_group_id)
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=request_data['travel_group_id'])
 
@@ -696,6 +724,32 @@ def get_travel_company_list(request_data):
     response = {
         'count': len(company_list),
         'company_list': company_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_associated_travel_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = user.get_associated_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_list': travel_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_associated_travel_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = user.get_associated_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_info_list': [dict(mod_travel.TravelInfo(user_id=user.get_user_id(),
+                                                        travel_id=travel_id))
+                             for travel_id in travel_list]
     }
     return response
 
