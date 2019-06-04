@@ -102,8 +102,6 @@
               console.error('获取信息时发生未知错误', response.data);
           };
           this.$backend_conn('logout', {}, that, success, fail);
-          window.alert('用户已退出, 请重新登录');
-          this.$router.push('/login');
       }, 
     }
   };

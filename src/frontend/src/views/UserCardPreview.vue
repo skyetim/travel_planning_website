@@ -145,8 +145,6 @@
                         console.error('获取信息时发生未知错误', response.data);
                     };
                     this.$backend_conn('set_user_avatar_url', {avatar_url: jsonData.url}, that, success, fail);
-                    window.alert('用户已退出, 请重新登录');
-                    this.$router.push('/login');
             },
             /**
              * upload fail
@@ -160,7 +158,6 @@
                 console.log('field: ' + field);
             }, 
             get_friends_num(){
-                if (this.$session.exists()) {
                     var that = this;
                     function success(response){
                         that.friends_num = response.data.count;
@@ -169,10 +166,6 @@
                         console.error('获取信息时发生未知错误', response.data);
                     };
                     this.$backend_conn('get_friend_list', {}, that, success, fail);
-                } else {
-                    window.alert('用户已退出, 请重新登录');
-                    this.$router.push('/login');
-                }
             }, 
             get_travel_groups_num(){
                     var that = this;
