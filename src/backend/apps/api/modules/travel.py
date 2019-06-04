@@ -312,11 +312,11 @@ class Travel(object):
         company = get_user_instance_by_id(user_id=company_user_id)
 
         # send message to the user being removed from this trip
-        self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.LEAVE, company_list=[company_user_id])
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.LEAVE,
+                                  company_list=[company_user_id])
 
-        db_travel.TravelAssociation.objects.delete(company_user_id=company,
-                                                   travel_id=self.travel_dbobj)
+        db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
+                                                   company_user_id=company)
 
         self.company_set.remove(company_user_id)
 
