@@ -44,7 +44,6 @@ export default {
     }, 
     methods: {
         search(){
-          if (this.$session.exists()) {
             this.$http.post('http://139.162.123.242:9000/api/address_to_city_list', {
                 address: this.value
           }).then(function (response) {
@@ -70,13 +69,9 @@ export default {
           }, function (err) {
               console.error('err', err);
             }); 
-          } else {
-            window.alert('用户已退出, 请重新登录');
-            this.$router.push('/login');
-          }  
         }, 
         generate_result(){
-            if (this.select.options.length()==0){
+            if (this.select.options.length==0){
               this.$emit('search-failure', '找不到该城市');
             }
             let best_option = this.select.options[0];
