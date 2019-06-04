@@ -31,11 +31,11 @@ __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
 
 # Travel Group
+__all__.extend(['add_travel_group', 'remove_travel_group'])
 __all__.extend(['get_travel_group_list', 'get_others_travel_group_list'])
 __all__.extend(['get_all_travel_group_details', 'get_others_all_travel_group_details',
                 'get_travel_group_info_list', 'get_others_travel_group_info_list'])
-__all__.extend(['add_travel_group', 'remove_travel_group',
-                'get_travel_group_details',
+__all__.extend(['get_travel_group_details',
                 'get_travel_group_info', 'set_travel_group_info'])
 __all__.extend(['get_travel_list', 'get_travel_info_list'])
 
@@ -308,9 +308,8 @@ def search_user_by_email(request_data):
 def search_user_list_by_user_name(request_data):
     target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
 
-    user_list = [target_user.user_id.user_id
-                 for target_user in target_user_list]
-    user_list.sort()
+    user_list = sorted([target_user.user_id.user_id
+                        for target_user in target_user_list])
 
     response = {
         'count': len(user_list),
@@ -419,6 +418,30 @@ def set_friend_note(request_data):
 
 # Travel Group
 @api(check_tokens=True)
+def add_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
+                                         travel_group_note=request_data['travel_group_note'],
+                                         travel_group_color=request_data['travel_group_color'])
+
+    response = {
+        'travel_group_id': travel_group.get_travel_group_id()
+    }
+    return response
+
+
+@api(check_tokens=True)
+def remove_travel_group(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=True)
 def get_travel_group_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_group_list = user.get_travel_group_list()
@@ -499,30 +522,6 @@ def get_others_travel_group_info_list(request_data):
                                                                travel_group_id=travel_group_id))
                                    for travel_group_id in others_travel_group_list]
     }
-    return response
-
-
-@api(check_tokens=True)
-def add_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    travel_group = user.add_travel_group(travel_group_name=request_data['travel_group_name'],
-                                         travel_group_note=request_data['travel_group_note'],
-                                         travel_group_color=request_data['travel_group_color'])
-
-    response = {
-        'travel_group_id': travel_group.get_travel_group_id()
-    }
-    return response
-
-
-@api(check_tokens=True)
-def remove_travel_group(request_data):
-    user = LOGGED_IN_USERS[request_data['user_id']]
-
-    user.remove_travel_group(travel_group_id=request_data['travel_group_id'])
-
-    response = {}
     return response
 
 
@@ -614,7 +613,8 @@ def copy_travel(request_data):
                                    travel_id=request_data['source_travel_id'])
     src_travel_info = src_travel.get_travel_info()
     src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
-    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(travel_group_id=src_travel_group_dbobj.travel_group_id)
+    src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(
+            travel_group_id=src_travel_group_dbobj.travel_group_id)
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=request_data['travel_group_id'])
 
