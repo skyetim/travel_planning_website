@@ -1,10 +1,9 @@
 import re
 
 import apps.api.modules.city as mod_city
+import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 import apps.db.User.models as db_user
-import apps.db.Message.models as db_msg
-
 from apps.api.modules.exceptions import *
 
 
@@ -35,6 +34,9 @@ def is_friend(user_id, friend_user_id):
 
 
 def check_friend_relation_existence(user_id, friend_user_id, need_existence=True):
+    if user_id == friend_user_id:
+        raise FriendAlreadyExistsException(f'User (ID={user_id})'
+                                           f' can not have friendship with itself.')
     if is_friend(user_id=user_id, friend_user_id=friend_user_id):
         if not need_existence:
             raise FriendAlreadyExistsException(f'The friendship between '
@@ -47,13 +49,15 @@ def check_friend_relation_existence(user_id, friend_user_id, need_existence=True
 
 
 def get_user_instance_by_id(user_id):
-    check_user_existence(user_id=user_id)
+    check_user_existence(user_id=user_id, need_existence=True)
     return db_user.User.objects.get(user_id=user_id)
 
-def get_userinfo_instance_by_id(user_id):
-    check_user_existence(user_id=user_id)
+
+def get_user_info_instance_by_id(user_id):
+    check_user_existence(user_id=user_id, need_existence=True)
     return db_user.UserInfo.objects.get(user_id=user_id)
-    
+
+
 class User(object):
     def __init__(self, email, pswd_hash):
         try:
@@ -150,11 +154,14 @@ class User(object):
         self.friend_set.remove(friend_user_id)
         friend_info = FriendInfo(user_id=self.get_user_id(), friend_user_id=friend_user_id)
         friend_info.delete()
-        self_user_dbobj = get_user_instance_by_id(self.get_user_id())
-        other_user_dbobj = get_user_instance_by_id(friend_user_id)
 
-        db_msg.FriendRequest.objects.create(user_id=other_user_dbobj,friend_user_id=self_user_dbobj,msg_type=db_msg.FriendRequest.DELETE,msg_content=f"You friend {self.user_info.get_user_name()} has deleted you from friend list.")
+        friend_user_dbobj = get_user_instance_by_id(user_id=friend_user_id)
 
+        db_msg.FriendRequest.objects.create(user_id=friend_user_dbobj,
+                                            friend_user_id=self.user_dbobj,
+                                            msg_type=db_msg.FriendRequest.DELETE,
+                                            msg_content=f'Your friend {self.get_user_info().get_user_name()}'
+                                            f' has deleted you from friend list.')
 
     def add_travel_group(self, travel_group_name, travel_group_note, travel_group_color):
         from apps.api.modules.travel import TravelGroup as mod_travel_TravelGroup
@@ -163,7 +170,7 @@ class User(object):
                                                                travel_group_name=travel_group_name,
                                                                travel_group_note=travel_group_note,
                                                                travel_group_color=travel_group_color)
-        self.travel_group_set.add(travel_group)
+        self.travel_group_set.add(travel_group.get_travel_group_id())
         return travel_group
 
     def remove_travel_group(self, travel_group_id):
@@ -231,11 +238,18 @@ class UserInfoBase(object):
                 'user_name',
                 'gender',
                 'resident_city_id',
+                'resident_city',
                 'comment',
                 'avatar_url']
 
     def __getitem__(self, item):
-        return getattr(self, f'get_{item}')()
+        try:
+            return getattr(self, f'get_{item}')()
+        except AttributeError:
+            if item == 'resident_city':
+                return dict(mod_city.get_city_instance_by_id(city_id=self.get_resident_city_id()))
+            else:
+                raise
 
 
 class UserInfo(UserInfoBase):
@@ -294,7 +308,7 @@ class FriendInfo(UserInfoBase):
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
-        check_user_existence(user_id=friend_user_id)
+        check_user_existence(user_id=friend_user_id, need_existence=True)
         check_friend_relation_existence(user_id=user_id,
                                         friend_user_id=friend_user_id,
                                         need_existence=False)
@@ -302,8 +316,10 @@ class FriendInfo(UserInfoBase):
         if friend_note == '':
             friend_info = db_user.UserInfo.objects.get(user_id=friend_user_id)
             friend_note = friend_info.user_name
-        db_user.FriendRelation.objects.create(user_id=user_id,
-                                              friend_user_id=friend_user_id,
+        user_dbobj = get_user_instance_by_id(user_id=user_id)
+        friend_user_dbobj = get_user_instance_by_id(user_id=friend_user_id)
+        db_user.FriendRelation.objects.create(user_id=user_dbobj,
+                                              friend_user_id=friend_user_dbobj,
                                               friend_note=friend_note)
 
         return cls(user_id=user_id, friend_user_id=friend_user_id)
@@ -314,5 +330,6 @@ class FriendInfo(UserInfoBase):
                 'friend_note',
                 'gender',
                 'resident_city_id',
+                'resident_city',
                 'comment',
                 'avatar_url']
