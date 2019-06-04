@@ -213,7 +213,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
                         other_travel_group_list.append(
                             {"travel_id":travel_id, "time_delta_days": get_time_delta_days(rep_time), "city_distance":get_city_distance(my_city, city)}
                     )    
-    other_travel_group_list.sort(key=lambda x: np.sqrt((int(x["city_distance"] / 50))**2 + (int(x["time_delta_days"] / 1))**2))
+    other_travel_group_list.sort(key=lambda x: ((int(x["city_distance"] / 50))**2 + (int(x["time_delta_days"] / 1))**2))
 
     if len(other_travel_group_list) < amount:
         amount = len(other_travel_group_list)
