@@ -2,8 +2,8 @@
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <side-bar
       :background-color="sidebarBackground"
-      short-title="Travel"
-      title="Travel"
+      short-title="行迹"
+      title="行迹"
     >
       <template slot="links">
         <sidebar-item :link="{name: '主页', icon: 'ni ni-tv-2 text-primary', path: '/dashboard'}"/>
