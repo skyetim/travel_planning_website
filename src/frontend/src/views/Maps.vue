@@ -230,7 +230,7 @@ export default {
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: "abcd",
         maxZoom: 6,
-        minZoom: 4
+        minZoom: 2
       }
     ).addTo(this.map);
   },
