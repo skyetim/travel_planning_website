@@ -1,9 +1,10 @@
 import { status } from './const';
 import axios from 'axios';
 import qs from 'qs';
+import {backend_api} from './backendAPI';
 
 export const backend = function(api_name, data, that, success, fail, withAuthorization=true) {
-    let remote = "http://139.162.123.242:9000/api/";
+    let remote = backend_api;
 
     function response_handler(response, that, success, fail) {
         console.log(response);
