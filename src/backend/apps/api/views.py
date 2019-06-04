@@ -125,9 +125,9 @@ def check_token(func):
 
 def pack_response(func):
     @wraps(wrapped=func)
-    def pr_wrapper(request_data):
+    def pr_wrapper(*args, **kwargs):
         try:
-            response = func(request_data=request_data)
+            response = func(*args, **kwargs)
             response.setdefault('status', 0)
         except BackendBaseException as e:
             response = {
