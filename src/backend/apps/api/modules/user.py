@@ -125,6 +125,12 @@ class User(object):
 
         return sorted(travel_group_list)
 
+    def get_associated_travel_list(self):
+        associated_travels = db_travel.TravelAssociation.objects.filter(company_user_id=self.get_user_id())
+        travel_list = [travel.travel_id.travel_id for travel in associated_travels]
+
+        return sorted(set(travel_list))
+
     def set_email(self, email):
         if email == self.get_email():
             return

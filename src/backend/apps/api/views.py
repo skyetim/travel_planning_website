@@ -46,7 +46,8 @@ __all__.extend(['add_travel', 'copy_travel',
 
 # Travel Association
 __all__.extend(['invite_travel_company', 'join_friends_travel',
-                'remove_travel_company', 'get_travel_company_list'])
+                'remove_travel_company', 'get_travel_company_list',
+                'get_associated_travel_list'])
 
 # Recommendation
 __all__.extend(['recommend_friend_list',
@@ -723,6 +724,18 @@ def get_travel_company_list(request_data):
     response = {
         'count': len(company_list),
         'company_list': company_list
+    }
+    return response
+
+
+@api(check_tokens=True)
+def get_associated_travel_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    travel_list = user.get_associated_travel_list()
+
+    response = {
+        'count': len(travel_list),
+        'travel_list': travel_list
     }
     return response
 
