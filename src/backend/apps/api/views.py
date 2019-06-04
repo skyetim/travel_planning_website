@@ -174,11 +174,11 @@ def pack_response(func):
     return pr_wrapper
 
 
-def api(check_tokens):
+def api(need_token):
     def decorator(api_func):
 
         wrapped_func = check_authentication(func=api_func)
-        if check_tokens:
+        if need_token:
             wrapped_func = check_token(func=wrapped_func)
         wrapped_func = pack_response(func=wrapped_func)
         wrapped_func = prepare_request_data(func=wrapped_func)
@@ -193,7 +193,7 @@ def api(check_tokens):
 # Create your views here.
 
 # User
-@api(check_tokens=False)
+@api(need_token=False)
 def register(request_data):
     user = mod_user.User.new_user(email=request_data['email'],
                                   pswd_hash=request_data['pswd_hash'],
@@ -207,7 +207,7 @@ def register(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(need_token=False)
 def login(request_data):
     user = mod_user.User(email=request_data['email'],
                          pswd_hash=request_data['pswd_hash'])
@@ -220,7 +220,7 @@ def login(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def logout(request_data):
     try:
         del LOGGED_IN_USERS[request_data['user_id']]
@@ -232,7 +232,7 @@ def logout(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def reset_password(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -243,7 +243,7 @@ def reset_password(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_user_info(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     user_info = user.get_user_info()
@@ -253,7 +253,7 @@ def get_user_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def set_user_info(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     user_info = user.get_user_info()
@@ -268,7 +268,7 @@ def set_user_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def set_user_avatar_url(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     user_info = user.get_user_info()
@@ -280,7 +280,7 @@ def set_user_avatar_url(request_data):
 
 
 # Friend
-@api(check_tokens=True)
+@api(need_token=True)
 def get_others_user_info(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -291,7 +291,7 @@ def get_others_user_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def search_user_by_email(request_data):
     query_email = request_data['query_email']
     try:
@@ -305,7 +305,7 @@ def search_user_by_email(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def search_user_list_by_user_name(request_data):
     target_user_list = db_user.UserInfo.objects.filter(user_name__icontains=request_data['query_user_name'])
 
@@ -319,7 +319,7 @@ def search_user_list_by_user_name(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def search_user_info_by_email(request_data):
     query_email = request_data['query_email']
     try:
@@ -336,7 +336,7 @@ def search_user_info_by_email(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def search_user_info_list_by_user_name(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -353,7 +353,7 @@ def search_user_info_list_by_user_name(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def send_friend_request(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -364,7 +364,7 @@ def send_friend_request(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def add_friend(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -375,7 +375,7 @@ def add_friend(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def remove_friend(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -385,7 +385,7 @@ def remove_friend(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_friend_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     friend_list = user.get_friend_list()
@@ -397,7 +397,7 @@ def get_friend_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_friend_info(request_data):
     friend_user_info = mod_user.FriendInfo(user_id=request_data['user_id'],
                                            friend_user_id=request_data['friend_user_id'])
@@ -406,7 +406,7 @@ def get_friend_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def set_friend_note(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -418,7 +418,7 @@ def set_friend_note(request_data):
 
 
 # Travel Group
-@api(check_tokens=True)
+@api(need_token=True)
 def add_travel_group(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -432,7 +432,7 @@ def add_travel_group(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def remove_travel_group(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -442,7 +442,7 @@ def remove_travel_group(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_group_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_group_list = user.get_travel_group_list()
@@ -454,7 +454,7 @@ def get_travel_group_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_others_travel_group_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
@@ -466,7 +466,7 @@ def get_others_travel_group_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -482,7 +482,7 @@ def get_all_travel_group_details(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_others_all_travel_group_details(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
@@ -498,7 +498,7 @@ def get_others_all_travel_group_details(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_group_info_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_group_list = user.get_travel_group_list()
@@ -512,7 +512,7 @@ def get_travel_group_info_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_others_travel_group_info_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     others_travel_group_list = user.get_others_travel_group_list(other_user_id=request_data['other_user_id'])
@@ -526,7 +526,7 @@ def get_others_travel_group_info_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_group_details(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -535,7 +535,7 @@ def get_travel_group_details(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_group_info(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -544,7 +544,7 @@ def get_travel_group_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def set_travel_group_info(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -557,7 +557,7 @@ def set_travel_group_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_list(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -571,7 +571,7 @@ def get_travel_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_info_list(request_data):
     user_id = request_data['user_id']
 
@@ -590,7 +590,7 @@ def get_travel_info_list(request_data):
 
 
 # Travel
-@api(check_tokens=True)
+@api(need_token=True)
 def add_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -607,7 +607,7 @@ def add_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def copy_travel(request_data):
     user_id = request_data['user_id']
     src_travel = mod_travel.Travel(user_id=user_id,
@@ -634,7 +634,7 @@ def copy_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def remove_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -645,7 +645,7 @@ def remove_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def move_travel(request_data):
     travel_group = mod_travel.TravelGroup(user_id=request_data['user_id'],
                                           travel_group_id=request_data['travel_group_id'])
@@ -657,7 +657,7 @@ def move_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
@@ -666,7 +666,7 @@ def get_travel_info(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def set_travel_info(request_data):
     travel_info = mod_travel.TravelInfo(user_id=request_data['user_id'],
                                         travel_id=request_data['travel_id'])
@@ -682,7 +682,7 @@ def set_travel_info(request_data):
 
 
 # Travel Association
-@api(check_tokens=True)
+@api(need_token=True)
 def invite_travel_company(request_data):
     travel = mod_travel.Travel(user_id=request_data['user_id'],
                                travel_id=request_data['travel_id'])
@@ -693,7 +693,7 @@ def invite_travel_company(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def join_friends_travel(request_data):
     travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
                                travel_id=request_data['friend_travel_id'])
@@ -704,7 +704,7 @@ def join_friends_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def remove_travel_company(request_data):
     travel = mod_travel.Travel(user_id=request_data['user_id'],
                                travel_id=request_data['travel_id'])
@@ -715,7 +715,7 @@ def remove_travel_company(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_company_list(request_data):
     travel = mod_travel.Travel(user_id=request_data['user_id'],
                                travel_id=request_data['travel_id'])
@@ -728,7 +728,7 @@ def get_travel_company_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_associated_travel_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_list = user.get_associated_travel_list()
@@ -740,7 +740,7 @@ def get_associated_travel_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_associated_travel_info_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_list = user.get_associated_travel_list()
@@ -755,7 +755,7 @@ def get_associated_travel_info_list(request_data):
 
 
 # Recommendation
-@api(check_tokens=True)
+@api(need_token=True)
 def recommend_friend_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     user_list = mod_rcmd.recommend_friend_list(user=user)
@@ -767,7 +767,7 @@ def recommend_friend_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def recommend_city_list_by_travel(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     city_list = mod_rcmd.recommend_city_list_by_travel(user=user,
@@ -781,7 +781,7 @@ def recommend_city_list_by_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def recommend_city_list_by_travel_group(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     city_list = mod_rcmd.recommend_city_list_by_travel_group(user=user,
@@ -795,7 +795,7 @@ def recommend_city_list_by_travel_group(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def recommend_travel_list_by_travel(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_list = mod_rcmd.recommend_travel_list_by_travel(user=user,
@@ -808,7 +808,7 @@ def recommend_travel_list_by_travel(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def recommend_travel_list_by_travel_group(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
     travel_list = mod_rcmd.recommend_travel_list_by_travel_group(user=user,
@@ -822,7 +822,7 @@ def recommend_travel_list_by_travel_group(request_data):
 
 
 # Message
-@api(check_tokens=True)
+@api(need_token=True)
 def get_friend_msg_list(request_data):
     friend_msg_list = db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'])
 
@@ -833,7 +833,7 @@ def get_friend_msg_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def del_friend_msg(request_data):
     db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
                                         msg_id=request_data['msg_id'])
@@ -842,7 +842,7 @@ def del_friend_msg(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def get_travel_msg_list(request_data):
     travel_msg_list = db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'])
 
@@ -853,7 +853,7 @@ def get_travel_msg_list(request_data):
     return response
 
 
-@api(check_tokens=True)
+@api(need_token=True)
 def del_travel_msg(request_data):
     db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
                                             msg_id=request_data['msg_id'])
@@ -863,7 +863,7 @@ def del_travel_msg(request_data):
 
 
 # City
-@api(check_tokens=False)
+@api(need_token=False)
 def address_to_city(request_data):
     city = mod_city.get_city_instance_by_address(address=request_data['address'])
 
@@ -871,7 +871,7 @@ def address_to_city(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(need_token=False)
 def address_to_city_list(request_data):
     city_list = mod_city.get_city_instance_list_by_address(address=request_data['address'])
 
@@ -882,7 +882,7 @@ def address_to_city_list(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(need_token=False)
 def gps_to_city(request_data):
     city = mod_city.get_city_instance_by_gps(latitude=request_data['latitude'],
                                              longitude=request_data['longitude'])
@@ -891,7 +891,7 @@ def gps_to_city(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(need_token=False)
 def city_id_to_city(request_data):
     city = mod_city.get_city_instance_by_id(city_id=request_data['city_id'])
 
