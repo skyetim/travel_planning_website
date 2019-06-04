@@ -8,12 +8,13 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from server.settings import DEBUG
 from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
+from apps.db.Message import models as db_msg
 from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
+from server.settings import DEBUG
 
 
 __all__: List[str] = []
@@ -32,6 +33,8 @@ __all__.extend(['get_travel_list'])
 __all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info_list',
                 'get_travel_info', 'set_travel_info'])
+__all__.extend(['get_friend_msg_list', 'del_friend_msg',
+                'get_travel_msg_list', 'del_travel_msg'])
 __all__.extend(['address_to_city', 'address_to_city_list',
                 'gps_to_city', 'city_id_to_city'])
 
@@ -545,6 +548,46 @@ def set_travel_info(request_data):
     travel_info.set_city_id(city_id=request_data['city_id'])
     travel_info.set_travel_note(note=request_data['travel_note'])
     travel_info.set_visibility(visibility=request_data['visibility'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=False)
+def get_friend_msg_list(request_data):
+    friend_msg_list = db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'])
+
+    response = {
+        'count': len(friend_msg_list),
+        'msg_list': list(map(dict, friend_msg_list))
+    }
+    return response
+
+
+@api(check_tokens=False)
+def del_friend_msg(request_data):
+    db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
+                                        msg_id=request_data['msg_id'])
+
+    response = {}
+    return response
+
+
+@api(check_tokens=False)
+def get_travel_msg_list(request_data):
+    travel_msg_list = db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'])
+
+    response = {
+        'count': len(travel_msg_list),
+        'msg_list': list(map(dict, travel_msg_list))
+    }
+    return response
+
+
+@api(check_tokens=False)
+def del_travel_msg(request_data):
+    db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
+                                            msg_id=request_data['msg_id'])
 
     response = {}
     return response

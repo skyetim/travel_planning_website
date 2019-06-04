@@ -73,10 +73,10 @@ class TravelAssociation(models.Model):
                                        to_field='user_id',
                                        related_name='M_TA_frienduserid',
                                        on_delete=models.CASCADE)
-    travel_id = models.ForeignKey(travel.Travel,
-                                  to_field='travel_id',
-                                  related_name='M_TA_travelid',
-                                  on_delete=models.CASCADE)
+    friend_travel_id = models.ForeignKey(travel.Travel,
+                                         to_field='travel_id',
+                                         related_name='M_TA_travelid',
+                                         on_delete=models.CASCADE)
     msg_type = models.CharField(max_length=1,
                                 choices=MSG_TYPE_CHOICES,
                                 null=False,
@@ -97,7 +97,7 @@ class TravelAssociation(models.Model):
         return ['msg_id',
                 'user_id',
                 'friend_user_id',
-                'travel_id',
+                'friend_travel_id',
                 'msg_type',
                 'msg_content']
 
