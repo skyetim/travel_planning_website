@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from Server.settings import DEBUG
+from server.settings import DEBUG
 from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
