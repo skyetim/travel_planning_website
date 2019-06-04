@@ -38,10 +38,12 @@ export default {
     post_data.session_id = this.$session.id().replace("sess:", "");
 
     var vue = this;
-    var backend = this.$backend;
+    var backend = this.$backend_conn;
 
-    backend.get_all_travel_group_details(
+    backend(
+      "get_all_travel_group_details",
       post_data,
+      vue,
       function(response) {
         var travel_group_list = response.data.travel_group_info_list;
         travel_group_list.forEach(travel_group => {
@@ -74,7 +76,8 @@ export default {
       },
       function(response) {
         alert(response.data.error_message);
-      }
+      },
+      false
     );
   }
 };

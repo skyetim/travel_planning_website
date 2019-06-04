@@ -167,17 +167,19 @@ export default {
       );
 
       if (vue.gid != null) {
-        this.$backend.add_travel(
+        this.$backend_conn(
+          "add_travel",
           {
             user_id: session.get("user_id"),
             session_id: session.id().replace("sess:", ""),
             travel_group_id: vue.gid,
             city_id: 3,
-            date_start: moment(Date()).format('YYYY-MM-DD'),
-            date_end: moment(Date()).format('YYYY-MM-DD'),
+            date_start: moment(Date()).format("YYYY-MM-DD"),
+            date_end: moment(Date()).format("YYYY-MM-DD"),
             visibility: "P",
             travel_note: ""
           },
+          vue,
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
@@ -185,27 +187,31 @@ export default {
           },
           function(response) {
             alert(response.data.error_message);
-          }
+          },
+          false
         );
       }
     },
     del: function(index) {
       var vue = this;
       var session = this.$session;
-      this.$backend.remove_travel(
+      this.$backend_conn(
+        "remove_travel",
         {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
           travel_group_id: vue.gid,
           travel_id: vue.travel[index].travel_id
         },
+        vue,
         function(response) {
           vue.travel.splice(index, 1);
           console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
-        }
+        },
+        false
       );
     },
     search: function() {
@@ -217,8 +223,10 @@ export default {
         this.query.status = "无匹配城市";
         return;
       } else {
-        this.$backend.address_to_city(
+        this.$backend_conn(
+          "address_to_city",
           { address: vue.query.content },
+          vue,
           function(response) {
             vue.query.result.push({
               city_id: response.data.city_id,
@@ -232,7 +240,8 @@ export default {
           },
           function(response) {
             alert(response.data.error_message);
-          }
+          },
+          false
         );
       }
     },

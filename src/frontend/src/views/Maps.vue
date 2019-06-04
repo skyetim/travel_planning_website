@@ -177,10 +177,12 @@ export default {
     post_data.session_id = this.$session.id().replace("sess:", "");
 
     var vue = this;
-    var backend = this.$backend;
+    var backend = this.$backend_conn;
 
-    backend.get_all_travel_group_details(
+    backend(
+      "get_all_travel_group_details",
       post_data,
+      vue,
       function(response) {
         var travel_group_list = response.data.travel_group_info_list;
         travel_group_list.forEach(travel_group => {
@@ -213,7 +215,8 @@ export default {
       },
       function(response) {
         alert(response.data.error_message);
-      }
+      },
+      false
     );
   },
   mounted: function() {
@@ -262,12 +265,14 @@ export default {
     },
     del: function(index) {
       var vue = this;
-      this.$backend.remove_travel_group(
+      this.$backend_conn(
+        "remove_travel_group",
         {
           user_id: this.$session.get("user_id"),
           session_id: this.$session.id().replace("sess:", ""),
           travel_group_id: this.travel_group_list[index].travel_group_id
         },
+        vue,
         function(response) {
           vue.travel_group_list.splice(index, 1);
           vue.edit.modal = false;
@@ -275,16 +280,18 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        }
+        },
+        false
       );
     },
     // ajax
     add_travel_group: function(row) {
       var vue = this;
-      var backend = this.$backend;
+      var backend = this.$backend_conn;
       var session = this.$session;
 
-      backend.add_travel_group(
+      backend(
+        "add_travel_group",
         {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
@@ -292,9 +299,11 @@ export default {
           travel_group_note: row.travel_group_note,
           travel_group_color: row.color.hex
         },
+        vue,
         function(response) {
           row.travel.forEach(travel => {
-            backend.add_travel(
+            backend(
+              "add_travel",
               {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
@@ -305,13 +314,15 @@ export default {
                 visibility: travel.visibility,
                 travel_note: ""
               },
+              vue,
               function(response) {
                 travel.travel_id = response.data.travel_id;
                 console.log(response);
               },
               function(response) {
                 alert(response.data.error_message);
-              }
+              },
+              false
             );
           });
           row.travel_group_id = response.data.travel_group_id;
@@ -326,16 +337,18 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        }
+        },
+        false
       );
     },
 
     set_travel_group: function(editRow) {
       var vue = this;
-      var backend = this.$backend;
+      var backend = this.$backend_conn;
       var session = this.$session;
 
-      backend.set_travel_group_info(
+      backend(
+        "set_travel_group_info",
         {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
@@ -344,9 +357,11 @@ export default {
           travel_group_note: editRow.travel_group_note,
           travel_group_color: editRow.color.hex
         },
+        vue,
         function(response) {
           editRow.travel.forEach(travel => {
-            backend.set_travel_info(
+            backend(
+              "set_travel_info",
               {
                 user_id: session.get("user_id"),
                 session_id: session.id().replace("sess:", ""),
@@ -357,12 +372,14 @@ export default {
                 visibility: travel.visibility,
                 travel_note: ""
               },
+              vue,
               function(response) {
                 console.log(response);
               },
               function(response) {
                 alert(response.data.error_message);
-              }
+              },
+              false
             );
           });
 
@@ -373,7 +390,8 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        }
+        },
+        false
       );
     }
   }
