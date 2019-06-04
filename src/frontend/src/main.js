@@ -5,13 +5,17 @@ import './registerServiceWorker'
 import ArgonDashboard from './plugins/argon-dashboard'
 import { Icon } from "leaflet";
 import 'leaflet/dist/leaflet.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 import VueSession from 'vue-session';
 import VueResource from 'vue-resource';
 import md5 from 'js-md5';
 import { status } from './status';
 import { backend } from './backend_config';
 import Vuelidate from 'vuelidate';
+import BootstrapVue from 'bootstrap-vue'
 
+
+Vue.use(BootstrapVue)
 Vue.use(VueSession);
 Vue.use(VueResource);
 Vue.use(Vuelidate);
@@ -33,9 +37,10 @@ Vue.prototype.newTravelGroup = function () {
   var travelGroupProto = {
     name: "",
     travel_group_id: null,
+    travel_group_note: "",
     travel: [],
     dates: { start: "", end: "" },
-    color:{hex: "#5e72e4", a:0.8}
+    color:{hex: "#11cdef", a:0.8}
   };
   return travelGroupProto;
 }

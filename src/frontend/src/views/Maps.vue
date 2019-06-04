@@ -53,12 +53,21 @@
         </div>
         <div class="row">
           <div class="col-11">
+            <small class="text-muted text-center">行迹笔记</small>
+            <br>
+            <b-form-textarea v-model="editRow.travel_group_note" placeholder="说点什么吧~"></b-form-textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-11">
+            <small class="text-muted text-center">行迹颜色</small>
+            <br>
             <base-dropdown>
               <button
                 slot="title"
-                class="btn dropdown-toggle button-text"
+                class="btn button-text"
                 :style="{backgroundColor:editRow.color.hex, opacity:editRow.color.a}"
-              >行迹颜色</button>
+              ></button>
               <div>
                 <swatches v-model="editRow.color"></swatches>
               </div>
@@ -67,7 +76,10 @@
         </div>
       </div>
       <template slot="footer">
-        <base-button type="primary" @click="edit.addMode?null:del(editIndex);edit.modal = false;">{{edit.addMode?"取消":"删除"}}</base-button>
+        <base-button
+          type="primary"
+          @click="edit.addMode?null:del(editIndex);edit.modal = false;"
+        >{{edit.addMode?"取消":"删除"}}</base-button>
         <base-button
           type="primary"
           @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
@@ -113,14 +125,21 @@ function mountMap(map, travel_group_list) {
       var marker = L.marker(element.coordinate, {
         icon: myicon
       });
-      marker.bindPopup(
-        "你在" +
-          travel.dates.start +
-          "至" +
-          travel.dates.end +
-          "来过" +
-          element.location
-      );
+      var content = `
+      <div class="card"">
+        <div class="card-body">
+          <h5 class="card-title">你
+          ${element.date_start}
+          至
+          ${element.date_end}
+          来过
+          ${element.location}
+          </h5>
+          <p class="card-text"><hr>${travel.travel_group_note}</p>
+        </div>
+      </div>
+      `;
+      marker.bindPopup(content);
 
       marker.addTo(map);
       markers.push(marker);
@@ -186,6 +205,7 @@ export default {
               start: start,
               end: end
             },
+            travel_group_note: travel_group.travel_group_note,
             color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
@@ -242,21 +262,21 @@ export default {
     },
     del: function(index) {
       var vue = this;
-          this.$backend.remove_travel_group(
-            {
-              user_id: this.$session.get("user_id"),
-              session_id: this.$session.id().replace("sess:", ""),
-              travel_group_id: this.travel_group_list[index].travel_group_id
-            },
-            function(response) {
-              vue.travel_group_list.splice(index, 1);
-              vue.edit.modal = false;
-              console.log(response);
-            },
-            function(response) {
-              alert(response.data.error_message);
-            }
-          );
+      this.$backend.remove_travel_group(
+        {
+          user_id: this.$session.get("user_id"),
+          session_id: this.$session.id().replace("sess:", ""),
+          travel_group_id: this.travel_group_list[index].travel_group_id
+        },
+        function(response) {
+          vue.travel_group_list.splice(index, 1);
+          vue.edit.modal = false;
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
     },
     // ajax
     add_travel_group: function(row) {
@@ -269,7 +289,7 @@ export default {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
           travel_group_name: row.name,
-          travel_group_note: "",
+          travel_group_note: row.travel_group_note,
           travel_group_color: row.color.hex
         },
         function(response) {
@@ -316,7 +336,7 @@ export default {
           session_id: session.id().replace("sess:", ""),
           travel_group_id: editRow.travel_group_id,
           travel_group_name: editRow.name,
-          travel_group_note: "hello",
+          travel_group_note: editRow.travel_group_note,
           travel_group_color: editRow.color.hex
         },
         function(response) {

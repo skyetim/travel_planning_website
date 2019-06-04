@@ -122,12 +122,21 @@
         </div>
         <div class="row">
           <div class="col-11">
+            <small class="text-muted text-center">行迹笔记</small>
+            <br>
+            <b-form-textarea v-model="editRow.travel_group_note" placeholder="说点什么吧~"></b-form-textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-11">
+            <small class="text-muted text-center">行迹颜色</small>
+            <br>
             <base-dropdown>
               <button
                 slot="title"
-                class="btn dropdown-toggle button-text"
+                class="btn primary"
                 :style="{backgroundColor:editRow.color.hex, opacity:editRow.color.a}"
-              >行迹颜色</button>
+              ></button>
               <div>
                 <swatches v-model="editRow.color"></swatches>
               </div>
@@ -139,7 +148,7 @@
         <base-button
           type="primary"
           @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
-        >Save changes</base-button>
+        >保存</base-button>
       </template>
     </modal>
   </div>
@@ -149,6 +158,7 @@
 import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
+// import 'bootstrap/dist/css/bootstrap.css'
 import moment from "moment";
 
 var edit = {
@@ -235,7 +245,7 @@ export default {
           user_id: session.get("user_id"),
           session_id: session.id().replace("sess:", ""),
           travel_group_name: row.name,
-          travel_group_note: "",
+          travel_group_note: row.travel_group_note,
           travel_group_color: row.color.hex
         },
         function(response) {
@@ -281,7 +291,7 @@ export default {
           session_id: session.id().replace("sess:", ""),
           travel_group_id: editRow.travel_group_id,
           travel_group_name: editRow.name,
-          travel_group_note: "hello",
+          travel_group_note: editRow.travel_group_note,
           travel_group_color: editRow.color.hex
         },
         function(response) {

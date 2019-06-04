@@ -61,6 +61,7 @@ export default {
               start: start,
               end: end
             },
+            travel_group_note: travel_group.travel_group_note,
             color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
