@@ -19,6 +19,7 @@ from server.settings import DEBUG
 
 __all__: List[str] = []
 __all__.extend(['register', 'login', 'logout', 'reset_password'])
+__all__.extend(['get_user_by_email'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
 __all__.extend(['get_friend_list', 'get_friend_info', 'set_friend_note'])
@@ -70,6 +71,7 @@ def prepare_request_data(func):
         cast(name='friend_user_id', cast_func=int)
         cast(name='other_user_id', cast_func=int)
         cast(name='email', cast_func=str.lower)
+        cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
         cast(name='old_pswd_hash', cast_func=str.upper)
         cast(name='new_pswd_hash', cast_func=str.upper)
@@ -219,6 +221,20 @@ def reset_password(request_data):
                         new_pswd_hash=request_data['new_pswd_hash'])
 
     response = {}
+    return response
+
+
+@api(check_tokens=True)
+def get_user_by_email(request_data):
+    query_email = request_data['query_email']
+    try:
+        target_user = db_user.User.objects.get(email=query_email)
+    except db_user.User.DoesNotExist:
+        raise UserDoesNotExistException(f'User (Email={query_email}) does not exist.')
+
+    response = {
+        'target_user_id': target_user.user_id
+    }
     return response
 
 
