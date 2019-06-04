@@ -1,6 +1,8 @@
 <template>
   <div>
-    <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8"></base-header>
+    <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
+      <travel-stats :travel_group_list="travel_group_list"/>
+    </base-header>
 
     <div class="container-fluid mt--7">
       <div class="row">
@@ -314,7 +316,11 @@ export default {
           });
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
-          vue.$set(vue.travel_group_list, vue.travel_group_list.length-1, vue.copy(row));
+          vue.$set(
+            vue.travel_group_list,
+            vue.travel_group_list.length - 1,
+            vue.copy(row)
+          );
           vue.reMount();
           console.log(response);
         },

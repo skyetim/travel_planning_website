@@ -14,7 +14,6 @@ import Vuelidate from 'vuelidate';
 import BootstrapVue from 'bootstrap-vue'
 import moment from 'moment';
 import {status, gender, gender_reverse} from './const';
-import {backend} from './backend_config';
 import axios from 'axios';
 import {backend as backend_conn} from './backendConnection';
 
