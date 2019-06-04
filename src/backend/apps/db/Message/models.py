@@ -39,6 +39,16 @@ class FriendRequest(models.Model):
                          name='M_FR_userid_idx')
         ]
 
+    def keys(self):
+        return ['msg_id',
+                'user_id',
+                'friend_user_id',
+                'msg_type',
+                'msg_content']
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 
 class TravelAssociation(models.Model):
     INVITE = 'I'
@@ -82,3 +92,14 @@ class TravelAssociation(models.Model):
             models.Index(fields=['user_id'],
                          name='M_TA_userid_idx')
         ]
+
+    def keys(self):
+        return ['msg_id',
+                'user_id',
+                'friend_user_id',
+                'travel_id',
+                'msg_type',
+                'msg_content']
+
+    def __getitem__(self, item):
+        return getattr(self, item)
