@@ -373,20 +373,12 @@ def set_friend_note(request_data):
 
 @api(check_tokens=True)
 def get_others_user_info(request_data):
-    user_id = request_data['user_id']
-    other_user_id = request_data['other_user_id ']
-    is_friend = mod_user.is_friend(user_id=user_id, friend_user_id=other_user_id)
+    user = LOGGED_IN_USERS[request_data['user_id']]
 
-    if other_user_id == user_id:
-        user = LOGGED_IN_USERS[request_data['user_id']]
-        other_user_info = user.get_user_info()
-    elif is_friend:
-        other_user_info = mod_user.FriendInfo(user_id=user_id, friend_user_id=other_user_id)
-    else:
-        other_user_info = mod_user.UserInfoBase(user_id=other_user_id)
+    others_user_info = user.get_others_user_info(others_user_id=request_data['others_user_id'])
 
-    response = dict(other_user_info)
-    response['is_friend'] = is_friend
+    response = dict(others_user_info)
+    response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
     return response
 
 

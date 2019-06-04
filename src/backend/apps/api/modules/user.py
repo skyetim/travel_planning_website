@@ -94,6 +94,16 @@ class User(object):
     def get_user_info(self):
         return self.user_info
 
+    def get_others_user_info(self, others_user_id):
+        check_user_existence(user_id=others_user_id, need_existence=True)
+
+        if others_user_id == self.get_user_id():
+            return self.get_user_info()
+        elif is_friend(user_id=self.get_user_id(), friend_user_id=others_user_id):
+            return FriendInfo(user_id=self.get_user_id(), friend_user_id=others_user_id)
+        else:
+            return UserInfoBase(user_id=others_user_id)
+
     def get_friend_list(self):
         return sorted(self.friend_set)
 
