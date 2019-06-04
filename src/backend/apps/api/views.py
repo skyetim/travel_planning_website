@@ -8,7 +8,7 @@ from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel
+from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel, recommendation as mod_rcmd
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
 from apps.db.Message import models as db_msg
@@ -35,6 +35,7 @@ __all__.extend(['add_travel', 'remove_travel', 'move_travel',
                 'get_travel_info', 'set_travel_info'])
 __all__.extend(['invite_travel_company', 'join_friends_travel',
                 'remove_travel_company', 'get_travel_company_list'])
+__all__.extend(['recommend_friend_list'])
 __all__.extend(['get_friend_msg_list', 'del_friend_msg',
                 'get_travel_msg_list', 'del_travel_msg'])
 __all__.extend(['address_to_city', 'address_to_city_list',
@@ -601,7 +602,19 @@ def get_travel_company_list(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(check_tokens=True)
+def recommend_friend_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+    user_list = mod_rcmd.recommend_friend_list(user=user)
+
+    response = {
+        'count': len(user_list),
+        'user_list': user_list
+    }
+    return response
+
+
+@api(check_tokens=True)
 def get_friend_msg_list(request_data):
     friend_msg_list = db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'])
 
@@ -612,7 +625,7 @@ def get_friend_msg_list(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(check_tokens=True)
 def del_friend_msg(request_data):
     db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
                                         msg_id=request_data['msg_id'])
@@ -621,7 +634,7 @@ def del_friend_msg(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(check_tokens=True)
 def get_travel_msg_list(request_data):
     travel_msg_list = db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'])
 
@@ -632,7 +645,7 @@ def get_travel_msg_list(request_data):
     return response
 
 
-@api(check_tokens=False)
+@api(check_tokens=True)
 def del_travel_msg(request_data):
     db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
                                             msg_id=request_data['msg_id'])
