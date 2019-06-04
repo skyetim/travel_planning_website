@@ -381,7 +381,7 @@ export default {
   padding: 20px;
   /* width: 100px;
   height: 100px; */
-  z-index: 999;
+  z-index: 11;
   background-color: rgba(255, 255, 255, 0.5);
 }
 .icon-expand {
