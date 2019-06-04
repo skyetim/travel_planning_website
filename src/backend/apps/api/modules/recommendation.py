@@ -61,14 +61,27 @@ def get_city_distance(city_id_1,city_id_2):
 
     return dist
 
-
+# 实现为同城推荐
 def recommend_friend_list(user, amount=10):
     # 从用户数据库中找不是自己好友的那些
     # 根据所在城市、去过的城市等进行匹配推荐（随机抽取）
     # 不要求高精度排序
     # 总数不超过amount
+    my_user_id = user.get_user_id()
+    my_resident_city = db_user.UserInfo.objects.get(user_id=my_user_id).resident_city_id
+    friend_id_list = user.get_friend_list()
+    other_user_list = db_user.UserInfo.objects.exclude(user_id=my_user_id)
+
     user_id_list = []
-    return user_id_list
+    for other_user in other_user_list:
+        if other_user.user_id not in friend_id_list:
+            if other_user.resident_city_id == my_resident_city:
+                user_id_list.append(other_user.user_id)
+
+    if len(user_id_list) < amount:
+        return user_id_list
+    else:
+        return user_id_list[:amount]
 
 
 def recommend_travel_group_list(user, amount=10):
@@ -221,7 +234,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
     recommend_list = []
 
     for i in range(amount):
-        recommend_list.append(other_travel_group_list[i][travel_id])   
+        recommend_list.append(other_travel_group_list[i]["travel_id"])   
 
     return recommend_list
 
@@ -265,7 +278,7 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
     recommend_list = []
 
     for i in range(amount):
-        recommend_list.append(other_travel_group_list[i][travel_id])   
+        recommend_list.append(other_travel_group_list[i]["travel_id"])   
 
     return recommend_list
 
