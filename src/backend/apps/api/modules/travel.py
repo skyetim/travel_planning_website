@@ -155,8 +155,6 @@ class TravelInfo(object):
         self.travel_info_dbobj.city_id = city
         self.travel_info_dbobj.save()
 
-    # date_start必须比date_end早，但是这一步检查应该在哪里做？
-
     def set_date_start(self, date_start):
         self.check_permission()
 
@@ -375,6 +373,7 @@ class Travel(object):
 
         if msg_type == db_msg.TravelAssociation.DELETE:
             msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
+            travel_dbobj = None
 
         if msg_type == db_msg.TravelAssociation.ADD:
             msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."
