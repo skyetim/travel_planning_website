@@ -21,3 +21,4 @@ mod_rcmd.recommend_city_list_by_travel_group(kazusa,46)
 
 u9 = User(email="y@y.edu",
               pswd_hash="415290769594460E2E485922904F345D")
+mod_rcmd.recommend_city_list_by_travel_group(u9,21)
