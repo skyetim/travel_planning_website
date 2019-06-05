@@ -26,8 +26,12 @@
 
                     <template>
                         <div class=" dropdown-header noti-title">
-                            <!-- <h6 class="text-overflow m-0">Welcome!</h6> -->
+                            <h6 class="text-overflow m-0">系统设置</h6>
                         </div>
+                        <router-link to="/message" class="dropdown-item">
+                            <i class="ni ni-notification-70"></i>
+                            <span>信息</span>
+                        </router-link>
                         <router-link to="/settings" class="dropdown-item">
                             <i class="ni ni-settings-gear-65"></i>
                             <span>设置</span>
