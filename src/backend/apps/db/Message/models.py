@@ -47,7 +47,10 @@ class FriendRequest(models.Model):
                 'msg_content']
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        if 'user_id' in item:
+            return getattr(self, item).user_id
+        else:
+            return getattr(self, item)
 
 
 class TravelAssociation(models.Model):
@@ -105,4 +108,9 @@ class TravelAssociation(models.Model):
                 'msg_content']
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        if 'user_id' in item:
+            return getattr(self, item).user_id
+        elif 'travel_id' in item:
+            return getattr(self, item).travel_id
+        else:
+            return getattr(self, item)
