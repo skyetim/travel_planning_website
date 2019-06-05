@@ -82,7 +82,7 @@ def recommend_travel_group_list(user, amount=10):
             # represent time in isoformat
             # e.g. "1989-06-04"
 
-            other_travel_group_list.append(
+                other_travel_group_list.append(
                     {"travel_group_id": tg_id, "time_delta_days": get_time_delta_days(rep_time)})
     other_travel_group_list.sort(key=lambda x: x["time_Delta_days"])
     if len(other_travel_group_list) < amount:
