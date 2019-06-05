@@ -91,7 +91,7 @@ export default {
       success: false
     };
   },
-  updated: function() {
+  created: function() {
     var vue = this;
     if (typeof this.travel_id != "undefined") {
       this.$backend_conn(
@@ -99,11 +99,18 @@ export default {
         { travel_id: this.travel_id },
         vue,
         function(response) {
-          response.data.company_list.forEach(company => {
-            vue.travel_company.push({
-              friend_id: company.user_id
+          response.data.company_list.forEach(user_id => {
+            vue.friend_info_list.forEach(friend => {
+              if (friend.user_id == user_id) {
+                vue.travel_company.push({
+                  user_id: user_id,
+                  user_name: friend.user_name,
+                  avatar_url: friend.avatar_url
+                });
+              }
             });
           });
+          vue.friend_info_list.forEach;
           console.log(response);
         },
         function(response) {
