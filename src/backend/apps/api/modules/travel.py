@@ -315,8 +315,6 @@ class Travel(object):
                                                 f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' does not exist.')
 
-        company = get_user_instance_by_id(user_id=company_user_id)
-
         # send message to the user being removed from this trip
         if actively_leave:
             msg_type = db_msg.TravelAssociation.LEAVE
@@ -325,9 +323,8 @@ class Travel(object):
         self._send_msg_to_company(msg_type=msg_type,
                                   company_list=[company_user_id])
 
-        db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
-                                                   company_user_id=company)
-
+        db_travel.TravelAssociation.objects.filter(travel_id=self.get_travel_id(),
+                                                   company_user_id=company_user_id).delete()
         self.company_set.remove(company_user_id)
 
     def invite_company(self, company_user_id):
@@ -379,7 +376,7 @@ class Travel(object):
         self_user_info_dbobj = get_user_info_instance_by_id(user_id=self.watcher_user_id)
         self_user_name = self_user_info_dbobj.user_name
         travel_dbobj = get_travel_instance_by_id(travel_id=self.get_travel_id())
-        city = mod_city.get_city_instance_by_id(travel_info.get_city_id())
+        city = mod_city.get_city_instance_by_id(city_id=travel_info.get_city_id())
         city_name = ' '.join([city.country_name, city.province_name, city.city_name])
 
         if msg_type == db_msg.TravelAssociation.LEAVE:
@@ -418,7 +415,7 @@ class Travel(object):
             raise MsgTypeError
 
         for company_user_id in target_list:
-            other_user_dbobj = get_user_instance_by_id(company_user_id)
+            other_user_dbobj = get_user_instance_by_id(user_id=company_user_id)
             db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj,
                                                     friend_user_id=self_user_dbobj,
                                                     travel_id=travel_dbobj,
