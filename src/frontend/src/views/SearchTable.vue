@@ -53,7 +53,7 @@
               </a>
 
               <template>
-                <a class="dropdown-item" @click='modals.addFriend=true' href="#">添加好友</a>
+                <a class="dropdown-item" @click='modals.addFriendShow=true' href="#">添加好友</a>
               </template>
             </base-dropdown>
           </td> -->
@@ -68,7 +68,7 @@
       </base-table>
     </div>
 
-    <modal :show.sync="modals.addFriend"
+    <modal :show.sync="modals.addFriendShow"
                body-classes="p-0"
                modal-classes="modal-dialog-centered modal-sm">
             <card type="secondary" shadow
@@ -123,7 +123,7 @@
             '好友名', '性别', '常住地', '操作'
         ], 
         modals: {
-          addFriend: false
+          addFriendShow: false
         }, 
         request: {
           others_user_id: '', 
@@ -139,11 +139,12 @@
     methods: {
       display_note_edit(user_id){
         this.request.others_user_id = user_id;
-        this.modals.addFriend = true;
+        this.modals.addFriendShow = true;
       },
       send_friend_request(){
         var that = this;
         function success(response){
+          that.modals.addFriendShow = false;
           that.alert.show = true;
           that.alert.message = '好友请求发送成功';
           that.alert.type = 'success';
