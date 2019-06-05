@@ -1,3 +1,11 @@
+### Project Specific
+# Django migrations
+migrations/
+
+# GoogleMaps API
+*.gapi
+
+
 ### macOS
 # General
 .DS_Store
@@ -29,6 +37,7 @@ Temporary Items
 
 ### Linux
 *~
+~*
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
@@ -238,5 +247,21 @@ fabric.properties
 # !.vscode/launch.json
 # !.vscode/extensions.json
 
-### backend API
-src/frontend/src/backendAPI.js
+
+### Vim
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-v][a-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+*~
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~

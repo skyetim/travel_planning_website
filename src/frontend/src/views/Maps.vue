@@ -19,8 +19,8 @@
               >{{travel_group_list[index].name}}</button>
               <base-button
                 type="primary"
-                @click="edit.addMode = true;edit.modal = true;editRow=newTravelGroup();"
-              >添加新的行程</base-button>
+                @click="add_travel_group(newTravelGroup());"
+              >创建新的行程</base-button>
             </div>
             <div id="map-canvas" class="map-canvas" style="height: 600px;z-index: 10"></div>
           </div>
@@ -30,7 +30,7 @@
 
     <modal :show.sync="edit.modal">
       <template slot="header">
-        <h5 class="modal-title" id="exampleModalLabel">{{edit.addMode? "新建行迹" : "修改行迹"}}</h5>
+        <h5 class="modal-title" id="exampleModalLabel">修改行迹</h5>
       </template>
       <div>
         <small class="text-muted text-center">行迹名</small>
@@ -80,11 +80,11 @@
       <template slot="footer">
         <base-button
           type="primary"
-          @click="edit.addMode?null:del(editIndex);edit.modal = false;"
-        >{{edit.addMode?"取消":"删除"}}</base-button>
+          @click="del(editIndex);edit.modal = false;"
+        >删除</base-button>
         <base-button
           type="primary"
-          @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
+          @click="set_travel_group(editRow, row);edit.modal = false;"
         >保存</base-button>
       </template>
     </modal>
@@ -150,12 +150,6 @@ function mountMap(map, travel_group_list) {
   return markersGroup;
 }
 
-var edit = {
-  addMode: false,
-  modal: false,
-  collapsed: true
-};
-
 export default {
   data() {
     return {
@@ -172,16 +166,12 @@ export default {
     };
   },
   created: function() {
-    var post_data = new Object();
-    post_data.user_id = this.$session.get("user_id");
-    post_data.session_id = this.$session.id().replace("sess:", "");
-
     var vue = this;
     var backend = this.$backend_conn;
 
     backend(
       "get_all_travel_group_details",
-      post_data,
+      {},
       vue,
       function(response) {
         var travel_group_list = response.data.travel_group_info_list;
@@ -215,8 +205,7 @@ export default {
       },
       function(response) {
         alert(response.data.error_message);
-      },
-      false
+      }
     );
   },
   mounted: function() {
@@ -233,19 +222,6 @@ export default {
         minZoom: 2
       }
     ).addTo(this.map);
-  },
-  watch: {
-    travel_group_list: {
-      handler: function() {
-        // try {
-        //   this.reMount();
-        // } catch (err) {
-        //   console.log(err);
-        // }
-        this.reMount();
-      },
-      deep: true
-    }
   },
   methods: {
     reMount: function() {
@@ -268,8 +244,6 @@ export default {
       this.$backend_conn(
         "remove_travel_group",
         {
-          user_id: this.$session.get("user_id"),
-          session_id: this.$session.id().replace("sess:", ""),
           travel_group_id: this.travel_group_list[index].travel_group_id
         },
         vue,
@@ -280,51 +254,23 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        },
-        false
+        }
       );
     },
     // ajax
     add_travel_group: function(row) {
       var vue = this;
       var backend = this.$backend_conn;
-      var session = this.$session;
-
       backend(
         "add_travel_group",
         {
-          user_id: session.get("user_id"),
-          session_id: session.id().replace("sess:", ""),
           travel_group_name: row.name,
           travel_group_note: row.travel_group_note,
           travel_group_color: row.color.hex
         },
         vue,
         function(response) {
-          row.travel.forEach(travel => {
-            backend(
-              "add_travel",
-              {
-                user_id: session.get("user_id"),
-                session_id: session.id().replace("sess:", ""),
-                travel_group_id: response.data.travel_group_id,
-                city_id: travel.city_id,
-                date_start: travel.date_start,
-                date_end: travel.date_end,
-                visibility: travel.visibility,
-                travel_note: ""
-              },
-              vue,
-              function(response) {
-                travel.travel_id = response.data.travel_id;
-                console.log(response);
-              },
-              function(response) {
-                alert(response.data.error_message);
-              },
-              false
-            );
-          });
+
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
           vue.$set(
@@ -332,26 +278,23 @@ export default {
             vue.travel_group_list.length - 1,
             vue.copy(row)
           );
+          vue.editTravel(vue.travel_group_list[vue.travel_group_list.length-1]);
           vue.reMount();
           console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
-        },
-        false
+        }
       );
     },
 
     set_travel_group: function(editRow) {
       var vue = this;
       var backend = this.$backend_conn;
-      var session = this.$session;
 
       backend(
         "set_travel_group_info",
         {
-          user_id: session.get("user_id"),
-          session_id: session.id().replace("sess:", ""),
           travel_group_id: editRow.travel_group_id,
           travel_group_name: editRow.name,
           travel_group_note: editRow.travel_group_note,
@@ -363,8 +306,6 @@ export default {
             backend(
               "set_travel_info",
               {
-                user_id: session.get("user_id"),
-                session_id: session.id().replace("sess:", ""),
                 travel_id: travel.travel_id,
                 city_id: travel.city_id,
                 date_start: travel.date_start,
@@ -378,8 +319,7 @@ export default {
               },
               function(response) {
                 alert(response.data.error_message);
-              },
-              false
+              }
             );
           });
 
@@ -390,8 +330,7 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        },
-        false
+        }
       );
     }
   }
