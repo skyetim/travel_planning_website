@@ -110,13 +110,38 @@ export default {
             color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
-
       },
       function(response) {
         alert(response.data.error_message);
       }
     );
 
+    backend(
+      "get_associated_travel_info_list",
+      {},
+      vue,
+      function(response) {
+        response.data.travel_info_list.forEach(travel => {
+          backend(
+            "get_others_user_info",
+            { others_user_id: travel.owner_user_id },
+            vue,
+            function(response1) {
+              travel.owner_user_name = response1.data_user_name;
+              travel.owner_avatar_url = response1.data.avatar_url;
+              vue.associate_travel_list.push(travel);
+            },
+            function(response1) {
+              alert(response1.data.error_message);
+            }
+          );
+        });
+        console.log(response);
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
     backend(
       "get_friend_list",
       {},
