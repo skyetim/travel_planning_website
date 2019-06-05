@@ -136,51 +136,6 @@ export default {
 </script>
 
 <style scoped>
-/* icons */
 
-.icon-expand {
-  position: relative;
-  margin-top: 10px;
-  margin-left: 10px;
-  font-size: 150%;
-  transition: transform 0.2s;
-}
 
-.icon-expand:hover {
-  transform: scale(1.2);
-}
-
-.icon-edit {
-  font-size: 120%;
-  transition: transform 0.2s;
-}
-
-.icon-edit:hover {
-  transform: scale(1.2);
-}
-
-/* collapse and expand */
-.collapse {
-  display: none;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-.expand {
-  display: block;
-  overflow: hidden;
-  background-color: #ffffff;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  z-index: 2;
-}
-
-/* modal input*/
-.inline-div {
-  display: inline-block;
-}
 </style>
