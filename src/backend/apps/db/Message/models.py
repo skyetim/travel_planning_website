@@ -53,14 +53,14 @@ class FriendRequest(models.Model):
 class TravelAssociation(models.Model):
     INVITE = 'I'
     ADD = 'A'
-    LEAVE = 'L'
     REMOVE = 'R'
+    LEAVE = 'L'
     MODIFY = 'M'
     DELETE = 'D'
     MSG_TYPE_CHOICES = ((INVITE, 'Invite'),
                         (ADD, 'Add'),
-                        (LEAVE, 'Leave'),
                         (REMOVE, 'Remove'),
+                        (LEAVE, 'Leave'),
                         (MODIFY, 'Modify'),
                         (DELETE, 'Delete'))
 
