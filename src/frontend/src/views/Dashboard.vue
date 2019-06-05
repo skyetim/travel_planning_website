@@ -9,7 +9,17 @@
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col-xl-8 mb-5 mb-xl-0">
+          <div>
           <recommend-friend-table/>
+          </div>
+          <div     margin-top="10px">
+          <edit-projects-table
+            title="行迹"
+            :travel_group_list="travel_group_list"
+            :friend_info_list="friend_info_list"
+            @update="update_travel_group"
+          ></edit-projects-table>
+          </div>
         </div>
 
         <div class="col-xl-4">
@@ -22,6 +32,16 @@
           ></user-card-preview>
         </div>
       </div>
+      <!-- <div class="row">
+        <div class="col">
+          <edit-projects-table
+            title="行迹"
+            :travel_group_list="travel_group_list"
+            :friend_info_list="friend_info_list"
+            @update="update_travel_group"
+          ></edit-projects-table>
+        </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -36,6 +56,7 @@ export default {
   },
   data() {
     return {
+      friend_info_list: [],
       travel_group_list: [],
       model: {
         email: "",
@@ -65,18 +86,20 @@ export default {
     }
   },
   methods: {
-    initBigChart(index) {
-      let chartData = {
-        datasets: [
-          {
-            label: "Performance",
-            data: this.bigLineChart.allData[index]
-          }
-        ],
-        labels: ["May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-      };
-      this.bigLineChart.chartData = chartData;
-      this.bigLineChart.activeIndex = index;
+    update_travel_group: function(data) {
+      var vue = this;
+      this.travel_group_list = JSON.parse(JSON.stringify(data));
+      this.travel_group_list.forEach(travel_group => {
+        travel_group.travel.sort(vue.compare("date_start"));
+        travel_group.dates.start =
+          travel_group.travel.length > 0
+            ? travel_group.travel[0].date_start
+            : "";
+        travel_group.dates.end =
+          travel_group.travel.length > 0
+            ? travel_group.travel[travel_group.travel.length - 1].date_end
+            : "";
+      });
     }
   },
   mounted() {
@@ -94,6 +117,36 @@ export default {
           tmp_list.sort(vue.compare("date_start"));
 
           tmp_list.forEach(travel => {
+            backend(
+              "get_travel_company_list",
+              { travel_id: travel.travel_id },
+              vue,
+              function(response1) {
+                var company_list = [];
+                response1.data.company_list.forEach(user_id => {
+                  backend(
+                    "get_others_user_info",
+                    { others_user_id: user_id },
+                    vue,
+                    function(response2) {
+                      company_list.push({
+                        user_id: user_id,
+                        user_name: response2.data.user_name,
+                        avatar_url: response2.data.avatar_url
+                      });
+                      travel.company_list = company_list;
+                    },
+                    function(response1) {
+                      alert(response1.data.error_message);
+                    }
+                  );
+                });
+                travel.company_list = company_list;
+              },
+              function(response) {
+                alert(response.data.error_message);
+              }
+            );
             travel.vbool = travel.visibility == "F";
             travel.location = travel.city.city_name;
             travel.coordinate = [travel.city.latitude, travel.city.longitude];
@@ -140,7 +193,39 @@ export default {
       console.error("获取信息时发生未知错误", response.data);
     }
     this.$backend_conn("get_user_info", {}, that, success, fail);
+
+    backend(
+      "get_friend_list",
+      {},
+      vue,
+      function(response) {
+        response.data.friend_list.forEach(user_id => {
+          backend(
+            "get_others_user_info",
+            { others_user_id: user_id },
+            vue,
+            function(response1) {
+              vue.friend_info_list.push({
+                user_id: user_id,
+                user_name: response1.data.user_name,
+                avatar_url: response1.data.avatar_url
+              });
+            },
+            function(response1) {
+              alert(response1.data.error_message);
+            }
+          );
+        });
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
   }
 };
 </script>
-<style></style>
+<style scoped>
+.set-margin {
+  margin-top: 200px;
+}
+</style>
