@@ -87,6 +87,7 @@ import TravelMessageTable from './FriendMsgTable';
                         var row = that.friend_message.tableData[index];
                         row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
                         row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
+                        row['msg_content'] = row['msg_type']=='A'?`${row['user_name']} 想要成为你的好友`:`你与 ${row['user_name']} 不再是好友`;
                     }
                 };
                 function fail(response){
@@ -100,11 +101,40 @@ import TravelMessageTable from './FriendMsgTable';
                     // 无需额外数据
                 };
                 function success(response){
+                    that.travel_message.tableData = response.data['msg_list'];
+                    that.get_travel_user_info_list();
                 };
                 function fail(response){
                     console.error('获取信息时发生未知错误', response.data);
                 };
                 this.$backend_conn('get_travel_msg_list', data, that, success, fail);
+            }, 
+            get_travel_user_info_list(){
+                var that = this;
+                var others_user_list = that.travel_message.tableData.map((user_info_dict)=>{return user_info_dict['friend_user_id'];});
+                var data = {
+                    'other_user_list': others_user_list
+                };
+                function success(response){
+                    var user_id_map = {};
+                    response.data.user_info_list.forEach((user_info_dict)=>{
+                        if (!(user_info_dict['user_id'] in user_id_map)) {
+                            user_id_map[user_info_dict['user_id']] = {
+                                'user_name': user_info_dict['user_name'], 
+                                'avatar_url': user_info_dict['avatar_url']
+                            }
+                        }
+                    });
+                    for (var index in that.travel_message.tableData){
+                        var row = that.travel_message.tableData[index];
+                        row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
+                        row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
+                    }
+                };
+                function fail(response){
+                    console.error('获取信息时发生未知错误', response.data);
+                };
+                this.$backend_conn('get_others_user_info_list', data, that, success, fail);
             }
         }, 
         mounted(){
