@@ -98,7 +98,7 @@
           :key="n"
           @click="picked(index, r)"
         >{{r.country_name + " "+ r.province_name+ " " + r.city_name}}</div>
-        <div class="row list-group-item item">{{query.status}}</div>
+        <div class="row list-group-item item" v-for="(s,n) in query.status" :key="n">{{s}}</div>
       </div>
       <div>
         <small class="text-muted text-center">{{city_check(travel, index)?"邀请同行好友吧~": "同行好友"}}</small>
@@ -149,7 +149,7 @@ import FriendList from "./FriendList";
 
 var query = {
   content: "",
-  status: "",
+  status: [],
   searchMode: false,
   result: []
 };
@@ -281,10 +281,10 @@ export default {
     search: function() {
       var vue = this;
       this.query.result = [];
-      this.query.status = "";
+      this.query.status = [];
 
       if (this.query.content == "") {
-        this.query.status = "无匹配城市";
+        this.query.status = ["无匹配城市"];
         return;
       } else {
         this.$backend_conn(
@@ -331,13 +331,13 @@ export default {
 };
 </script>
 <style scoped>
-/* .item {
+.item {
   margin-top: 0px;
   margin-bottom: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
   cursor: pointer;
-} */
+}
 
 .input-list {
   width: 30%;
