@@ -13,9 +13,10 @@ import { backend } from './backend_config';
 import Vuelidate from 'vuelidate';
 import BootstrapVue from 'bootstrap-vue'
 import moment from 'moment';
-import {status, gender, gender_reverse} from './const';
+import { status, gender, gender_reverse } from './const';
 import axios from 'axios';
-import {backend as backend_conn} from './backendConnection';
+import { backend as backend_conn } from './backendConnection';
+import material from 'material-colors';
 
 Vue.use(BootstrapVue)
 Vue.use(VueSession);
@@ -39,19 +40,36 @@ Vue.prototype.compare = function (id) {
     }
   };
 }
+
+function random_colour() {
+  var types = [
+    'red', 'pink', 'purple', 'deepPurple',
+    'indigo', 'blue', 'lightBlue', 'cyan',
+    'teal', 'green', 'lightGreen', 'lime',
+    'yellow', 'amber', 'orange', 'deepOrange',
+    'brown', 'blueGrey', 'black'
+  ];
+  var levels = ['100', '300', '500', '700', '900'];
+
+  return material[types[Math.floor(Math.random()*18)]][levels[Math.floor(Math.random()*4)]];
+}
+
 Vue.prototype.newTravelGroup = function () {
+  var color = random_colour();
   var travelGroupProto = {
     name: "新行迹",
     travel_group_id: null,
     travel_group_note: "",
     travel: [],
     dates: { start: "", end: "" },
-    color:{hex: "#11cdef", a:0.8}
+    color: {
+      hex: color, a: 0.8
+    }
   };
   return travelGroupProto;
 }
 
-Vue.prototype.newTravel = function(){
+Vue.prototype.newTravel = function () {
   var travel = {
     location: "",
     coordinate: "",
@@ -65,18 +83,18 @@ Vue.prototype.newTravel = function(){
   return travel;
 }
 
-Vue.prototype.copy = function(obj) {
+Vue.prototype.copy = function (obj) {
   let newObj = JSON.parse(JSON.stringify(obj));
   return newObj;
 }
-Vue.prototype.indexOf =  function(arr, el) {
+Vue.prototype.indexOf = function (arr, el) {
   for (var i = 0; i < arr.length; ++i) {
     if (arr[i] == el) {
       return i;
     }
   }
 },
-Vue.config.silent = true;
+  Vue.config.silent = true;
 
 Vue.http.options.emulateJSON = true;
 
@@ -99,10 +117,10 @@ new Vue({
     this.checkLogin();
   },
   methods: {
-    checkLogin(){
-      if (!this.$session.exists() && this.$route.name!='register') { // 如果没有login且不在register页自动跳转
+    checkLogin() {
+      if (!this.$session.exists() && this.$route.name != 'register') { // 如果没有login且不在register页自动跳转
         this.$router.push('/login');
-      } else if (this.$session.exists() && (this.$route.name=='login' || this.$route.name=='register')){ // 如果已经login进入login页自动跳转
+      } else if (this.$session.exists() && (this.$route.name == 'login' || this.$route.name == 'register')) { // 如果已经login进入login页自动跳转
         this.$router.push('/');
       }
     }
