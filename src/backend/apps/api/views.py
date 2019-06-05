@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel, recommendation as mod_rcmd
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
-from apps.db.Message import models as db_msg
+from apps.db.Message import models as db_msg, serializers as srl_msg
 from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
 from server.settings import DEBUG
@@ -640,7 +640,7 @@ def copy_travel(request_data):
     src_travel_info = src_travel.get_travel_info()
     src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
     src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(
-        travel_group_id=src_travel_group_dbobj.travel_group_id)
+            travel_group_id=src_travel_group_dbobj.travel_group_id)
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=request_data['travel_group_id'])
 
@@ -1077,5 +1077,41 @@ def travel_detail(request, travel_id):
         raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
 
     serializer = srl_travel.TravelSerializer(travel)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def friend_request_list(request):
+    """
+    List all friend requests.
+    """
+
+    friend_requests = db_msg.FriendRequest.objects.all()
+    serializer = srl_msg.FriendRequestSerializer(friend_requests, many=True)
+    response = {
+        'count': len(serializer.data),
+        'friend_request_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def friend_request_detail(request, msg_id):
+    """
+    Retrieve a friend request.
+    """
+    try:
+        friend_request = db_msg.FriendRequest.objects.get(msg_id=msg_id)
+    except db_travel.Travel.DoesNotExist:
+        raise MessageDoesNotExistException(f'Friend request message (ID={msg_id}) does not exist.')
+
+    serializer = srl_msg.FriendRequestSerializer(friend_request)
     response = serializer.data
     return response

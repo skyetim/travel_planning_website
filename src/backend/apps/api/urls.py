@@ -16,8 +16,8 @@ Including another URLconf
 
 from django.urls import path
 
-from server.settings import DEBUG
 from apps.api import views
+from server.settings import DEBUG
 
 
 urlpatterns = []
@@ -38,7 +38,9 @@ if DEBUG:
         'travel_groups': views.travel_group_list,
         'travel_groups/<int:travel_group_id>': views.travel_group_detail,
         'travels': views.travel_list,
-        'travels/<int:travel_id>': views.travel_detail
+        'travels/<int:travel_id>': views.travel_detail,
+        'friend_requests': views.friend_request_list,
+        'friend_requests/<int:msg_id>': views.friend_request_detail
     }
     for route, view in route_view.items():
         urlpatterns.extend([
