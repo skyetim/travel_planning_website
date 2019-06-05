@@ -41,6 +41,17 @@ def make_list_distinct(target_list):
     def func(x, y): return x if y in x else x + [y]
     return reduce(func, [[], ] + target_list)
 
+def generate_rec_list(target_list,amount,key):
+    #生成适当数量的无重复列表
+    recommend_list = []
+    for i in len(target_list):
+        recommend_list.append(target_list[i][key])
+    recommend_list=make_list_distinct(recommend_list)
+
+    if len(target_list) < amount:
+        amount = len(target_list)
+    return target_list[:amount]
+
 # 实现为同城推荐
 def recommend_friend_list(user, amount=10):
     # 从用户数据库中找不是自己好友的那些
@@ -67,6 +78,8 @@ def recommend_friend_list(user, amount=10):
     for other_user in other_user_list:
         if other_user.user_id not in friend_id_list:
             user_id_list.append(other_user.user_id.user_id)
+    
+    user_id_list=make_list_distinct(user_id_list)
 
     if len(user_id_list) > amount:
         return user_id_list[:amount]
@@ -103,14 +116,9 @@ def recommend_travel_group_list(user, amount=10):
                 'travel_group_id': tg_id,
                 'time_delta_days': get_time_delta_days(rep_time)
             })
-    other_travel_group_list.sort(key=lambda x: x['time_Delta_days'])
-    if len(other_travel_group_list) < amount:
-        amount = len(other_travel_group_list)
+    other_travel_group_list.sort(key=lambda x: x['time_delta_days'])
 
-    recommend_list = []
-    for i in range(amount):
-        recommend_list.append(other_travel_group_list[i]['travel_group_id'])
-    return make_list_distinct(recommend_list)
+    return generate_rec_list(other_travel_group_list, amount, "travel_group_id")
 
 
 def recommend_city_list_by_travel(user, travel_id, amount=3):
@@ -142,15 +150,7 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
 
     other_travel_group_list.sort(key=lambda x: x['city_distance'])
 
-    if len(other_travel_group_list) < amount:
-        amount = len(other_travel_group_list)
-
-    recommend_list = []
-
-    for i in range(amount):
-        recommend_list.append(other_travel_group_list[i]['city_id'])
-
-    return make_list_distinct(recommend_list)
+    return generate_rec_list(other_travel_group_list, amount, "city_id")
 
 
 def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
@@ -188,15 +188,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
 
     other_travel_group_list.sort(key=lambda x: x['city_distance'])
 
-    if len(other_travel_group_list) < amount:
-        amount = len(other_travel_group_list)
-
-    recommend_list = []
-
-    for i in range(amount):
-        recommend_list.append(other_travel_group_list[i]['city_id'])
-
-    return make_list_distinct(recommend_list)
+    return generate_rec_list(other_travel_group_list, amount, "city_id")
 
 
 def recommend_travel_list_by_travel(user, travel_id, amount=5):
@@ -229,15 +221,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
                         })
     other_travel_group_list.sort(key=lambda x: ((int(x['city_distance'] / 50)) ** 2 + (int(x['time_delta_days'] / 1)) ** 2))
 
-    if len(other_travel_group_list) < amount:
-        amount = len(other_travel_group_list)
-
-    recommend_list = []
-
-    for i in range(amount):
-        recommend_list.append(other_travel_group_list[i]['travel_id'])
-
-    return make_list_distinct(recommend_list)
+    return generate_rec_list(other_travel_group_list, amount, "travel_id")
 
 
 def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
@@ -274,12 +258,4 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
 
     other_travel_group_list.sort(key=lambda x: ((int(x['city_distance'] / 50)) ** 2 + (int(x["time_delta_days"] / 1)) ** 2))
 
-    if len(other_travel_group_list) < amount:
-        amount = len(other_travel_group_list)
-
-    recommend_list = []
-
-    for i in range(amount):
-        recommend_list.append(other_travel_group_list[i]['travel_id'])
-
-    return make_list_distinct(recommend_list)
+    return generate_rec_list(other_travel_group_list, amount, "travel_id")
