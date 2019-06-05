@@ -146,8 +146,9 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     user_id = user.get_user_id()
     travel_group = mod_travel.TravelGroup(user_id, travel_group_id)
     my_city_list = []
-    for travel in travel_group.get_travel_list():
-        travel_info = travel.get_travel_info()
+    for travel_id in travel_group.get_travel_list():
+        travel_info = mod_travel.Travel(
+            user_id=user_id, travel_id=travel_id).get_travel_info()
         my_city = travel_info.get_city_id()
         my_city_list.append(my_city)
 
