@@ -10,7 +10,7 @@
             type="primary"
             size="sm"
             @click="add_travel_group(newTravelGroup());"
-          >新行迹</base-button>
+          >创建新的行程</base-button>
         </div>
       </div>
     </div>

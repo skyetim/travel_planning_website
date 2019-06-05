@@ -1,8 +1,8 @@
 <template>
-  <div class="friend-list">
+  <div>
     <div class="row">
       <div class="col">
-        <!-- <base-alert type="success" v-show="success">
+        <base-alert type="success" v-show="success">
           <span class="alert-inner--icon" margin-right="10px">
             <i class="ni ni-bell-55"></i>
           </span>
@@ -18,15 +18,43 @@
           >
             <span aria-hidden="true">&times;</span>
           </button>
-        </base-alert> -->
+        </base-alert>
       </div>
     </div>
-    <div class="row align-items-center">
-      <div class="col-10">
-        <div class="avatar-group">
+    <div class="friend-list">
+      <div class="row align-items-center">
+        <div class="col-10">
+          <div class="avatar-group">
+            <a
+              v-for="(friend, index) in travel_company"
+              :key="index"
+              href="#"
+              class="avatar avatar-sm rounded-circle"
+              data-toggle="tooltip"
+              :data-original-title="friend.user_name"
+            >
+              <img alt="Image placeholder" :src="friend.avatar_url">
+            </a>
+          </div>
+          {{travel_id}}
+        </div>
+        <div class="col-2 text-right">
+          <base-button
+            type="primary"
+            size="sm"
+            @click="showList = !showList;"
+          >{{showList?"完成": "管理同行"}}</base-button>
+        </div>
+      </div>
+
+      <div
+        v-show="showList"
+        class="row align-items-center"
+        v-for="(friend,index) in friend_info_list"
+        :key="index"
+      >
+        <div class="col-1">
           <a
-            v-for="(friend, index) in travel_company"
-            :key="index"
             href="#"
             class="avatar avatar-sm rounded-circle"
             data-toggle="tooltip"
@@ -35,47 +63,20 @@
             <img alt="Image placeholder" :src="friend.avatar_url">
           </a>
         </div>
-        {{travel_id}}
-      </div>
-      <div class="col-2 text-right">
-        <base-button
-          type="primary"
-          size="sm"
-          @click="showList = !showList;"
-        >{{showList?"完成": "管理同行"}}</base-button>
-      </div>
-    </div>
-
-    <div
-      v-show="showList"
-      class="row align-items-center"
-      v-for="(friend,index) in friend_info_list"
-      :key="index"
-    >
-      <div class="col-1">
-        <a
-          href="#"
-          class="avatar avatar-sm rounded-circle"
-          data-toggle="tooltip"
-          :data-original-title="friend.user_name"
-        >
-          <img alt="Image placeholder" :src="friend.avatar_url">
-        </a>
-      </div>
-      <div class="col-1 text-left">{{friend.user_name}}</div>
-      <div class="col-10 text-right">
-        <base-button
-          type="primary"
-          size="sm"
-          @click="isCompany(friend)?del(friend):invite(friend)"
-        >{{isCompany(friend)?"移除":"邀请"}}</base-button>
+        <div class="col-9 text-left">{{friend.user_name}}</div>
+        <div class="col-2 text-right">
+          <base-button
+            type="primary"
+            size="sm"
+            @click="isCompany(friend)?del(friend):invite(friend)"
+          >{{isCompany(friend)?"移除":"邀请"}}</base-button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import func from "../../vue-temp/vue-editor-bridge";
 var dummy = [
   {
     user_name: "Alice",
@@ -142,12 +143,12 @@ export default {
     },
 
     del(friend) {
-    //   var vue = this;
-    //   for (var i = 0; i < vue.travel_company.length; ++i) {
-    //     if (vue.travel_company[i].user_id == friend.user_id) {
-    //       vue.travel_company.splice(i, 1);
-    //     }
-    //   }
+      var vue = this;
+      for (var i = 0; i < vue.travel_company.length; ++i) {
+        if (vue.travel_company[i].user_id == friend.user_id) {
+          vue.travel_company.splice(i, 1);
+        }
+      }
       //   this.$backend_conn(
       //     "remove_travel_company",
       //     {
@@ -170,11 +171,11 @@ export default {
     },
 
     invite(friend) {
-    //   var vue = this;
-    //   vue.success = true;
-    //   setTimeout(function() {
-    //     vue.success = false;
-    //   }, 1000);
+      var vue = this;
+      vue.success = true;
+      setTimeout(function() {
+        vue.success = false;
+      }, 3000);
       //   this.$backend_conn(
       //     "invite_travel_company",
       //     {

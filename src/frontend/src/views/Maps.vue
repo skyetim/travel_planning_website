@@ -20,7 +20,7 @@
               <base-button
                 type="primary"
                 @click="add_travel_group(newTravelGroup());"
-              >新行迹</base-button>
+              >创建新的行程</base-button>
             </div>
             <div id="map-canvas" class="map-canvas" style="height: 600px;z-index: 10"></div>
           </div>

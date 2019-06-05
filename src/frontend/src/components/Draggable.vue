@@ -87,11 +87,7 @@
             <div class="row">
               <div class="col">
                 <button dislplay="inline-block" class="btn btn-primary" @click="search()">查找</button>
-                <button
-                  dislplay="inline-block"
-                  class="btn btn-primary"
-                  @click="collapse(index)"
-                >取消</button>
+                <button dislplay="inline-block" class="btn btn-primary" @click="collapse(index)">取消</button>
               </div>
             </div>
           </div>
@@ -107,7 +103,7 @@
       <div>
         <small class="text-muted text-center">{{city_check(travel, index)?"邀请同行好友吧~": "同行好友"}}</small>
         <br>
-        <friend-list :friend_info_list="friend_info_list"  :travel_id="travel[index].travel_id"></friend-list>
+        <friend-list :friend_info_list="friend_info_list" :travel_id="travel[index].travel_id"></friend-list>
         <div class="row">
           <div class="col">
             <base-alert type="warning" v-show="city_check(travel, index)">
@@ -222,6 +218,7 @@ export default {
     city_check: function(travel, index) {
       return travel[index].location == "";
     },
+
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
       travel[index].visibility = travel[index].vbool ? "F" : "P";
@@ -253,7 +250,11 @@ export default {
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
-            vue.$set(vue.travel, vue.travel.length-1, vue.travel[vue.travel.length - 1]);
+            vue.$set(
+              vue.travel,
+              vue.travel.length - 1,
+              vue.travel[vue.travel.length - 1]
+            );
             console.log(response);
           },
           function(response) {

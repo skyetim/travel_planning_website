@@ -41,7 +41,7 @@ Vue.prototype.compare = function (id) {
 }
 Vue.prototype.newTravelGroup = function () {
   var travelGroupProto = {
-    name: "",
+    name: "新行迹",
     travel_group_id: null,
     travel_group_note: "",
     travel: [],
