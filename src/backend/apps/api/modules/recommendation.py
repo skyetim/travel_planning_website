@@ -72,11 +72,11 @@ def recommend_travel_group_list(user, amount=10):
             travel_group = mod_travel.TravelGroup(
                     user_id=user_id, travel_group_id=tg_id)
             travel_list = travel_group.get_travel_list()
-            travel = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0])
-            company_list = travel.get_company_list()  # 得到朋友travel的company，自己不允许出现在里面
-
             if len(travel_list) == 0:
                 continue
+            travel = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0])
+            company_list = travel.get_company_list()  # 得到朋友travel的company，自己不允许出现在里面
+            
             if user_id not in company_list:
                 rep_time = mod_travel.Travel(user_id=user_id,
                                              travel_id=travel_list[0]).get_travel_info().get_date_start()
