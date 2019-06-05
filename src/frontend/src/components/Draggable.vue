@@ -98,10 +98,10 @@
           :key="n"
           @click="picked(index, r)"
         >{{r.country_name + " "+ r.province_name+ " " + r.city_name}}</div>
-        <div class="row list-group-item item">{{query.status}}</div>
+        <div class="row list-group-item item" v-for="(s,n) in query.status" :key="n">{{s}}</div>
       </div>
       <div>
-        <small class="text-muted text-center">{{city_check(travel, index)?"邀请同行好友吧~": "同行好友"}}</small>
+        <small class="text-muted text-center">同行伙伴</small>
         <br>
         <friend-list :friend_info_list="friend_info_list" :travel_id="travel[index].travel_id"></friend-list>
         <div class="row">
@@ -135,7 +135,15 @@
       aria-label="Basic example"
       key="footer"
     >
-      <button class="btn btn-secondary" @click="add">添加城市</button>
+      <button class="btn btn-secondary" @click="add();recommend_by_travel_group();">添加城市</button>
+      
+        <small>&nbsp;下一步去哪儿？小迹为你推荐如下城市:</small>
+        <a
+          v-for="(city, index) in recommend_city_list"
+          :key="index"
+          @click="add(city)"
+        >{{city.city_name}}</a>
+      
     </div>
   </draggable>
 </template>
@@ -149,7 +157,7 @@ import FriendList from "./FriendList";
 
 var query = {
   content: "",
-  status: "",
+  status: [],
   searchMode: false,
   result: []
 };
@@ -177,7 +185,8 @@ export default {
         }
       },
       query: query,
-      friend_info_list: []
+      friend_info_list: [],
+      recommend_city_list: []
     };
   },
   created: function() {
@@ -188,14 +197,14 @@ export default {
       {},
       vue,
       function(response) {
-        response.data.friend_list.forEach(friend => {
+        response.data.friend_list.forEach(user_id => {
           backend(
-            "get_friend_user_info",
-            { friend_user_id: friend.user_id },
+            "get_others_user_info",
+            { others_user_id: user_id },
             vue,
             function(response1) {
               vue.friend_info_list.push({
-                user_id: friend.user_id,
+                user_id: user_id,
                 user_name: response1.data.user_name,
                 avatar_url: response1.data.avatar_url
               });
@@ -218,26 +227,30 @@ export default {
     city_check: function(travel, index) {
       return travel[index].location == "";
     },
-
+    hasTravel: function() {
+      return travel.length != 0;
+    },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
       travel[index].visibility = travel[index].vbool ? "F" : "P";
     },
-    add: function() {
+    add: function(city) {
       var vue = this;
       this.travel.push(this.newTravel());
+
       this.$set(
         this.travel,
         this.travel.length - 1,
         this.travel[this.travel.length - 1]
       );
-
+      var city_id = typeof city == "undefined" ? 3 : city.city_id;
+      var city_name = typeof city == "undefined" ? "" : city.city_name;
       if (vue.gid != null) {
         this.$backend_conn(
           "add_travel",
           {
             travel_group_id: vue.gid,
-            city_id: 3,
+            city_id: city_id,
             date_start: moment(Date()).format("YYYY-MM-DD"),
             date_end: moment(Date()).format("YYYY-MM-DD"),
             visibility: "P",
@@ -247,6 +260,7 @@ export default {
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
+            vue.travel[vue.travel.length - 1].location = city_name;
             vue.$set(
               vue.travel,
               vue.travel.length - 1,
@@ -260,6 +274,7 @@ export default {
         );
       }
     },
+
     del: function(index) {
       var vue = this;
       this.$backend_conn(
@@ -281,10 +296,10 @@ export default {
     search: function() {
       var vue = this;
       this.query.result = [];
-      this.query.status = "";
+      this.query.status = [];
 
       if (this.query.content == "") {
-        this.query.status = "无匹配城市";
+        this.query.status = ["无匹配城市"];
         return;
       } else {
         this.$backend_conn(
@@ -326,18 +341,35 @@ export default {
       this.query.result = [];
       this.query.content = "";
       this.collapse(index);
+    },
+
+    recommend_by_travel_group: function() {
+      var vue = this;
+      console.log(this.gid);
+      this.$backend_conn(
+        "recommend_city_list_by_travel_group",
+        { travel_group_id: this.gid },
+        vue,
+        function(response) {
+          vue.recommend_city_list = response.data.city_list;
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
     }
   }
 };
 </script>
 <style scoped>
-/* .item {
+.item {
   margin-top: 0px;
   margin-bottom: 0px;
   padding-top: 0px;
-  padding-bottom: 0px;
+  padding-bottom: 5px;
   cursor: pointer;
-} */
+}
 
 .input-list {
   width: 30%;

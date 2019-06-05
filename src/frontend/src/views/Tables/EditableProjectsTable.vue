@@ -6,11 +6,7 @@
           <h3 class="mb-0">{{title}}</h3>
         </div>
         <div class="col text-right">
-          <base-button
-            type="primary"
-            size="sm"
-            @click="add_travel_group(newTravelGroup());"
-          >创建新的行程</base-button>
+          <base-button type="primary" size="sm" @click="add_travel_group(newTravelGroup());">创建新的行程</base-button>
         </div>
       </div>
     </div>
@@ -28,13 +24,11 @@
           <th>开始</th>
           <th>结束</th>
           <th>行程</th>
-          <th>同伴</th>
         </template>
 
         <template slot-scope="{row}">
           <th scope="row">
             <i class="ni ni-settings-gear-65 icon-edit" @click="editTravel(row)"></i>
-            <i class="ni ni-fat-remove icon-del" @click="del(row)"></i>
           </th>
 
           <td>
@@ -53,43 +47,6 @@
 
           <td>
             <div>{{displayStatus(row.dates)}}</div>
-          </td>
-
-          <td>
-            <div class="avatar-group">
-              <a
-                href="#"
-                class="avatar avatar-sm rounded-circle"
-                data-toggle="tooltip"
-                data-original-title="Ryan Tompson"
-              >
-                <img alt="Image placeholder" src="img/theme/team-1-800x800.jpg">
-              </a>
-              <a
-                href="#"
-                class="avatar avatar-sm rounded-circle"
-                data-toggle="tooltip"
-                data-original-title="Romina Hadid"
-              >
-                <img alt="Image placeholder" src="img/theme/team-2-800x800.jpg">
-              </a>
-              <a
-                href="#"
-                class="avatar avatar-sm rounded-circle"
-                data-toggle="tooltip"
-                data-original-title="Alexander Smith"
-              >
-                <img alt="Image placeholder" src="img/theme/team-3-800x800.jpg">
-              </a>
-              <a
-                href="#"
-                class="avatar avatar-sm rounded-circle"
-                data-toggle="tooltip"
-                data-original-title="Jessica Doe"
-              >
-                <img alt="Image placeholder" src="img/theme/team-4-800x800.jpg">
-              </a>
-            </div>
           </td>
         </template>
       </editable>
@@ -145,10 +102,8 @@
         </div>
       </div>
       <template slot="footer">
-        <base-button
-          type="primary"
-          @click="set_travel_group(editRow, row);edit.modal = false;"
-        >保存</base-button>
+        <base-button type="primary" @click="del(editIndex);edit.modal = false;">删除</base-button>
+        <base-button type="primary" @click="set_travel_group(editRow, row);edit.modal = false;">保存</base-button>
       </template>
     </modal>
   </div>
@@ -206,29 +161,23 @@ export default {
       this.editIndex = this.indexOf(this.travel_group_list, row);
       this.edit.modal = true;
     },
-
-    del: function(row) {
+    del: function(index) {
       var vue = this;
-      for (var i = 0; i < this.travel_group_list.length; ++i) {
-        if (row == this.travel_group_list[i]) {
-          this.$backend_conn(
-            "remove_travel_group",
-            {
-              travel_group_id: row.travel_group_id
-            },
-            vue,
-            function(response) {
-              vue.travel_group_list.splice(i, 1);
-              vue.$emit("update", vue.travel_group_list);
-              console.log(response);
-            },
-            function(response) {
-              alert(response.data.error_message);
-            }
-          );
-          break;
+      this.$backend_conn(
+        "remove_travel_group",
+        {
+          travel_group_id: this.travel_group_list[index].travel_group_id
+        },
+        vue,
+        function(response) {
+          vue.travel_group_list.splice(index, 1);
+          vue.edit.modal = false;
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
         }
-      }
+      );
     },
 
     // ajax
@@ -248,6 +197,7 @@ export default {
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
           vue.$emit("update", vue.travel_group_list);
+          vue.editTravel(vue.travel_group_list[vue.travel_group_list.length-1]);
           console.log(response);
         },
         function(response) {
@@ -317,17 +267,6 @@ export default {
 
 .icon-expand:hover {
   transform: scale(1.2);
-}
-
-.icon-del {
-  font-size: 150%;
-  color: #ff0000;
-  transition: transform 0.2s;
-}
-
-.icon-del:hover {
-  transform: scale(1.2);
-  color: #ff4d4d;
 }
 
 .icon-edit {
