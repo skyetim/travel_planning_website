@@ -71,15 +71,16 @@ def get_travel_permission_level(user_id, travel_id):
 
 def delete_asso_travel(user_dbobj_1, user_dbobj_2):
     travel_asso_list = db_travel.TravelAssociation.objects.filter(
-            company_user_id=user_dbobj_2)
+        company_user_id=user_dbobj_2)
     for travel_asso in travel_asso_list:
         travel_dbobj = get_travel_instance_by_id(travel_asso.travel_id)
         tg_id = db_travel.TravelGrouping.objects.get(
-                travel_id=travel_dbobj).travel_group_id
+            travel_id=travel_dbobj).travel_group_id
         travel_group_dbobj = get_travel_group_instance_by_id(tg_id)
-        if db_travel.TravelGroupOwnership.objects.filter(user_id=user_dbobj_1, travel_group_id=travel_group_dbobj).exists():
+        if db_travel.TravelGroupOwnership.objects.filter(
+                user_id=user_dbobj_1, travel_group_id=travel_group_dbobj).exists():
             db_travel.TravelAssociation.objects.delete(
-                    travel_id=travel_dbobj, company_user_id=user_dbobj_2)
+                travel_id=travel_dbobj, company_user_id=user_dbobj_2)
 
 
 class TravelInfo(object):
@@ -288,15 +289,15 @@ class Travel(object):
                                                 f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' already exists.')
 
-        company = get_user_instance_by_id(user_id=company_user_id)
+        company_user_info = get_user_info_instance_by_id(user_id=company_user_id)
 
         # send messages to existed company users
-        target_user_name = company.user_name
+        target_user_name = company_user_info.user_name
         self._send_msg_to_company(msg_type=db_msg.TravelAssociation.ADD,
                                   content=target_user_name)
 
         db_travel.TravelAssociation.objects.create(travel_id=self.travel_dbobj,
-                                                   company_user_id=company)
+                                                   company_user_id=company_user_info.user_id)
         self.company_set.add(company_user_id)
 
     def remove_company(self, company_user_id, actively_leave=False):
