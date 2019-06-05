@@ -1085,16 +1085,16 @@ def travel_detail(request, travel_id):
 @api_view(http_method_names=['GET'])
 @require_http_methods(request_method_list=['GET'])
 @pack_response
-def friend_request_list(request):
+def friend_message_list(request):
     """
-    List all friend requests.
+    List all friend messages.
     """
 
     friend_requests = db_msg.FriendRequest.objects.all()
     serializer = srl_msg.FriendRequestSerializer(friend_requests, many=True)
     response = {
         'count': len(serializer.data),
-        'friend_request_list': serializer.data
+        'friend_message_list': serializer.data
     }
     return response
 
@@ -1103,15 +1103,51 @@ def friend_request_list(request):
 @api_view(http_method_names=['GET'])
 @require_http_methods(request_method_list=['GET'])
 @pack_response
-def friend_request_detail(request, msg_id):
+def friend_message_detail(request, msg_id):
     """
-    Retrieve a friend request.
+    Retrieve a friend message.
     """
     try:
         friend_request = db_msg.FriendRequest.objects.get(msg_id=msg_id)
-    except db_travel.Travel.DoesNotExist:
+    except db_msg.FriendRequest.DoesNotExist:
         raise MessageDoesNotExistException(f'Friend request message (ID={msg_id}) does not exist.')
 
     serializer = srl_msg.FriendRequestSerializer(friend_request)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_message_list(request):
+    """
+    List all travel messages.
+    """
+
+    travel_associations = db_msg.TravelAssociation.objects.all()
+    serializer = srl_msg.TravelAssociationSerializer(travel_associations, many=True)
+    response = {
+        'count': len(serializer.data),
+        'travel_message_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_message_detail(request, msg_id):
+    """
+    Retrieve a travel message.
+    """
+    try:
+        travel_association = db_msg.TravelAssociation.objects.get(msg_id=msg_id)
+    except db_msg.TravelAssociation.DoesNotExist:
+        raise MessageDoesNotExistException(f'Travel association message (ID={msg_id}) does not exist.')
+
+    serializer = srl_msg.TravelAssociationSerializer(travel_association)
     response = serializer.data
     return response

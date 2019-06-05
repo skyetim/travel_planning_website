@@ -39,8 +39,10 @@ if DEBUG:
         'travel_groups/<int:travel_group_id>': views.travel_group_detail,
         'travels': views.travel_list,
         'travels/<int:travel_id>': views.travel_detail,
-        'friend_requests': views.friend_request_list,
-        'friend_requests/<int:msg_id>': views.friend_request_detail
+        'friend_messages': views.friend_message_list,
+        'friend_messages/<int:msg_id>': views.friend_message_detail,
+        'travel_messages': views.travel_message_list,
+        'travel_messages/<int:msg_id>': views.travel_message_detail
     }
     for route, view in route_view.items():
         urlpatterns.extend([
