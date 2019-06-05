@@ -359,7 +359,7 @@ def send_friend_request(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
     user.send_friend_request(others_user_id=request_data['others_user_id'],
-                             request_note=request_data[' request_note'])
+                             request_note=request_data['request_note'])
 
     response = {}
     return response
