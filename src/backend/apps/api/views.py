@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from apps.api.modules import city as mod_city, user as mod_user, travel as mod_travel, recommendation as mod_rcmd
 from apps.api.modules.exceptions import *
 from apps.db.City import models as db_city, serializers as srl_city
-from apps.db.Message import models as db_msg
+from apps.db.Message import models as db_msg, serializers as srl_msg
 from apps.db.Travel import models as db_travel, serializers as srl_travel
 from apps.db.User import models as db_user, serializers as srl_user
 from server.settings import DEBUG
@@ -24,7 +24,7 @@ __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 
 # Friend
-__all__.extend(['get_others_user_info'])
+__all__.extend(['get_others_user_info', 'get_others_user_info_list'])
 __all__.extend(['search_user_by_email', 'search_user_list_by_user_name',
                 'search_user_info_by_email', 'search_user_info_list_by_user_name'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
@@ -46,7 +46,8 @@ __all__.extend(['add_travel', 'copy_travel',
 
 # Travel Association
 __all__.extend(['invite_travel_company', 'join_friends_travel',
-                'remove_travel_company', 'get_travel_company_list',
+                'remove_travel_company', 'leave_friends_travel',
+                'get_travel_company_list',
                 'get_associated_travel_list', 'get_associated_travel_info_list'])
 
 # Recommendation
@@ -83,10 +84,14 @@ def prepare_request_data(func):
             if name in request_data:
                 request_data[name] = cast_func(request_data[name])
 
-        request_data = getattr(request, request.method).dict()
+        query_dict = getattr(request, request.method)
+        request_data = query_dict.dict()
         cast(name='user_id', cast_func=int)
         cast(name='friend_user_id', cast_func=int)
         cast(name='others_user_id', cast_func=int)
+        if 'others_user_list' in request_data:
+            request_data['others_user_list'] = list(map(int,
+                                                        query_dict.getlist('others_user_list')))
         cast(name='email', cast_func=str.lower)
         cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
@@ -138,6 +143,7 @@ def check_token(func):
         user_id = request_data['user_id']
         session_id = request_data['session_id']
         if user_id not in LOGGED_IN_USERS:
+            db_user.UserSession.objects.filter(user_id=user_id).delete()
             raise UserAuthorizationException(f'User (ID={user_id}) does not log in.')
         try:
             user_session = db_user.UserSession.objects.get(user_id=user_id,
@@ -292,6 +298,25 @@ def get_others_user_info(request_data):
 
 
 @api(need_token=True)
+def get_others_user_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info_list = []
+    for others_user_id in request_data['others_user_list']:
+        others_user_info = user.get_others_user_info(others_user_id=others_user_id)
+        others_user_info_list.append({
+            **dict(others_user_info),
+            'is_friend': isinstance(others_user_info, mod_user.FriendInfo)
+        })
+
+    response = {
+        'count': len(others_user_info_list),
+        'user_info_list': others_user_info_list
+    }
+    return response
+
+
+@api(need_token=True)
 def search_user_by_email(request_data):
     query_email = request_data['query_email']
     try:
@@ -358,7 +383,7 @@ def send_friend_request(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
     user.send_friend_request(others_user_id=request_data['others_user_id'],
-                             request_note=request_data[' request_note'])
+                             request_note=request_data['request_note'])
 
     response = {}
     return response
@@ -709,7 +734,20 @@ def remove_travel_company(request_data):
     travel = mod_travel.Travel(user_id=request_data['user_id'],
                                travel_id=request_data['travel_id'])
 
-    travel.remove_company(company_user_id=request_data['friend_user_id'])
+    travel.remove_company(company_user_id=request_data['friend_user_id'],
+                          actively_leave=False)
+
+    response = {}
+    return response
+
+
+@api(need_token=True)
+def leave_friends_travel(request_data):
+    travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
+                               travel_id=request_data['friend_travel_id'])
+
+    travel.remove_company(company_user_id=request_data['user_id'],
+                          actively_leave=True)
 
     response = {}
     return response
@@ -835,8 +873,14 @@ def get_friend_msg_list(request_data):
 
 @api(need_token=True)
 def del_friend_msg(request_data):
-    db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
-                                        msg_id=request_data['msg_id'])
+    msg_id = request_data['msg_id']
+
+    try:
+        msg = db_msg.FriendRequest.objects.get(msg_id=msg_id,
+                                               user_id=request_data['user_id'])
+        msg.delete()
+    except db_msg.FriendRequest.DoesNotExist:
+        raise MessageDoesNotExistException(f'Friend message (ID={msg_id}) does not exist.')
 
     response = {}
     return response
@@ -855,8 +899,14 @@ def get_travel_msg_list(request_data):
 
 @api(need_token=True)
 def del_travel_msg(request_data):
-    db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
-                                            msg_id=request_data['msg_id'])
+    msg_id = request_data['msg_id']
+
+    try:
+        msg = db_msg.TravelAssociation.objects.filter(msg_id=msg_id,
+                                                      user_id=request_data['user_id'])
+        msg.delete()
+    except db_msg.TravelAssociation.DoesNotExist:
+        raise MessageDoesNotExistException(f'Travel message (ID={msg_id}) does not exist.')
 
     response = {}
     return response
@@ -1039,5 +1089,77 @@ def travel_detail(request, travel_id):
         raise TravelDoesNotExistException(f'Travel (ID={travel_id}) does not exist.')
 
     serializer = srl_travel.TravelSerializer(travel)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def friend_message_list(request):
+    """
+    List all friend messages.
+    """
+
+    friend_requests = db_msg.FriendRequest.objects.all()
+    serializer = srl_msg.FriendRequestSerializer(friend_requests, many=True)
+    response = {
+        'count': len(serializer.data),
+        'friend_message_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def friend_message_detail(request, msg_id):
+    """
+    Retrieve a friend message.
+    """
+    try:
+        friend_request = db_msg.FriendRequest.objects.get(msg_id=msg_id)
+    except db_msg.FriendRequest.DoesNotExist:
+        raise MessageDoesNotExistException(f'Friend message (ID={msg_id}) does not exist.')
+
+    serializer = srl_msg.FriendRequestSerializer(friend_request)
+    response = serializer.data
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_message_list(request):
+    """
+    List all travel messages.
+    """
+
+    travel_associations = db_msg.TravelAssociation.objects.all()
+    serializer = srl_msg.TravelAssociationSerializer(travel_associations, many=True)
+    response = {
+        'count': len(serializer.data),
+        'travel_message_list': serializer.data
+    }
+    return response
+
+
+@csrf_exempt
+@api_view(http_method_names=['GET'])
+@require_http_methods(request_method_list=['GET'])
+@pack_response
+def travel_message_detail(request, msg_id):
+    """
+    Retrieve a travel message.
+    """
+    try:
+        travel_association = db_msg.TravelAssociation.objects.get(msg_id=msg_id)
+    except db_msg.TravelAssociation.DoesNotExist:
+        raise MessageDoesNotExistException(f'Travel message (ID={msg_id}) does not exist.')
+
+    serializer = srl_msg.TravelAssociationSerializer(travel_association)
     response = serializer.data
     return response

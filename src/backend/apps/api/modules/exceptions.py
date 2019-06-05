@@ -96,3 +96,7 @@ class PermissionDeniedException(BackendBaseException):
 
 class MsgTypeError(BackendBaseException):
     CODE = 25
+
+
+class MessageDoesNotExistException(BackendBaseException):
+    CODE = 26

@@ -4,7 +4,8 @@ import apps.api.modules.city as mod_city
 import apps.db.Message.models as db_msg
 import apps.db.Travel.models as db_travel
 from apps.api.modules.exceptions import *
-from apps.api.modules.user import get_user_instance_by_id, is_friend, check_friend_relation_existence
+from apps.api.modules.user import get_user_instance_by_id, get_user_info_instance_by_id, \
+    is_friend, check_friend_relation_existence
 
 
 # Static Methods
@@ -301,7 +302,7 @@ class Travel(object):
                                                    company_user_id=company)
         self.company_set.add(company_user_id)
 
-    def remove_company(self, company_user_id):
+    def remove_company(self, company_user_id, actively_leave=False):
         self.check_permission()
 
         if company_user_id not in self.company_set:
@@ -312,7 +313,11 @@ class Travel(object):
         company = get_user_instance_by_id(user_id=company_user_id)
 
         # send message to the user being removed from this trip
-        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.LEAVE,
+        if actively_leave:
+            msg_type = db_msg.TravelAssociation.LEAVE
+        else:
+            msg_type = db_msg.TravelAssociation.REMOVE
+        self._send_msg_to_company(msg_type=msg_type,
                                   company_list=[company_user_id])
 
         db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
@@ -328,8 +333,8 @@ class Travel(object):
                                         need_existence=True)
 
         # send invitation to friend
-        self._send_msg_to_company(
-                msg_type=db_msg.TravelAssociation.INVITE, company_list=[company_user_id])
+        self._send_msg_to_company(msg_type=db_msg.TravelAssociation.INVITE,
+                                  company_list=[company_user_id])
 
     def move_to_travel_group(self, new_travel_group_id):
         self.check_permission()
@@ -367,9 +372,23 @@ class Travel(object):
             return
 
         self_user_dbobj = get_user_instance_by_id(user_id=self.watcher_user_id)
-        self_user_name = self_user_dbobj.user_name
+        self_user_info_dbobj = get_user_info_instance_by_id(user_id=self.watcher_user_id)
+        self_user_name = self_user_info_dbobj.user_name
         travel_dbobj = get_travel_instance_by_id(travel_id=self.get_travel_id())
         city_name = travel_info.get_city_name()
+
+        if msg_type == db_msg.TravelAssociation.LEAVE:
+            for c_id in target_list:
+                other_user_dbobj = get_user_instance_by_id(user_id=c_id)
+                other_user_info_dbobj = get_user_info_instance_by_id(user_id=c_id)
+                other_user_name = other_user_info_dbobj.user_name
+                msg_content = f"Your friend {other_user_name} has leave the associated trip to {city_name}."
+                db_msg.TravelAssociation.objects.create(user_id=self_user_dbobj,
+                                                        friend_user_id=other_user_dbobj,
+                                                        travel_id=travel_dbobj,
+                                                        msg_type=msg_type,
+                                                        msg_content=msg_content)
+            return
 
         if msg_type == db_msg.TravelAssociation.DELETE:
             msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
@@ -378,7 +397,7 @@ class Travel(object):
         if msg_type == db_msg.TravelAssociation.ADD:
             msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."
 
-        if msg_type == db_msg.TravelAssociation.LEAVE:
+        if msg_type == db_msg.TravelAssociation.REMOVE:
             msg_content = f"Your friend {self_user_name} has removed you from the associated trip to {city_name}."
 
         if msg_type == db_msg.TravelAssociation.INVITE:

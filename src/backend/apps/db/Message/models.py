@@ -47,17 +47,22 @@ class FriendRequest(models.Model):
                 'msg_content']
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        if 'user_id' in item:
+            return getattr(self, item).user_id
+        else:
+            return getattr(self, item)
 
 
 class TravelAssociation(models.Model):
     INVITE = 'I'
     ADD = 'A'
+    REMOVE = 'R'
     LEAVE = 'L'
     MODIFY = 'M'
     DELETE = 'D'
     MSG_TYPE_CHOICES = ((INVITE, 'Invite'),
                         (ADD, 'Add'),
+                        (REMOVE, 'Remove'),
                         (LEAVE, 'Leave'),
                         (MODIFY, 'Modify'),
                         (DELETE, 'Delete'))
@@ -73,11 +78,11 @@ class TravelAssociation(models.Model):
                                        to_field='user_id',
                                        related_name='M_TA_frienduserid',
                                        on_delete=models.CASCADE)
-    friend_travel_id = models.ForeignKey(travel.Travel,
-                                         to_field='travel_id',
-                                         related_name='M_TA_travelid',
-                                         null=True,
-                                         on_delete=models.CASCADE)
+    travel_id = models.ForeignKey(travel.Travel,
+                                  to_field='travel_id',
+                                  related_name='M_TA_travelid',
+                                  null=True,
+                                  on_delete=models.CASCADE)
     msg_type = models.CharField(max_length=1,
                                 choices=MSG_TYPE_CHOICES,
                                 null=False,
@@ -98,9 +103,14 @@ class TravelAssociation(models.Model):
         return ['msg_id',
                 'user_id',
                 'friend_user_id',
-                'friend_travel_id',
+                'travel_id',
                 'msg_type',
                 'msg_content']
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        if 'user_id' in item:
+            return getattr(self, item).user_id
+        elif 'travel_id' in item:
+            return getattr(self, item).travel_id
+        else:
+            return getattr(self, item)
