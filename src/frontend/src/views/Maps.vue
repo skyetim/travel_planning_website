@@ -17,10 +17,7 @@
                 class="btn dropdown-toggle button-text"
                 :style="{backgroundColor:travel_group_list[index].color.hex, opacity:travel_group_list[index].color.a}"
               >{{travel_group_list[index].name}}</button>
-              <base-button
-                type="primary"
-                @click="add_travel_group(newTravelGroup());"
-              >创建新的行程</base-button>
+              <base-button type="primary" @click="add_travel_group(newTravelGroup());">创建新的行程</base-button>
             </div>
             <div id="map-canvas" class="map-canvas" style="height: 600px;z-index: 10"></div>
           </div>
@@ -30,7 +27,7 @@
 
     <modal :show.sync="edit.modal">
       <template slot="header">
-        <h5 class="modal-title" id="exampleModalLabel">修改行迹</h5>
+        <h5 class="modal-title" id="exampleModalLabel">编辑行迹</h5>
       </template>
       <div>
         <small class="text-muted text-center">行迹名</small>
@@ -49,7 +46,11 @@
         <div class="row">
           <div class="col-11">
             <div :class="[edit.collapsed?'collapse': 'expand']">
-              <draggablelist :travel="editRow.travel" :gid="editRow.travel_group_id"></draggablelist>
+              <draggablelist
+                :travel="editRow.travel"
+                :gid="editRow.travel_group_id"
+                :friend_info_list="friend_info_list"
+              ></draggablelist>
             </div>
           </div>
         </div>
@@ -62,7 +63,7 @@
         </div>
         <div class="row">
           <div class="col-11">
-            <small class="text-muted text-center">行迹颜色</small>
+            <small class="text-muted text-center">标记颜色</small>
             <br>
             <base-dropdown>
               <button
@@ -78,14 +79,8 @@
         </div>
       </div>
       <template slot="footer">
-        <base-button
-          type="primary"
-          @click="del(editIndex);edit.modal = false;"
-        >删除</base-button>
-        <base-button
-          type="primary"
-          @click="set_travel_group(editRow, row);edit.modal = false;"
-        >保存</base-button>
+        <base-button type="primary" @click="del(editIndex);edit.modal = false;">删除</base-button>
+        <base-button type="primary" @click="set_travel_group(editRow, row);edit.modal = false;">保存</base-button>
       </template>
     </modal>
   </div>
@@ -161,6 +156,7 @@ export default {
       editRow: this.newTravelGroup(),
       editIndex: null,
       travel_group_list: [],
+      friend_info_list: [],
       map: null,
       markersGroup: []
     };
@@ -180,6 +176,36 @@ export default {
           tmp_list.sort(vue.compare("date_start"));
 
           tmp_list.forEach(travel => {
+            backend(
+              "get_travel_company_list",
+              { travel_id: travel.travel_id },
+              vue,
+              function(response1) {
+                var company_list = [];
+                response1.data.company_list.forEach(user_id => {
+                  backend(
+                    "get_others_user_info",
+                    { others_user_id: user_id },
+                    vue,
+                    function(response2) {
+                      company_list.push({
+                        user_id: user_id,
+                        user_name: response2.data.user_name,
+                        avatar_url: response2.data.avatar_url
+                      });
+                      travel.company_list = company_list;
+                    },
+                    function(response1) {
+                      alert(response1.data.error_message);
+                    }
+                  );
+                });
+                travel.company_list = company_list;
+              },
+              function(response) {
+                alert(response.data.error_message);
+              }
+            );
             travel.vbool = travel.visibility == "F";
             travel.location = travel.city.city_name;
             travel.coordinate = [travel.city.latitude, travel.city.longitude];
@@ -202,6 +228,34 @@ export default {
           });
         });
         vue.markersGroup = mountMap(vue.map, vue.travel_group_list);
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
+
+    backend(
+      "get_friend_list",
+      {},
+      vue,
+      function(response) {
+        response.data.friend_list.forEach(user_id => {
+          backend(
+            "get_others_user_info",
+            { others_user_id: user_id },
+            vue,
+            function(response1) {
+              vue.friend_info_list.push({
+                user_id: user_id,
+                user_name: response1.data.user_name,
+                avatar_url: response1.data.avatar_url
+              });
+            },
+            function(response1) {
+              alert(response1.data.error_message);
+            }
+          );
+        });
       },
       function(response) {
         alert(response.data.error_message);
@@ -250,7 +304,6 @@ export default {
         function(response) {
           vue.travel_group_list.splice(index, 1);
           vue.edit.modal = false;
-          console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
@@ -270,7 +323,6 @@ export default {
         },
         vue,
         function(response) {
-
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
           vue.$set(
@@ -278,9 +330,10 @@ export default {
             vue.travel_group_list.length - 1,
             vue.copy(row)
           );
-          vue.editTravel(vue.travel_group_list[vue.travel_group_list.length-1]);
+          vue.editTravel(
+            vue.travel_group_list[vue.travel_group_list.length - 1]
+          );
           vue.reMount();
-          console.log(response);
         },
         function(response) {
           alert(response.data.error_message);
@@ -315,7 +368,6 @@ export default {
               },
               vue,
               function(response) {
-                console.log(response);
               },
               function(response) {
                 alert(response.data.error_message);
@@ -326,7 +378,6 @@ export default {
           vue.travel_group_list[vue.editIndex] = editRow;
           vue.$set(vue.travel_group_list, vue.editIndex, editRow);
           vue.reMount();
-          console.log(response);
         },
         function(response) {
           alert(response.data.error_message);

@@ -26,7 +26,7 @@
         <div class="col-10">
           <div class="avatar-group">
             <a
-              v-for="(friend, index) in travel_company"
+              v-for="(friend, index) in travel.company_list"
               :key="index"
               href="#"
               class="avatar avatar-sm rounded-circle"
@@ -81,48 +81,20 @@
 export default {
   name: "friend-list",
   props: {
-    travel_id: Number,
+    travel: Object,
     friend_info_list: Array
   },
   data() {
     return {
-      travel_company: [],
       showList: false,
       success: false
     };
   },
-  created: function() {
-    var vue = this;
-    if (typeof this.travel_id != "undefined") {
-      this.$backend_conn(
-        "get_travel_company_list",
-        { travel_id: this.travel_id },
-        vue,
-        function(response) {
-          response.data.company_list.forEach(user_id => {
-            vue.friend_info_list.forEach(friend => {
-              if (friend.user_id == user_id) {
-                vue.travel_company.push({
-                  user_id: user_id,
-                  user_name: friend.user_name,
-                  avatar_url: friend.avatar_url
-                });
-              }
-            });
-          });
-          vue.friend_info_list.forEach;
-          console.log(response);
-        },
-        function(response) {
-          alert(response.data.error_message);
-        }
-      );
-    }
-  },
+
   methods: {
     isCompany: function(friend) {
       var start = false;
-      this.travel_company.forEach(company => {
+      this.travel.company_list.forEach(company => {
         if (company.user_id == friend.user_id) {
           start = true;
         }
@@ -130,7 +102,7 @@ export default {
       return start;
     },
     hasCompany: function() {
-      return this.travel_company.length != 0;
+      return this.travel.company_list.length != 0;
     },
     hasFriend: function() {
       return this.friend_info_list.length != 0;
@@ -140,14 +112,14 @@ export default {
       this.$backend_conn(
         "remove_travel_company",
         {
-          travel_id: vue.travel_id,
+          travel_id: vue.travel.travel_id,
           friend_user_id: friend.user_id
         },
         vue,
         function(response) {
-          for (var i = 0; i < vue.travel_company.length; ++i) {
-            if (vue.travel_company[i].user_id == friend.user_id) {
-              vue.travel_company.splice(i, 1);
+          for (var i = 0; i < vue.travel.company_list.length; ++i) {
+            if (vue.travel.company_list[i].user_id == friend.user_id) {
+              vue.travel.company_list.splice(i, 1);
             }
           }
           console.log(response);
@@ -164,7 +136,7 @@ export default {
       this.$backend_conn(
         "invite_travel_company",
         {
-          travel_id: vue.travel_id,
+          travel_id: vue.travel.travel_id,
           friend_user_id: friend.user_id
         },
         vue,

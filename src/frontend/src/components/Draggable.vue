@@ -103,7 +103,8 @@
       <div>
         <small class="text-muted text-center">同行伙伴</small>
         <br>
-        <friend-list :friend_info_list="friend_info_list" :travel_id="travel[index].travel_id"></friend-list>
+        <friend-list :friend_info_list="friend_info_list" :travel="travel[index]"></friend-list>
+
         <div class="row">
           <div class="col">
             <base-alert type="warning" v-show="city_check(travel, index)">
@@ -136,14 +137,17 @@
       key="footer"
     >
       <button class="btn btn-secondary" @click="add();recommend_by_travel_group();">添加城市</button>
-      
-        <small>&nbsp;下一步去哪儿？小迹为你推荐如下城市:</small>
-        <a
-          v-for="(city, index) in recommend_city_list"
-          :key="index"
-          @click="add(city)"
-        >{{city.city_name}}</a>
-      
+
+      <small>&nbsp;{{show_rec_message?"下一步去哪儿？小迹为你推荐如下城市:":""}}</small>
+
+      <base-button
+        v-for="(city, index) in recommend_city_list"
+        :key="index"
+        type="secondary"
+        size="sm"
+        margin-left="5px"
+        @click="add_recommend(city)"
+      >{{city.city_name}}</base-button>
     </div>
   </draggable>
 </template>
@@ -172,6 +176,7 @@ export default {
     "friend-list": FriendList
   },
   props: {
+    friend_info_list: Array,
     travel: Array,
     gid: Number
   },
@@ -186,40 +191,11 @@ export default {
       },
       query: query,
       friend_info_list: [],
-      recommend_city_list: []
+      recommend_city_list: [],
+      show_rec_message: false,
     };
   },
-  created: function() {
-    var backend = this.$backend_conn;
-    var vue = this;
-    backend(
-      "get_friend_list",
-      {},
-      vue,
-      function(response) {
-        response.data.friend_list.forEach(user_id => {
-          backend(
-            "get_others_user_info",
-            { others_user_id: user_id },
-            vue,
-            function(response1) {
-              vue.friend_info_list.push({
-                user_id: user_id,
-                user_name: response1.data.user_name,
-                avatar_url: response1.data.avatar_url
-              });
-            },
-            function(response1) {
-              alert(response1.data.error_message);
-            }
-          );
-        });
-      },
-      function(response) {
-        alert(response.data.error_message);
-      }
-    );
-  },
+
   methods: {
     time_check: function(travel, index) {
       return travel[index].date_start > travel[index].date_end;
@@ -230,11 +206,27 @@ export default {
     hasTravel: function() {
       return travel.length != 0;
     },
+    display_rec_message:function(){
+      this.show_rec_message = true;
+      var vue = this;
+      setTimeout(function(){
+        vue.show_rec_message = false;
+      }, 2000)
+    },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
       travel[index].visibility = travel[index].vbool ? "F" : "P";
     },
-    add: function(city) {
+
+    add_recommend: function(city) {
+      this.travel[this.travel.length - 1].location = city.city_name;
+      this.travel[this.travel.length - 1].city_id = city.city_id;
+      this.travel[this.travel.length - 1].coordinate = [
+        city.latitude,
+        city.longitude
+      ];
+    },
+    add: function() {
       var vue = this;
       this.travel.push(this.newTravel());
 
@@ -243,14 +235,13 @@ export default {
         this.travel.length - 1,
         this.travel[this.travel.length - 1]
       );
-      var city_id = typeof city == "undefined" ? 3 : city.city_id;
-      var city_name = typeof city == "undefined" ? "" : city.city_name;
+
       if (vue.gid != null) {
         this.$backend_conn(
           "add_travel",
           {
             travel_group_id: vue.gid,
-            city_id: city_id,
+            city_id: 3,
             date_start: moment(Date()).format("YYYY-MM-DD"),
             date_end: moment(Date()).format("YYYY-MM-DD"),
             visibility: "P",
@@ -260,12 +251,12 @@ export default {
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
-            vue.travel[vue.travel.length - 1].location = city_name;
             vue.$set(
               vue.travel,
               vue.travel.length - 1,
               vue.travel[vue.travel.length - 1]
             );
+            vue.display_rec_message();
             console.log(response);
           },
           function(response) {
