@@ -165,6 +165,10 @@ class User(object):
 
         others_user = get_user_instance_by_id(user_id=others_user_id)
 
+        db_msg.FriendRequest.objects.filter(user_id=others_user_id,
+                                            friend_user_id=self.get_user_id(),
+                                            msg_type=db_msg.FriendRequest.ADD).delete()
+
         db_msg.FriendRequest.objects.create(user_id=others_user,
                                             friend_user_id=self.user_dbobj,
                                             msg_type=db_msg.FriendRequest.ADD,
