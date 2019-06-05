@@ -89,9 +89,9 @@ def prepare_request_data(func):
         cast(name='user_id', cast_func=int)
         cast(name='friend_user_id', cast_func=int)
         cast(name='others_user_id', cast_func=int)
-        if 'others_user_list' in request_data:
-            request_data['others_user_list'] = list(map(int,
-                                                        query_dict.getlist('others_user_list')))
+        if 'other_user_list[]' in request_data:
+            request_data['other_user_list[]'] = list(map(int,
+                                                        query_dict.getlist('other_user_list[]')))
         cast(name='email', cast_func=str.lower)
         cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
@@ -308,7 +308,7 @@ def get_others_user_info_list(request_data):
     user = LOGGED_IN_USERS[request_data['user_id']]
 
     others_user_info_list = []
-    for others_user_id in request_data['others_user_list']:
+    for others_user_id in request_data['other_user_list[]']:
         others_user_info = user.get_others_user_info(others_user_id=others_user_id)
         others_user_info_list.append({
             **dict(others_user_info),
