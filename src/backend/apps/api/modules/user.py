@@ -349,6 +349,8 @@ class FriendInfo(UserInfoBase):
         self.friend_relation_dbobj.delete()
         db_user.FriendRelation.objects.filter(user_id=self.get_user_id(),
                                               friend_user_id=self.self_user_id).delete()
+        db_user.FriendRelation.objects.filter(user_id=self.self_user_id,
+                                              friend_user_id=self.get_user_id()).delete()                                      
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
