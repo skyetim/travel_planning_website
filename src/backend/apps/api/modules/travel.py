@@ -78,7 +78,7 @@ def get_travel_permission_level(user_id, travel_id):
 def delete_associated_travel(user_id, friend_user_id):
     travel_association_list = db_travel.TravelAssociation.objects.filter(company_user_id=friend_user_id)
     for travel_association in travel_association_list:
-        owner_dbobj = get_travel_owner_user_instance(travel_id=travel_association.travel_id)
+        owner_dbobj = get_travel_owner_user_instance(travel_id=travel_association.travel_id.travel_id)
         if owner_dbobj.user_id == user_id:
             travel_association.delete()
 
