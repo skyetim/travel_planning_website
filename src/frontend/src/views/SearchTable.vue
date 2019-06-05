@@ -16,7 +16,7 @@
     </div>
 
     <div class='col-md-6 center'>
-      <base-alert :type='alert.type' v-if='alert.show'>{{alert.message}}</base-alert>
+      <base-alert :type='alert.type' v-if='alert.show' :dismissible='true'>{{alert.message}}</base-alert>
     </div>
 
     <div class="table-responsive">
@@ -150,7 +150,14 @@
           that.alert.type = 'success';
         };
         function fail(response){
-          console.error('获取信息时发生未知错误', response.data);
+          if (response.data.status = that.$status['friend_already_exists']){
+            that.modals.addFriendShow = false;
+            that.alert.show = true;
+            that.alert.message = '他已经是您的好友';
+            that.alert.type = 'warning';
+          } else {
+            console.error('获取信息时发生未知错误', response.data);
+          }
         };
         this.$backend_conn('send_friend_request', this.request, that, success, fail);
       }
