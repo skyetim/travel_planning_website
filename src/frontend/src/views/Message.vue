@@ -151,6 +151,26 @@ import EmptyCard from './EmptyCard';
                         var row = that.travel_message.tableData[index];
                         row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
                         row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
+                        // switch (row['msg_type']){
+                        //     case 'I':
+                        //         row['msg_content'] = `${row['user_name']} 邀请您加入行迹`;
+                        //         break;
+                        //     case 'A':
+                        //         row['msg_content'] = `${row['user_name']} 同意加入行迹`;
+                        //         break;
+                        //     case 'R':
+                        //         row['msg_content'] = `您已退出 ${row['user_name']} 的行迹`;
+                        //         break;
+                        //     case 'L':
+                        //         row['msg_content'] = `您已退出 ${row['user_name']} 的行迹`;
+                        //         break;
+                        //     case 'M':
+                        //         row['msg_content'] = `${row['user_name']} 修改了行程`;
+                        //         break;
+                        //     case 'D':
+                        //         row['msg_content'] = `${row['user_name']} 删除了行程`;
+                        //         break;
+                        // }
                     }
                 };
                 function fail(response){
