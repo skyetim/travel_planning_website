@@ -53,7 +53,7 @@ export default new Router({
         {
           path: '/friends',
           name: 'friends',
-          component: () => import(/* webpackChunkName: "demo" */ './views/Friends.vue')
+          component: () => import(/* webpackChunkName: "demo" */ './views/Test.vue')
         }
       ]
     },
