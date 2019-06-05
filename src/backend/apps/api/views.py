@@ -84,10 +84,14 @@ def prepare_request_data(func):
             if name in request_data:
                 request_data[name] = cast_func(request_data[name])
 
-        request_data = getattr(request, request.method).dict()
+        query_dict = getattr(request, request.method)
+        request_data = query_dict.dict()
         cast(name='user_id', cast_func=int)
         cast(name='friend_user_id', cast_func=int)
         cast(name='others_user_id', cast_func=int)
+        if 'others_user_list' in request_data:
+            request_data['others_user_list'] = list(map(int,
+                                                        query_dict.getlist('others_user_list')))
         cast(name='email', cast_func=str.lower)
         cast(name='query_email', cast_func=str.lower)
         cast(name='pswd_hash', cast_func=str.upper)
@@ -139,6 +143,7 @@ def check_token(func):
         user_id = request_data['user_id']
         session_id = request_data['session_id']
         if user_id not in LOGGED_IN_USERS:
+            db_user.UserSession.objects.filter(user_id=user_id).delete()
             raise UserAuthorizationException(f'User (ID={user_id}) does not log in.')
         try:
             user_session = db_user.UserSession.objects.get(user_id=user_id,
