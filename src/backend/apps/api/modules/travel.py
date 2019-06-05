@@ -75,18 +75,12 @@ def get_travel_permission_level(user_id, travel_id):
                                              travel_group_id=travel_group.travel_group_id)
 
 
-def delete_asso_travel(user_dbobj_1, user_dbobj_2):
-    travel_asso_list = db_travel.TravelAssociation.objects.filter(
-        company_user_id=user_dbobj_2)
-    for travel_asso in travel_asso_list:
-        travel_dbobj = get_travel_instance_by_id(travel_asso.travel_id)
-        tg_id = db_travel.TravelGrouping.objects.get(
-            travel_id=travel_dbobj).travel_group_id
-        travel_group_dbobj = get_travel_group_instance_by_id(tg_id)
-        if db_travel.TravelGroupOwnership.objects.filter(
-                user_id=user_dbobj_1, travel_group_id=travel_group_dbobj).exists():
-            db_travel.TravelAssociation.objects.delete(
-                travel_id=travel_dbobj, company_user_id=user_dbobj_2)
+def delete_associated_travel(user_id, friend_user_id):
+    travel_association_list = db_travel.TravelAssociation.objects.filter(company_user_id=friend_user_id)
+    for travel_association in travel_association_list:
+        owner_dbobj = get_travel_owner_user_instance(travel_id=travel_association.travel_id)
+        if owner_dbobj.user_id == user_id:
+            travel_association.delete()
 
 
 class TravelInfo(object):

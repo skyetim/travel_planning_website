@@ -163,13 +163,13 @@ class User(object):
                                         friend_user_id=others_user_id,
                                         need_existence=False)
 
-        others_user = get_user_instance_by_id(user_id=others_user_id)
+        other_user = get_user_instance_by_id(user_id=others_user_id)
 
         db_msg.FriendRequest.objects.filter(user_id=others_user_id,
                                             friend_user_id=self.get_user_id(),
                                             msg_type=db_msg.FriendRequest.ADD).delete()
 
-        db_msg.FriendRequest.objects.create(user_id=others_user,
+        db_msg.FriendRequest.objects.create(user_id=other_user,
                                             friend_user_id=self.user_dbobj,
                                             msg_type=db_msg.FriendRequest.ADD,
                                             msg_content=request_note)
@@ -338,13 +338,13 @@ class FriendInfo(UserInfoBase):
         # user1 associate with user2's travel
         # user2 associate with user1's travel
         # not message will be sent
-        from apps.api.modules.travel import delete_asso_travel
+        from apps.api.modules.travel import delete_associated_travel
 
         self_user_dbobj = db_user.User.objects.get(user_id=self.self_user_id)
         friend_user_dbobj = get_user_instance_by_id(self.get_user_id())
 
-        delete_asso_travel(self_user_dbobj, friend_user_dbobj)
-        delete_asso_travel(friend_user_dbobj, self_user_dbobj)
+        delete_associated_travel(user_id=self.self_user_id, friend_user_id=self.get_user_id())
+        delete_associated_travel(user_id=self.get_user_id(), friend_user_id=self.self_user_id)
 
         self.friend_relation_dbobj.delete()
         db_user.FriendRelation.objects.filter(user_id=self.get_user_id(),
