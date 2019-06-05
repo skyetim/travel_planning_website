@@ -873,8 +873,14 @@ def get_friend_msg_list(request_data):
 
 @api(need_token=True)
 def del_friend_msg(request_data):
-    db_msg.FriendRequest.objects.filter(user_id=request_data['user_id'],
-                                        msg_id=request_data['msg_id'])
+    msg_id = request_data['msg_id']
+
+    try:
+        msg = db_msg.FriendRequest.objects.get(msg_id=msg_id,
+                                               user_id=request_data['user_id'])
+        msg.delete()
+    except db_msg.FriendRequest.DoesNotExist:
+        raise MessageDoesNotExistException(f'Friend message (ID={msg_id}) does not exist.')
 
     response = {}
     return response
@@ -893,8 +899,14 @@ def get_travel_msg_list(request_data):
 
 @api(need_token=True)
 def del_travel_msg(request_data):
-    db_msg.TravelAssociation.objects.filter(user_id=request_data['user_id'],
-                                            msg_id=request_data['msg_id'])
+    msg_id = request_data['msg_id']
+
+    try:
+        msg = db_msg.TravelAssociation.objects.filter(msg_id=msg_id,
+                                                      user_id=request_data['user_id'])
+        msg.delete()
+    except db_msg.TravelAssociation.DoesNotExist:
+        raise MessageDoesNotExistException(f'Travel message (ID={msg_id}) does not exist.')
 
     response = {}
     return response
@@ -1110,7 +1122,7 @@ def friend_message_detail(request, msg_id):
     try:
         friend_request = db_msg.FriendRequest.objects.get(msg_id=msg_id)
     except db_msg.FriendRequest.DoesNotExist:
-        raise MessageDoesNotExistException(f'Friend request message (ID={msg_id}) does not exist.')
+        raise MessageDoesNotExistException(f'Friend message (ID={msg_id}) does not exist.')
 
     serializer = srl_msg.FriendRequestSerializer(friend_request)
     response = serializer.data
@@ -1146,7 +1158,7 @@ def travel_message_detail(request, msg_id):
     try:
         travel_association = db_msg.TravelAssociation.objects.get(msg_id=msg_id)
     except db_msg.TravelAssociation.DoesNotExist:
-        raise MessageDoesNotExistException(f'Travel association message (ID={msg_id}) does not exist.')
+        raise MessageDoesNotExistException(f'Travel message (ID={msg_id}) does not exist.')
 
     serializer = srl_msg.TravelAssociationSerializer(travel_association)
     response = serializer.data
