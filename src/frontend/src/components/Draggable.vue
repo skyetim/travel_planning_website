@@ -188,14 +188,14 @@ export default {
       {},
       vue,
       function(response) {
-        response.data.friend_list.forEach(friend => {
+        response.data.friend_list.forEach(user_id => {
           backend(
-            "get_friend_user_info",
-            { friend_user_id: friend.user_id },
+            "get_others_user_info",
+            { others_user_id: user_id },
             vue,
             function(response1) {
               vue.friend_info_list.push({
-                user_id: friend.user_id,
+                user_id: user_id,
                 user_name: response1.data.user_name,
                 avatar_url: response1.data.avatar_url
               });
@@ -335,7 +335,7 @@ export default {
   margin-top: 0px;
   margin-bottom: 0px;
   padding-top: 0px;
-  padding-bottom: 0px;
+  padding-bottom: 5px;
   cursor: pointer;
 }
 

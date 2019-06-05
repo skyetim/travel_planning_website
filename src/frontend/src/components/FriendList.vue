@@ -76,59 +76,57 @@
 </template>
 
 <script>
-var dummy = [
-  {
-    user_name: "Alice",
-    user_id: 1,
-    avatar_url: "img/theme/team-1-800x800.jpg"
-  },
-  {
-    user_name: "Bob",
-    user_id: 2,
-    avatar_url: "img/theme/team-2-800x800.jpg"
-  },
-  {
-    user_name: "Carol",
-    user_id: 3,
-    avatar_url: "img/theme/team-3-800x800.jpg"
-  }
-];
+// var dummy = [
+//   {
+//     user_name: "Alice",
+//     user_id: 1,
+//     avatar_url: "img/theme/team-1-800x800.jpg"
+//   },
+//   {
+//     user_name: "Bob",
+//     user_id: 2,
+//     avatar_url: "img/theme/team-2-800x800.jpg"
+//   },
+//   {
+//     user_name: "Carol",
+//     user_id: 3,
+//     avatar_url: "img/theme/team-3-800x800.jpg"
+//   }
+// ];
 
-var friend_info_list = [
-  {
-    user_name: "Alice",
-    user_id: 1,
-    avatar_url: "img/theme/team-1-800x800.jpg"
-  },
-  {
-    user_name: "Bob",
-    user_id: 2,
-    avatar_url: "img/theme/team-2-800x800.jpg"
-  },
-  {
-    user_name: "Carol",
-    user_id: 3,
-    avatar_url: "img/theme/team-3-800x800.jpg"
-  },
-  {
-    user_name: "David",
-    user_id: 4,
-    avatar_url: "img/theme/team-4-800x800.jpg"
-  }
-];
 export default {
   name: "friend-list",
   props: {
-    travel_id: Number
-    // friend_info_list: Array
+    travel_id: Number,
+    friend_info_list: Array
   },
   data() {
     return {
-      travel_company: dummy,
+      travel_company: [],
       showList: false,
-      friend_info_list: friend_info_list,
       success: false
     };
+  },
+  updated: function() {
+    var vue = this;
+    if (typeof(this.travel_id) != "undefined") {
+      this.$backend_conn(
+        "get_travel_company_list",
+        { travel_id: this.travel_id },
+        vue,
+        function(response) {
+          response.data.company_list.forEach(company => {
+            vue.travel_company.push({
+              friend_id: company.user_id
+            });
+          });
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
+    }
   },
   methods: {
     isCompany: function(friend) {
@@ -143,55 +141,48 @@ export default {
 
     del(friend) {
       var vue = this;
-      for (var i = 0; i < vue.travel_company.length; ++i) {
-        if (vue.travel_company[i].user_id == friend.user_id) {
-          vue.travel_company.splice(i, 1);
+      this.$backend_conn(
+        "remove_travel_company",
+        {
+          travel_id: vue.travel_id,
+          friend_user_id: friend.user_id
+        },
+        vue,
+        function(response) {
+          for (var i = 0; i < vue.travel_company.length; ++i) {
+            if (vue.travel_company[i].user_id == friend.user_id) {
+              vue.travel_company.splice(i, 1);
+            }
+          }
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
         }
-      }
-      //   this.$backend_conn(
-      //     "remove_travel_company",
-      //     {
-      //       travel_id: vue.travel_id,
-      //       friend_user_id: friend.user_id
-      //     },
-      //     vue,
-      //     function(response) {
-      //       for (var i = 0; i < vue.travel_company.length; ++i) {
-      //         if (vue.travel_company[i].user_id == friend.user_id) {
-      //           vue.travel_company.splice(i, 1);
-      //         }
-      //       }
-      //       console.log(response);
-      //     },
-      //     function(response) {
-      //       alert(response.data.error_message);
-      //     }
-      //   );
+      );
     },
 
     invite(friend) {
       var vue = this;
-      vue.success = true;
-      setTimeout(function() {
-        vue.success = false;
-      }, 3000);
-      //   this.$backend_conn(
-      //     "invite_travel_company",
-      //     {
-      //       travel_id: vue.travel_id,
-      //       friend_user_id: friend.user_id
-      //     },
-      //     function(response) {
-      //       vue.success = true;
-      //       setTimeout(function() {
-      //         vue.success = false;
-      //       }, 1000);
-      //       console.log(response);
-      //     },
-      //     function(response) {
-      //       alert(response.data.error_message);
-      //     }
-      //   );
+
+      this.$backend_conn(
+        "invite_travel_company",
+        {
+          travel_id: vue.travel_id,
+          friend_user_id: friend.user_id
+        },
+        vue,
+        function(response) {
+          vue.success = true;
+          setTimeout(function() {
+            vue.success = false;
+          }, 2000);
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
     }
   }
 };
