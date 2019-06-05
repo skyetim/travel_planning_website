@@ -384,7 +384,7 @@ class Travel(object):
                 other_user_dbobj = get_user_instance_by_id(user_id=company_user_id)
                 other_user_info_dbobj = get_user_info_instance_by_id(user_id=company_user_id)
                 other_user_name = other_user_info_dbobj.user_name
-                msg_content = f'Your friend {other_user_name} has leave the travel to {city_name}.'
+                msg_content = f'您的好友 {other_user_name} 离开了前往 {city_name} 的行迹。'
                 db_msg.TravelAssociation.objects.create(user_id=self_user_dbobj,
                                                         friend_user_id=other_user_dbobj,
                                                         travel_id=travel_dbobj,
@@ -392,23 +392,23 @@ class Travel(object):
                                                         msg_content=msg_content)
             return
         elif msg_type == db_msg.TravelAssociation.DELETE:
-            msg_content = f'Your friend {self_user_name} has deleted the travel to {city_name}.'
+            msg_content = f'您的好友 {self_user_name} 删除了前往 {city_name} 的行迹。'
             travel_dbobj = None
         elif msg_type == db_msg.TravelAssociation.ADD:
-            msg_content = f'Your friend {self_user_name} has added a new company {content} to the travel to {city_name}.'
+            msg_content = f'您的好友 {self_user_name} 添加了 {content} 一并前往 {city_name}。'
         elif msg_type == db_msg.TravelAssociation.REMOVE:
-            msg_content = f'Your friend {self_user_name} has removed you from the travel to {city_name}.'
+            msg_content = f'您的好友 {self_user_name} 将你从前往 {city_name} 的行迹中删除。'
         elif msg_type == db_msg.TravelAssociation.INVITE:
-            msg_content = f'Your friend {self_user_name} has invited you to join the travel to {city_name}.'
+            msg_content = f'您的好友 {self_user_name} 邀请你一并前往 {city_name}。'
         elif msg_type == db_msg.TravelAssociation.MODIFY:
             if modify_term == 'city':
-                msg_content = f'Your friend {self_user_name}\'s travel\'s destination has been changed from {content} to {city_name}.'
+                msg_content = f'您的好友 {self_user_name} 将行迹目的地由 {content} 改为 {city_name}。'
             elif modify_term == 'date_start':
-                msg_content = f'Your friend {self_user_name}\'s travel to {city_name}\'s start date has been changed to {content}.'
+                msg_content = f'您的好友 {self_user_name} 将前往 {city_name} 的行迹起始日期改为 {content}。'
             elif modify_term == 'date_end':
-                msg_content = f'Your friend {self_user_name}\'s travel to {city_name}\'s end date has been changed to {content}.'
+                msg_content = f'您的好友 {self_user_name} 将前往 {city_name} 的行迹结束日期改为 {content}。'
             elif modify_term == 'general':
-                msg_content = f'Your friend {self_user_name} has updated the travel to {city_name}.'
+                msg_content = f'您的好友 {self_user_name} 更新了前往 {city_name} 的行迹信息。'
             else:
                 raise MsgTypeError
         else:
