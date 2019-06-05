@@ -15,10 +15,15 @@ mod_rcmd.recommend_friend_list(setsuna)
 tg_46=TravelGroup(14,46)
 t_56=Travel(14,56)
 
+tinfo56=t_56.get_travel_info()
+
 mod_rcmd.recommend_city_list_by_travel(kazusa,56)
 
 mod_rcmd.recommend_city_list_by_travel_group(kazusa,46)
 
-u9 = User(email="y@y.edu",
-              pswd_hash="415290769594460E2E485922904F345D")
-mod_rcmd.recommend_city_list_by_travel_group(u9,21)
+mod_rcmd.recommend_travel_group_list(setsuna)
+
+
+# u9 = User(email="y@y.edu",
+#              pswd_hash="415290769594460E2E485922904F345D")
+# mod_rcmd.recommend_city_list_by_travel_group(u9,21)

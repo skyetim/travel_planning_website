@@ -362,7 +362,8 @@ class Travel(object):
         travel_info = self.get_travel_info()
 
         if datetime.date.today().isoformat() > travel_info.get_date_end():
-            return
+            if msg_type != db_msg.TravelAssociation.INVITE:
+                return
 
         if len(company_list) > 0:
             target_list = company_list
