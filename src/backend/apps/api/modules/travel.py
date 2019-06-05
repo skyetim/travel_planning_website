@@ -431,8 +431,7 @@ class TravelGroup(object):
         owner = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
         self.owner_user_id = owner.user_id
         self.watcher_user_id = user_id
-        self.travel_group_dbobj = get_travel_group_instance_by_id(
-            travel_group_id=travel_group_id)
+
         self.travel_set = set()
         travel_list = db_travel.TravelGrouping.objects.filter(travel_group_id=travel_group_id)
         for travel_dbobj in travel_list:
@@ -444,9 +443,9 @@ class TravelGroup(object):
 
         if self.permission_level != db_travel.Travel.ME and len(self.travel_set) == 0:
             raise PermissionDeniedException(f'No permission to access '
-                                            f'TravelGroup (ID={self.get_travel_group_id()}).')
+                                            f'TravelGroup (ID={travel_group_id}).')
 
-        
+        self.travel_group_dbobj = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
 
     @classmethod
     def new_travel_group(cls, user_id, travel_group_name, travel_group_note, travel_group_color):
