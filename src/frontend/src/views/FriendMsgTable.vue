@@ -45,6 +45,9 @@
             <base-button size='sm' type='primary' @click='agree(row.friend_user_id, row.msg_id)'>同意</base-button>
             <base-button size='sm' type='secondary' @click='ignore(row.friend_user_id, row.msg_id)'>忽略</base-button>
           </td>
+          <td v-if="row.msg_type=='D'" :ref='row.msg_id'>
+            
+          </td>
 
         </template>
 
