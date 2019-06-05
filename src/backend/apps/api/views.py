@@ -24,7 +24,7 @@ __all__.extend(['register', 'login', 'logout', 'reset_password'])
 __all__.extend(['get_user_info', 'set_user_info', 'set_user_avatar_url'])
 
 # Friend
-__all__.extend(['get_others_user_info'])
+__all__.extend(['get_others_user_info', 'get_others_user_info_list'])
 __all__.extend(['search_user_by_email', 'search_user_list_by_user_name',
                 'search_user_info_by_email', 'search_user_info_list_by_user_name'])
 __all__.extend(['send_friend_request', 'add_friend', 'remove_friend'])
@@ -289,6 +289,25 @@ def get_others_user_info(request_data):
 
     response = dict(others_user_info)
     response['is_friend'] = isinstance(others_user_info, mod_user.FriendInfo)
+    return response
+
+
+@api(need_token=True)
+def get_others_user_info_list(request_data):
+    user = LOGGED_IN_USERS[request_data['user_id']]
+
+    others_user_info_list = []
+    for others_user_id in request_data['others_user_list']:
+        others_user_info = user.get_others_user_info(others_user_id=others_user_id)
+        others_user_info_list.append({
+            **dict(others_user_info),
+            'is_friend': isinstance(others_user_info, mod_user.FriendInfo)
+        })
+
+    response = {
+        'count': len(others_user_info_list),
+        'user_info_list': others_user_info_list
+    }
     return response
 
 
@@ -616,7 +635,7 @@ def copy_travel(request_data):
     src_travel_info = src_travel.get_travel_info()
     src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
     src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(
-            travel_group_id=src_travel_group_dbobj.travel_group_id)
+        travel_group_id=src_travel_group_dbobj.travel_group_id)
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=request_data['travel_group_id'])
 
