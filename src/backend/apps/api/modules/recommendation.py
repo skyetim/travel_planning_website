@@ -55,40 +55,46 @@ def generate_rec_list(target_list, amount, key):
     return recommend_list[:amount]
 
 # 实现为同城推荐
+
+
 def recommend_friend_list(user, amount=10):
     # 从用户数据库中找不是自己好友的那些
     # 根据所在城市、去过的城市等进行匹配推荐（随机抽取）
     # 不要求高精度排序
     # 总数不超过amount
     my_user_id = user.get_user_id()
-    my_resident_city = db_user.UserInfo.objects.get(user_id=my_user_id).resident_city_id
+    my_resident_city = db_user.UserInfo.objects.get(
+        user_id=my_user_id).resident_city_id
     friend_id_list = user.get_friend_list()
     other_user_list = db_user.UserInfo.objects.exclude(user_id=my_user_id)
 
-    other_user_list = shuffle(other_user_list)
+    shuffle(list(other_user_list))
 
     user_id_list = []
     for other_user in other_user_list:
         if other_user.user_id not in friend_id_list:
             if other_user.resident_city_id == my_resident_city:
                 user_id_list.append(other_user.user_id.user_id)
+    shuffle(user_id_list)
+    user_id_list_1 = make_list_distinct(user_id_list)
 
-    user_id_list=make_list_distinct(user_id_list)
-    
-    if len(user_id_list) > amount:
-        return user_id_list[:amount]
+    if len(user_id_list_1) >= amount:
+        return user_id_list_1[:amount]
 
     # 若同城用户不足就开始随机推荐
+    user_id_list_2 = []
+    amount = amount-len(user_id_list_1)
     for other_user in other_user_list:
         if other_user.user_id not in friend_id_list:
-            user_id_list.append(other_user.user_id.user_id)
-    
-    user_id_list=make_list_distinct(user_id_list)
+            if other_user.resident_city_id != my_resident_city:
+                user_id_list_2.append(other_user.user_id.user_id)
 
-    if len(user_id_list) > amount:
-        return user_id_list[:amount]
-    else:
-        return user_id_list
+    user_id_list_2 = make_list_distinct(user_id_list_2)
+    shuffle(user_id_list_2)
+    if len(user_id_list_2) > amount:
+        user_id_list_2 = user_id_list_2[:amount]
+
+    return user_id_list_1+user_id_list_2
 
 
 def recommend_travel_group_list(user, amount=10):
