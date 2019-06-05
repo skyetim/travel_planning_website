@@ -52,10 +52,18 @@ def recommend_friend_list(user, amount=10):
             if other_user.resident_city_id == my_resident_city:
                 user_id_list.append(other_user.user_id)
 
-    if len(user_id_list) < amount:
-        return user_id_list
-    else:
+    if len(user_id_list) > amount:
         return user_id_list[:amount]
+    
+    # 若同城用户不足就开始随机推荐
+    for other_user in other_user_list:
+        if other_user.user_id not in friend_id_list:
+            user_id_list.append(other_user.user_id)
+
+    if len(user_id_list) > amount:
+        return user_id_list[:amount]
+    else:
+        return user_id_list
 
 
 def recommend_travel_group_list(user, amount=10):
