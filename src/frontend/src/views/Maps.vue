@@ -261,7 +261,6 @@ export default {
     add_travel_group: function(row) {
       var vue = this;
       var backend = this.$backend_conn;
-
       backend(
         "add_travel_group",
         {
@@ -279,6 +278,7 @@ export default {
             vue.travel_group_list.length - 1,
             vue.copy(row)
           );
+          vue.editTravel(vue.travel_group_list[vue.travel_group_list.length-1]);
           vue.reMount();
           console.log(response);
         },

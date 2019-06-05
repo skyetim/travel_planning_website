@@ -136,6 +136,7 @@
       key="footer"
     >
       <button class="btn btn-secondary" @click="add">添加城市</button>
+      hello
     </div>
   </draggable>
 </template>

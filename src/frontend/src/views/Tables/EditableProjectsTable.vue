@@ -197,6 +197,7 @@ export default {
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
           vue.$emit("update", vue.travel_group_list);
+          vue.editTravel(vue.travel_group_list[vue.travel_group_list.length-1]);
           console.log(response);
         },
         function(response) {
