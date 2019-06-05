@@ -52,6 +52,12 @@ def get_travel_group_owner_user_instance(travel_group_id):
     return ownership.user_id
 
 
+def get_travel_owner_user_instance(travel_id):
+    travel_group = get_travel_group_instance_by_travel_id(travel_id=travel_id)
+    ownership = db_travel.TravelGroupOwnership.objects.get(travel_group_id=travel_group)
+    return ownership.user_id
+
+
 def get_travel_group_permission_level(user_id, travel_group_id):
     owner_user = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
     if user_id == owner_user.user_id:
@@ -69,17 +75,12 @@ def get_travel_permission_level(user_id, travel_id):
                                              travel_group_id=travel_group.travel_group_id)
 
 
-def delete_asso_travel(user_dbobj_1, user_dbobj_2):
-    travel_asso_list = db_travel.TravelAssociation.objects.filter(
-            company_user_id=user_dbobj_2)
-    for travel_asso in travel_asso_list:
-        travel_dbobj = get_travel_instance_by_id(travel_asso.travel_id)
-        tg_id = db_travel.TravelGrouping.objects.get(
-                travel_id=travel_dbobj).travel_group_id
-        travel_group_dbobj = get_travel_group_instance_by_id(tg_id)
-        if db_travel.TravelGroupOwnership.objects.filter(user_id=user_dbobj_1, travel_group_id=travel_group_dbobj).exists():
-            db_travel.TravelAssociation.objects.delete(
-                    travel_id=travel_dbobj, company_user_id=user_dbobj_2)
+def delete_associated_travel(user_id, friend_user_id):
+    travel_association_list = db_travel.TravelAssociation.objects.filter(company_user_id=friend_user_id)
+    for travel_association in travel_association_list:
+        owner_dbobj = get_travel_owner_user_instance(travel_id=travel_association.travel_id)
+        if owner_dbobj.user_id == user_id:
+            travel_association.delete()
 
 
 class TravelInfo(object):
@@ -88,6 +89,9 @@ class TravelInfo(object):
 
         self.permission_level = get_travel_permission_level(user_id=user_id,
                                                             travel_id=travel_id)
+
+        owner = get_travel_owner_user_instance(travel_id=travel_id)
+        self.owner_user_id = owner.user_id
         self.watcher_user_id = user_id
 
         visibility_list = {self.permission_level, db_travel.Travel.PUBLIC}
@@ -124,6 +128,9 @@ class TravelInfo(object):
         if self.permission_level != db_travel.Travel.ME:
             raise PermissionDeniedException(f'No permission to modify '
                                             f'Travel (ID={self.get_travel_id()}).')
+
+    def get_owner_user_id(self):
+        return self.owner_user_id
 
     def get_travel_id(self):
         return self.travel_info_dbobj.travel_id
@@ -194,7 +201,8 @@ class TravelInfo(object):
         self.travel_info_dbobj.save()
 
     def keys(self):
-        return ['travel_id',
+        return ['owner_user_id',
+                'travel_id',
                 'city_id',
                 'city',
                 'date_start',
@@ -210,9 +218,6 @@ class TravelInfo(object):
                 return dict(mod_city.get_city_instance_by_id(city_id=self.get_city_id()))
             else:
                 raise
-
-    def get_city_name(self):
-        return mod_city.get_cityname_by_id(self.get_city_id())
 
 
 class Travel(object):
@@ -291,15 +296,15 @@ class Travel(object):
                                                 f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' already exists.')
 
-        company = get_user_instance_by_id(user_id=company_user_id)
+        company_user_info = get_user_info_instance_by_id(user_id=company_user_id)
 
         # send messages to existed company users
-        target_user_name = company.user_name
+        target_user_name = company_user_info.user_name
         self._send_msg_to_company(msg_type=db_msg.TravelAssociation.ADD,
                                   content=target_user_name)
 
         db_travel.TravelAssociation.objects.create(travel_id=self.travel_dbobj,
-                                                   company_user_id=company)
+                                                   company_user_id=company_user_info.user_id)
         self.company_set.add(company_user_id)
 
     def remove_company(self, company_user_id, actively_leave=False):
@@ -310,8 +315,6 @@ class Travel(object):
                                                 f'User(ID={company_user_id} and Travel (ID={self.get_travel_id()})'
                                                 f' does not exist.')
 
-        company = get_user_instance_by_id(user_id=company_user_id)
-
         # send message to the user being removed from this trip
         if actively_leave:
             msg_type = db_msg.TravelAssociation.LEAVE
@@ -320,9 +323,8 @@ class Travel(object):
         self._send_msg_to_company(msg_type=msg_type,
                                   company_list=[company_user_id])
 
-        db_travel.TravelAssociation.objects.delete(travel_id=self.travel_dbobj,
-                                                   company_user_id=company)
-
+        db_travel.TravelAssociation.objects.filter(travel_id=self.get_travel_id(),
+                                                   company_user_id=company_user_id).delete()
         self.company_set.remove(company_user_id)
 
     def invite_company(self, company_user_id):
@@ -355,75 +357,68 @@ class Travel(object):
     def get_company_list(self):
         return sorted(self.company_set)
 
-    def _send_msg_to_company(self, msg_type, content="", company_list=[], modify_term=""):
+    def _send_msg_to_company(self, msg_type, content='', company_list=(), modify_term=''):
         # 仅通知用户将来的关联行程
         travel_info = self.get_travel_info()
 
-        date_end = travel_info.get_date_end()
-        if datetime.date.today().isoformat() > date_end:
+        if datetime.date.today().isoformat() > travel_info.get_date_end():
             return
 
-        if company_list != []:
+        if len(company_list) > 0:
             target_list = company_list
         else:
             target_list = self.get_company_list()
 
-        if target_list == []:
+        if len(target_list) == 0:
             return
 
         self_user_dbobj = get_user_instance_by_id(user_id=self.watcher_user_id)
         self_user_info_dbobj = get_user_info_instance_by_id(user_id=self.watcher_user_id)
         self_user_name = self_user_info_dbobj.user_name
         travel_dbobj = get_travel_instance_by_id(travel_id=self.get_travel_id())
-        city_name = travel_info.get_city_name()
+        city = mod_city.get_city_instance_by_id(city_id=travel_info.get_city_id())
+        city_name = ' '.join([city.country_name, city.province_name, city.city_name])
 
         if msg_type == db_msg.TravelAssociation.LEAVE:
-            for c_id in target_list:
-                other_user_dbobj = get_user_instance_by_id(user_id=c_id)
-                other_user_info_dbobj = get_user_info_instance_by_id(user_id=c_id)
+            for company_user_id in target_list:
+                other_user_dbobj = get_user_instance_by_id(user_id=company_user_id)
+                other_user_info_dbobj = get_user_info_instance_by_id(user_id=company_user_id)
                 other_user_name = other_user_info_dbobj.user_name
-                msg_content = f"Your friend {other_user_name} has leave the associated trip to {city_name}."
+                msg_content = f'您的好友 {other_user_name} 离开了前往 {city_name} 的行迹。'
                 db_msg.TravelAssociation.objects.create(user_id=self_user_dbobj,
                                                         friend_user_id=other_user_dbobj,
                                                         travel_id=travel_dbobj,
                                                         msg_type=msg_type,
                                                         msg_content=msg_content)
             return
-
-        if msg_type == db_msg.TravelAssociation.DELETE:
-            msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
+        elif msg_type == db_msg.TravelAssociation.DELETE:
+            msg_content = f'您的好友 {self_user_name} 删除了前往 {city_name} 的行迹。'
             travel_dbobj = None
-
-        if msg_type == db_msg.TravelAssociation.ADD:
-            msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.REMOVE:
-            msg_content = f"Your friend {self_user_name} has removed you from the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.INVITE:
-            msg_content = f"Your friend {self_user_name} has invited you to join the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.MODIFY:
-            if modify_term not in {"city", "date_start", "date_end", "general"}:
+        elif msg_type == db_msg.TravelAssociation.ADD:
+            msg_content = f'您的好友 {self_user_name} 添加了 {content} 一并前往 {city_name}。'
+        elif msg_type == db_msg.TravelAssociation.REMOVE:
+            msg_content = f'您的好友 {self_user_name} 将你从前往 {city_name} 的行迹中删除。'
+        elif msg_type == db_msg.TravelAssociation.INVITE:
+            msg_content = f'您的好友 {self_user_name} 邀请你一并前往 {city_name}。'
+        elif msg_type == db_msg.TravelAssociation.MODIFY:
+            if modify_term == 'city':
+                msg_content = f'您的好友 {self_user_name} 将行迹目的地由 {content} 改为 {city_name}。'
+            elif modify_term == 'date_start':
+                msg_content = f'您的好友 {self_user_name} 将前往 {city_name} 的行迹起始日期改为 {content}。'
+            elif modify_term == 'date_end':
+                msg_content = f'您的好友 {self_user_name} 将前往 {city_name} 的行迹结束日期改为 {content}。'
+            elif modify_term == 'general':
+                msg_content = f'您的好友 {self_user_name} 更新了前往 {city_name} 的行迹信息。'
+            else:
                 raise MsgTypeError
+        else:
+            raise MsgTypeError
 
-            if modify_term == "city":
-                msg_content = f"Your friend {self_user_name}'s associated trip's destination has been changed from {content} to {city_name}."
-
-            if modify_term == "date_start":
-                msg_content = f"Your friend {self_user_name}'s associated trip to {city_name}'s start date has been changed to {content}."
-
-            if modify_term == "date_end":
-                msg_content = f"Your friend {self_user_name}'s associated trip to {city_name}'s end date has been changed to {content}."
-
-            if modify_term == "general":
-                msg_content = f"Your friend {self_user_name} has updated the associated trip to {city_name}."
-
-        for c_id in target_list:
-            other_user_dbobj = get_user_instance_by_id(c_id)
+        for company_user_id in target_list:
+            other_user_dbobj = get_user_instance_by_id(user_id=company_user_id)
             db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj,
                                                     friend_user_id=self_user_dbobj,
-                                                    friend_travel_id=travel_dbobj,
+                                                    travel_id=travel_dbobj,
                                                     msg_type=msg_type,
                                                     msg_content=msg_content)
 
@@ -433,6 +428,8 @@ class TravelGroup(object):
         self.permission_level = get_travel_group_permission_level(user_id=user_id,
                                                                   travel_group_id=travel_group_id)
 
+        owner = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
+        self.owner_user_id = owner.user_id
         self.watcher_user_id = user_id
 
         self.travel_set = set()
@@ -446,7 +443,7 @@ class TravelGroup(object):
 
         if self.permission_level != db_travel.Travel.ME and len(self.travel_set) == 0:
             raise PermissionDeniedException(f'No permission to access '
-                                            f'TravelGroup (ID={self.get_travel_group_id()}).')
+                                            f'TravelGroup (ID={travel_group_id}).')
 
         self.travel_group_dbobj = get_travel_group_instance_by_id(travel_group_id=travel_group_id)
 
@@ -516,8 +513,7 @@ class TravelGroup(object):
                                                   f'Travel (ID={travel_id}).')
 
     def get_owner_user_id(self):
-        owner = get_travel_group_owner_user_instance(travel_group_id=self.get_travel_group_id())
-        return owner.user_id
+        return self.owner_user_id
 
     def get_travel_group_id(self):
         return self.travel_group_dbobj.travel_group_id
