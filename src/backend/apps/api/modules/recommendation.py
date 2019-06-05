@@ -1,5 +1,6 @@
 import datetime
 import math
+from functools import reduce
 
 import apps.api.modules.city as mod_city
 import apps.api.modules.travel as mod_travel
@@ -35,6 +36,11 @@ def get_city_distance(city_id_1, city_id_2):
     return dist
 
 
+def make_list_distinct(target_list):
+    #去除重复元素且保持顺序不变
+    def func(x, y): return x if y in x else x + [y]
+    return reduce(func, [[], ] + target_list)
+
 # 实现为同城推荐
 def recommend_friend_list(user, amount=10):
     # 从用户数据库中找不是自己好友的那些
@@ -52,6 +58,8 @@ def recommend_friend_list(user, amount=10):
             if other_user.resident_city_id == my_resident_city:
                 user_id_list.append(other_user.user_id.user_id)
 
+    user_id_list=make_list_distinct(user_id_list)
+    
     if len(user_id_list) > amount:
         return user_id_list[:amount]
 
@@ -102,7 +110,7 @@ def recommend_travel_group_list(user, amount=10):
     recommend_list = []
     for i in range(amount):
         recommend_list.append(other_travel_group_list[i]['travel_group_id'])
-    return recommend_list
+    return make_list_distinct(recommend_list)
 
 
 def recommend_city_list_by_travel(user, travel_id, amount=3):
@@ -142,7 +150,7 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
     for i in range(amount):
         recommend_list.append(other_travel_group_list[i]['city_id'])
 
-    return recommend_list
+    return make_list_distinct(recommend_list)
 
 
 def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
@@ -188,7 +196,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     for i in range(amount):
         recommend_list.append(other_travel_group_list[i]['city_id'])
 
-    return recommend_list
+    return make_list_distinct(recommend_list)
 
 
 def recommend_travel_list_by_travel(user, travel_id, amount=5):
@@ -229,7 +237,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
     for i in range(amount):
         recommend_list.append(other_travel_group_list[i]['travel_id'])
 
-    return recommend_list
+    return make_list_distinct(recommend_list)
 
 
 def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
@@ -239,8 +247,8 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
     user_id = user.get_user_id()
     travel_group = mod_travel.TravelGroup(user_id, travel_group_id)
     my_city_list = []
-    for travel in travel_group.get_travel_list():
-        travel_info = travel.get_travel_info()
+    for travel_id in travel_group.get_travel_list():
+        travel_info = mod_travel.Travel(user_id=user_id,travel_id=travel_id).get_travel_info()
         my_city = travel_info.get_city_id()
         my_city_list.append(my_city)
 
@@ -274,4 +282,4 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
     for i in range(amount):
         recommend_list.append(other_travel_group_list[i]['travel_id'])
 
-    return recommend_list
+    return make_list_distinct(recommend_list)
