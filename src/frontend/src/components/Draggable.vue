@@ -135,8 +135,15 @@
       aria-label="Basic example"
       key="footer"
     >
-      <button class="btn btn-secondary" @click="add">添加城市</button>
-      hello
+      <button class="btn btn-secondary" @click="add();recommend_by_travel_group();">添加城市</button>
+      
+        <small>&nbsp;下一步去哪儿？小迹为你推荐如下城市:</small>
+        <a
+          v-for="(city, index) in recommend_city_list"
+          :key="index"
+          @click="add(city)"
+        >{{city.city_name}}</a>
+      
     </div>
   </draggable>
 </template>
@@ -178,7 +185,8 @@ export default {
         }
       },
       query: query,
-      friend_info_list: []
+      friend_info_list: [],
+      recommend_city_list: []
     };
   },
   created: function() {
@@ -219,26 +227,30 @@ export default {
     city_check: function(travel, index) {
       return travel[index].location == "";
     },
-
+    hasTravel: function() {
+      return travel.length != 0;
+    },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
       travel[index].visibility = travel[index].vbool ? "F" : "P";
     },
-    add: function() {
+    add: function(city) {
       var vue = this;
       this.travel.push(this.newTravel());
+
       this.$set(
         this.travel,
         this.travel.length - 1,
         this.travel[this.travel.length - 1]
       );
-
+      var city_id = typeof city == "undefined" ? 3 : city.city_id;
+      var city_name = typeof city == "undefined" ? "" : city.city_name;
       if (vue.gid != null) {
         this.$backend_conn(
           "add_travel",
           {
             travel_group_id: vue.gid,
-            city_id: 3,
+            city_id: city_id,
             date_start: moment(Date()).format("YYYY-MM-DD"),
             date_end: moment(Date()).format("YYYY-MM-DD"),
             visibility: "P",
@@ -248,6 +260,7 @@ export default {
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
+            vue.travel[vue.travel.length - 1].location = city_name;
             vue.$set(
               vue.travel,
               vue.travel.length - 1,
@@ -261,6 +274,7 @@ export default {
         );
       }
     },
+
     del: function(index) {
       var vue = this;
       this.$backend_conn(
@@ -327,6 +341,23 @@ export default {
       this.query.result = [];
       this.query.content = "";
       this.collapse(index);
+    },
+
+    recommend_by_travel_group: function() {
+      var vue = this;
+      console.log(this.gid);
+      this.$backend_conn(
+        "recommend_city_list_by_travel_group",
+        { travel_group_id: this.gid },
+        vue,
+        function(response) {
+          vue.recommend_city_list = response.data.city_list;
+          console.log(response);
+        },
+        function(response) {
+          alert(response.data.error_message);
+        }
+      );
     }
   }
 };

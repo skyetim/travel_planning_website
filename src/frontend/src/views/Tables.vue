@@ -7,15 +7,22 @@
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
-          <edit-projects-table 
-          title="我的行迹" 
-          :travel_group_list="travel_group_list" 
-          @update="update"></edit-projects-table>
+          <edit-projects-table
+            title="我的行迹"
+            :travel_group_list="travel_group_list"
+            @update="update_travel_group"
+          ></edit-projects-table>
         </div>
       </div>
 
       <div class="row mt-5">
-        <div class="col"></div>
+        <div class="col">
+          <associate-travel-table
+            title="关联行迹"
+            :associate_travel_list="associate_travel_list"
+            @update="update_associate_travel"
+          ></associate-travel-table>
+        </div>
       </div>
     </div>
 
@@ -23,11 +30,17 @@
   </div>
 </template>
 <script>
+import AssociateTravelTable from "./Tables/AssociateTravelTable.vue";
+
 export default {
   data() {
     return {
-      travel_group_list: []
+      travel_group_list: [],
+      associate_travel_list: []
     };
+  },
+  components: {
+    "associate-travel-table": AssociateTravelTable
   },
   created: function() {
     var vue = this;
@@ -71,10 +84,37 @@ export default {
         alert(response.data.error_message);
       }
     );
+
+    backend(
+      "get_associated_travel_info_list",
+      {},
+      vue,
+      function(response) {
+        response.data.travel_info_list.forEach(travel => {
+          backend(
+            "get_others_user_info",
+            { others_user_id: travel.owner_user_id },
+            vue,
+            function(response1) {
+              travel.owner_user_name = response1.data_user_name;
+              travel.owner_avatar_url = response1.data.avatar_url;
+              vue.associate_travel_list.push(travel);
+            },
+            function(response1) {
+              alert(response1.data.error_message);
+            }
+          );
+        });
+        console.log(response);
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
   },
 
   methods: {
-    update: function(data) {
+    update_travel_group: function(data) {
       var vue = this;
       this.travel_group_list = JSON.parse(JSON.stringify(data));
       this.travel_group_list.forEach(travel_group => {
@@ -88,6 +128,10 @@ export default {
             ? travel_group.travel[travel_group.travel.length - 1].date_end
             : "";
       });
+    },
+
+    update_associate_travel: function(data) {
+      this.associate_travel_list = JSON.parse(JSON.stringify(data));
     }
   }
 };
