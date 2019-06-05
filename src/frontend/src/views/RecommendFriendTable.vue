@@ -19,7 +19,7 @@
       <base-alert :type='alert.type' v-if='alert.show' :dismissible='true'>{{alert.message}}</base-alert>
     </div>
 
-    <div class="table-responsive">
+    <div class="table-responsive table-fixed-height">
       <base-table class="table align-items-center table-flush"
                   :class="type === 'dark' ? 'table-dark': ''"
                   :thead-classes="type === 'dark' ? 'thead-dark': 'thead-light'"
@@ -191,5 +191,9 @@
   }
 </script>
 <style>
+.table-fixed-height{
+  overflow-y: auto;
+  max-height: 400px;
+}
 </style>
   
