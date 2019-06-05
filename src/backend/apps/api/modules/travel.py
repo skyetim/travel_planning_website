@@ -52,6 +52,12 @@ def get_travel_group_owner_user_instance(travel_group_id):
     return ownership.user_id
 
 
+def get_travel_owner_user_instance(travel_id):
+    travel_group = get_travel_group_instance_by_travel_id(travel_id=travel_id)
+    ownership = db_travel.TravelGroupOwnership.objects.get(travel_group_id=travel_group)
+    return ownership.user_id
+
+
 def get_travel_group_permission_level(user_id, travel_group_id):
     owner_user = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
     if user_id == owner_user.user_id:
@@ -89,6 +95,9 @@ class TravelInfo(object):
 
         self.permission_level = get_travel_permission_level(user_id=user_id,
                                                             travel_id=travel_id)
+
+        owner = get_travel_owner_user_instance(travel_id=travel_id)
+        self.owner_user_id = owner.user_id
         self.watcher_user_id = user_id
 
         visibility_list = {self.permission_level, db_travel.Travel.PUBLIC}
@@ -125,6 +134,9 @@ class TravelInfo(object):
         if self.permission_level != db_travel.Travel.ME:
             raise PermissionDeniedException(f'No permission to modify '
                                             f'Travel (ID={self.get_travel_id()}).')
+
+    def get_owner_user_id(self):
+        return self.owner_user_id
 
     def get_travel_id(self):
         return self.travel_info_dbobj.travel_id
@@ -195,7 +207,8 @@ class TravelInfo(object):
         self.travel_info_dbobj.save()
 
     def keys(self):
-        return ['travel_id',
+        return ['owner_user_id',
+                'travel_id',
                 'city_id',
                 'city',
                 'date_start',
@@ -424,6 +437,8 @@ class TravelGroup(object):
         self.permission_level = get_travel_group_permission_level(user_id=user_id,
                                                                   travel_group_id=travel_group_id)
 
+        owner = get_travel_group_owner_user_instance(travel_group_id=travel_group_id)
+        self.owner_user_id = owner.user_id
         self.watcher_user_id = user_id
 
         self.travel_set = set()
@@ -507,8 +522,7 @@ class TravelGroup(object):
                                                   f'Travel (ID={travel_id}).')
 
     def get_owner_user_id(self):
-        owner = get_travel_group_owner_user_instance(travel_group_id=self.get_travel_group_id())
-        return owner.user_id
+        return self.owner_user_id
 
     def get_travel_group_id(self):
         return self.travel_group_dbobj.travel_group_id
