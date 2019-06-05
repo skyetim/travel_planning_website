@@ -138,7 +138,7 @@
     >
       <button class="btn btn-secondary" @click="add();recommend_by_travel_group();">添加城市</button>
 
-      <small>&nbsp;{{show_rec_message?"下一步去哪儿？小迹为你推荐如下城市:":""}}</small>
+      <small>&nbsp;{{show_rec_message?"下一步去哪儿？小迹为你推荐如下城市:":""}}&nbsp;&nbsp;</small>
 
       <base-button
         v-for="(city, index) in recommend_city_list"
@@ -147,7 +147,7 @@
         size="sm"
         margin-left="5px"
         @click="add_recommend(city)"
-      >{{city.city_name}}</base-button>
+      >{{city.city_name}}&nbsp;</base-button>
     </div>
   </draggable>
 </template>
@@ -211,7 +211,7 @@ export default {
       var vue = this;
       setTimeout(function(){
         vue.show_rec_message = false;
-      }, 2000)
+      }, 3000)
     },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
