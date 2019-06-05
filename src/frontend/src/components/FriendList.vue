@@ -35,10 +35,12 @@
             >
               <img alt="Image placeholder" :src="friend.avatar_url">
             </a>
+            <small>{{hasCompany()?"":"还没有同伴哦，快快邀请吧！"}}</small>
           </div>
         </div>
         <div class="col-2 text-right">
           <base-button
+            v-show="hasFriend()"
             type="primary"
             size="sm"
             @click="showList = !showList;"
@@ -76,24 +78,6 @@
 </template>
 
 <script>
-// var dummy = [
-//   {
-//     user_name: "Alice",
-//     user_id: 1,
-//     avatar_url: "img/theme/team-1-800x800.jpg"
-//   },
-//   {
-//     user_name: "Bob",
-//     user_id: 2,
-//     avatar_url: "img/theme/team-2-800x800.jpg"
-//   },
-//   {
-//     user_name: "Carol",
-//     user_id: 3,
-//     avatar_url: "img/theme/team-3-800x800.jpg"
-//   }
-// ];
-
 export default {
   name: "friend-list",
   props: {
@@ -109,7 +93,7 @@ export default {
   },
   updated: function() {
     var vue = this;
-    if (typeof(this.travel_id) != "undefined") {
+    if (typeof this.travel_id != "undefined") {
       this.$backend_conn(
         "get_travel_company_list",
         { travel_id: this.travel_id },
@@ -138,7 +122,12 @@ export default {
       });
       return start;
     },
-
+    hasCompany: function() {
+      return this.travel_company.length != 0;
+    },
+    hasFriend: function() {
+      return this.friend_info_list.length != 0;
+    },
     del(friend) {
       var vue = this;
       this.$backend_conn(

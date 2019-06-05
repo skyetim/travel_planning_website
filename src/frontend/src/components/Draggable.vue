@@ -101,7 +101,7 @@
         <div class="row list-group-item item" v-for="(s,n) in query.status" :key="n">{{s}}</div>
       </div>
       <div>
-        <small class="text-muted text-center">{{city_check(travel, index)?"邀请同行好友吧~": "同行好友"}}</small>
+        <small class="text-muted text-center">同行伙伴</small>
         <br>
         <friend-list :friend_info_list="friend_info_list" :travel_id="travel[index].travel_id"></friend-list>
         <div class="row">
