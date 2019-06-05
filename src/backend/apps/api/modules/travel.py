@@ -413,7 +413,7 @@ class Travel(object):
             other_user_dbobj = get_user_instance_by_id(company_user_id)
             db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj,
                                                     friend_user_id=self_user_dbobj,
-                                                    friend_travel_id=travel_dbobj,
+                                                    travel_id=travel_dbobj,
                                                     msg_type=msg_type,
                                                     msg_content=msg_content)
 
