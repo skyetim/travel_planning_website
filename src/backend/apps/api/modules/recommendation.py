@@ -68,8 +68,6 @@ def recommend_friend_list(user, amount=10):
     friend_id_list = user.get_friend_list()
     other_user_list = db_user.UserInfo.objects.exclude(user_id=my_user_id)
 
-    shuffle(list(other_user_list))
-
     user_id_list = []
     for other_user in other_user_list:
         if other_user.user_id not in friend_id_list:
