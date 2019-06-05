@@ -73,7 +73,7 @@
             that.user_name = response.data.user_name;
             that.avatar_url = response.data.avatar_url;
             if (that.avatar_url == ''){
-              that.avatar_url = 'img/theme/team-4-800x800.jpg';
+              that.set_user_avatar_url();
             }
           };
           function fail(response){
@@ -103,6 +103,14 @@
           };
           this.$backend_conn('logout', {}, that, success, fail);
       }, 
+    }, 
+    set_user_avatar_url(){
+      if (this.avatar_url==''){
+        function fail(response){
+          console.error('获取信息时发生未知错误', response.data);
+        };
+        this.$backend_conn('set_user_avatar_url', {avatar_url: 'img/theme/team-4-800x800.jpg'}, this, function(){}, fail);
+      }
     }
   };
 </script>
