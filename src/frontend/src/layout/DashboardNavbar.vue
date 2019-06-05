@@ -73,7 +73,13 @@
             that.user_name = response.data.user_name;
             that.avatar_url = response.data.avatar_url;
             if (that.avatar_url == ''){
-              that.set_user_avatar_url();
+              function avatar_success(response){
+                that.avatar_url = 'img/theme/team-4-800x800.jpg';
+              };
+              function avatar_fail(response){
+                console.error('获取信息时发生未知错误', response.data);
+              };
+              that.$backend_conn('set_user_avatar_url', {avatar_url: 'img/theme/team-4-800x800.jpg'}, that, avatar_success, avatar_fail);
             }
           };
           function fail(response){
@@ -105,12 +111,7 @@
       }, 
     }, 
     set_user_avatar_url(){
-      if (this.avatar_url==''){
-        function fail(response){
-          console.error('获取信息时发生未知错误', response.data);
-        };
-        this.$backend_conn('set_user_avatar_url', {avatar_url: 'img/theme/team-4-800x800.jpg'}, this, function(){}, fail);
-      }
+        
     }
   };
 </script>
