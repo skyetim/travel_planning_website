@@ -697,7 +697,7 @@ def invite_travel_company(request_data):
 @api(need_token=True)
 def join_friends_travel(request_data):
     travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
-                               travel_id=request_data['travel_id'])
+                               travel_id=request_data['friend_travel_id'])
 
     travel.add_company(company_user_id=request_data['user_id'])
 
@@ -720,7 +720,7 @@ def remove_travel_company(request_data):
 @api(need_token=True)
 def leave_friends_travel(request_data):
     travel = mod_travel.Travel(user_id=request_data['friend_user_id'],
-                               travel_id=request_data['travel_id'])
+                               travel_id=request_data['friend_travel_id'])
 
     travel.remove_company(company_user_id=request_data['user_id'],
                           actively_leave=True)
