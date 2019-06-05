@@ -4,13 +4,13 @@
               :show-toggle-button="false"
               expand>
         <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
-            <div class="form-group mb-0">
+            <!-- <div class="form-group mb-0">
                 <base-input placeholder="Search"
                             class="input-group-alternative"
                             alternative=""
                             addon-right-icon="fas fa-search">
                 </base-input>
-            </div>
+            </div> -->
         </form>
         <ul class="navbar-nav align-items-center d-none d-md-flex">
             <li class="nav-item dropdown">
@@ -26,8 +26,12 @@
 
                     <template>
                         <div class=" dropdown-header noti-title">
-                            <h6 class="text-overflow m-0">Welcome!</h6>
+                            <h6 class="text-overflow m-0">系统设置</h6>
                         </div>
+                        <router-link to="/message" class="dropdown-item">
+                            <i class="ni ni-notification-70"></i>
+                            <span>信息</span>
+                        </router-link>
                         <router-link to="/settings" class="dropdown-item">
                             <i class="ni ni-settings-gear-65"></i>
                             <span>设置</span>

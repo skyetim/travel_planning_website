@@ -2,14 +2,15 @@
   <div class="wrapper" :class="{ 'nav-open': $sidebar.showSidebar }">
     <side-bar
       :background-color="sidebarBackground"
-      short-title="Travel"
-      title="Travel"
+      short-title="行迹"
+      title="行迹"
     >
       <template slot="links">
-        <sidebar-item :link="{name: 'Dashboard', icon: 'ni ni-tv-2 text-primary', path: '/dashboard'}"/>
+        <sidebar-item :link="{name: '主页', icon: 'ni ni-tv-2 text-primary', path: '/dashboard'}"/>
         <!-- <sidebar-item :link="{name: 'Icons', icon: 'ni ni-planet text-blue', path: '/icons'}"/> -->
-        <sidebar-item :link="{name: 'Map', icon: 'ni ni-pin-3 text-orange', path: '/maps'}"/>
-        <sidebar-item :link="{name: 'Travel', icon: 'ni ni-bullet-list-67 text-red', path: '/tables'}"/>
+        <sidebar-item :link="{name: '地图', icon: 'ni ni-pin-3 text-orange', path: '/maps'}"/>
+        <sidebar-item :link="{name: '行迹', icon: 'ni ni-bullet-list-67 text-red', path: '/tables'}"/>
+        <sidebar-item :link="{name: '搜索好友', icon: 'ni ni-circle-08 text-purple', path: '/search'}"/>
         <!-- <sidebar-item :link="{name: 'User Profile', icon: 'ni ni-single-02 text-yellow', path: '/profile'}"/> -->
         <!-- <sidebar-item :link="{name: 'Login', icon: 'ni ni-key-25 text-info', path: '/login'}"/> -->
         <!-- <sidebar-item :link="{name: 'Register', icon: 'ni ni-circle-08 text-pink', path: '/register'}"/> -->

@@ -39,6 +39,16 @@ export default new Router({
           path: '/tables',
           name: 'tables',
           component: () => import(/* webpackChunkName: "demo" */ './views/Tables.vue')
+        }, 
+        {
+          path: '/search',
+          name: 'search',
+          component: () => import(/* webpackChunkName: "demo" */ './views/Search.vue')
+        }, 
+        {
+          path: '/message',
+          name: 'message',
+          component: () => import(/* webpackChunkName: "demo" */ './views/Message.vue')
         }
       ]
     },

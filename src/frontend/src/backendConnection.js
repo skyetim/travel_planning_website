@@ -42,7 +42,7 @@ export const backend = function(api_name, data, that, success, fail, withAuthori
                 that.$router.push('/login');
             }
         }
-        return qs.stringify(data);
+        return qs.stringify(data, { arrayFormat: 'repeat' });
     }; 
 
     return axios.post(remote + api_name, data_wrapper(data, that, withAuthorization)).then(
