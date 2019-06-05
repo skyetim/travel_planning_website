@@ -193,7 +193,7 @@
 <style>
 .table-fixed-height{
   overflow-y: auto;
-  max-height: 400px;
+  max-height: 300px;
 }
 </style>
   

@@ -56,7 +56,8 @@ import EmptyCard from './EmptyCard';
                 alert: {
                     show: false, 
                     message: ''
-                }
+                }, 
+                friend_message_tableData : []
             }
         },
         computed: {
@@ -77,7 +78,7 @@ import EmptyCard from './EmptyCard';
                         return;
                     }
                     that.friend_message.hasRequest = true;
-                    that.friend_message.tableData = response.data['msg_list'];
+                    that.friend_message_tableData = response.data['msg_list'];
                     await that.get_friends_info_list();
                 };
                 function fail(response){
@@ -87,7 +88,7 @@ import EmptyCard from './EmptyCard';
             }, 
             get_friends_info_list(){
                 var that = this;
-                var others_user_list = that.friend_message.tableData.map((user_info_dict)=>{return user_info_dict['friend_user_id'];});
+                var others_user_list = that.friend_message_tableData.map((user_info_dict)=>{return user_info_dict['friend_user_id'];});
                 var data = {
                     'other_user_list': others_user_list
                 };
@@ -101,12 +102,13 @@ import EmptyCard from './EmptyCard';
                             }
                         }
                     });
-                    for (var index in that.friend_message.tableData){
-                        var row = that.friend_message.tableData[index];
+                    for (var index in that.friend_message_tableData){
+                        var row = that.friend_message_tableData[index];
                         row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
                         row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
                         // row['msg_content'] = row['msg_type']=='A'?`${row['user_name']} 想要成为你的好友`:`你与 ${row['user_name']} 不再是好友`;
                     }
+                    that.friend_message.tableData = that.friend_message_tableData;
                 };
                 function fail(response){
                     console.error('获取信息时发生未知错误', response.data);
@@ -123,7 +125,7 @@ import EmptyCard from './EmptyCard';
                         return;
                     }
                     that.travel_message.hasRequest = true;
-                    that.travel_message.tableData = response.data['msg_list'];
+                    that.travel_message_tableData = response.data['msg_list'];
                     await that.get_travel_user_info_list();
                 };
                 function fail(response){
@@ -133,7 +135,7 @@ import EmptyCard from './EmptyCard';
             }, 
             get_travel_user_info_list(){
                 var that = this;
-                var others_user_list = that.travel_message.tableData.map((user_info_dict)=>{return user_info_dict['friend_user_id'];});
+                var others_user_list = that.travel_message_tableData.map((user_info_dict)=>{return user_info_dict['friend_user_id'];});
                 var data = {
                     'other_user_list': others_user_list
                 };
@@ -147,8 +149,8 @@ import EmptyCard from './EmptyCard';
                             }
                         }
                     });
-                    for (var index in that.travel_message.tableData){
-                        var row = that.travel_message.tableData[index];
+                    for (var index in that.travel_message_tableData){
+                        var row = that.travel_message_tableData[index];
                         row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
                         row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
                         // switch (row['msg_type']){
@@ -172,6 +174,7 @@ import EmptyCard from './EmptyCard';
                         //         break;
                         // }
                     }
+                    that.travel_message.tableData = that.travel_message_tableData;
                 };
                 function fail(response){
                     console.error('获取信息时发生未知错误', response.data);
