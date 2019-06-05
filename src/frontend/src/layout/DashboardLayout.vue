@@ -11,6 +11,7 @@
         <sidebar-item :link="{name: '地图', icon: 'ni ni-pin-3 text-orange', path: '/maps'}"/>
         <sidebar-item :link="{name: '行迹', icon: 'ni ni-bullet-list-67 text-red', path: '/tables'}"/>
         <sidebar-item :link="{name: '搜索好友', icon: 'ni ni-circle-08 text-purple', path: '/search'}"/>
+        <sidebar-item :link="{name: '好友列表', icon: 'ni ni-single-02 text-blue', path: '/friends'}"/>
         <!-- <sidebar-item :link="{name: 'User Profile', icon: 'ni ni-single-02 text-yellow', path: '/profile'}"/> -->
         <!-- <sidebar-item :link="{name: 'Login', icon: 'ni ni-key-25 text-info', path: '/login'}"/> -->
         <!-- <sidebar-item :link="{name: 'Register', icon: 'ni ni-circle-08 text-pink', path: '/register'}"/> -->

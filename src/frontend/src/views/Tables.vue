@@ -10,6 +10,7 @@
           <edit-projects-table
             title="我的行迹"
             :travel_group_list="travel_group_list"
+            :friend_info_list="friend_info_list"
             @update="update_travel_group"
           ></edit-projects-table>
         </div>
@@ -36,6 +37,7 @@ export default {
   data() {
     return {
       travel_group_list: [],
+      friend_info_list: [],
       associate_travel_list: []
     };
   },
@@ -57,6 +59,36 @@ export default {
           tmp_list.sort(vue.compare("date_start"));
 
           tmp_list.forEach(travel => {
+            backend(
+              "get_travel_company_list",
+              { travel_id: travel.travel_id },
+              vue,
+              function(response1) {
+                var company_list = [];
+                response1.data.company_list.forEach(user_id => {
+                  backend(
+                    "get_others_user_info",
+                    { others_user_id: user_id },
+                    vue,
+                    function(response2) {
+                      company_list.push({
+                        user_id: user_id,
+                        user_name: response2.data.user_name,
+                        avatar_url: response2.data.avatar_url
+                      });
+                      travel.company_list = company_list;
+                    },
+                    function(response1) {
+                      alert(response1.data.error_message);
+                    }
+                  );
+                });
+                travel.company_list = company_list;
+              },
+              function(response) {
+                alert(response.data.error_message);
+              }
+            );
             travel.vbool = travel.visibility == "F";
             travel.location = travel.city.city_name;
             travel.coordinate = [travel.city.latitude, travel.city.longitude];
@@ -78,7 +110,7 @@ export default {
             color: { hex: travel_group.travel_group_color, a: 0.8 }
           });
         });
-        console.log(travel_group_list);
+
       },
       function(response) {
         alert(response.data.error_message);
@@ -86,33 +118,33 @@ export default {
     );
 
     backend(
-      "get_associated_travel_info_list",
+      "get_friend_list",
       {},
       vue,
       function(response) {
-        response.data.travel_info_list.forEach(travel => {
+        response.data.friend_list.forEach(user_id => {
           backend(
             "get_others_user_info",
-            { others_user_id: travel.owner_user_id },
+            { others_user_id: user_id },
             vue,
             function(response1) {
-              travel.owner_user_name = response1.data_user_name;
-              travel.owner_avatar_url = response1.data.avatar_url;
-              vue.associate_travel_list.push(travel);
+              vue.friend_info_list.push({
+                user_id: user_id,
+                user_name: response1.data.user_name,
+                avatar_url: response1.data.avatar_url
+              });
             },
             function(response1) {
               alert(response1.data.error_message);
             }
           );
         });
-        console.log(response);
       },
       function(response) {
         alert(response.data.error_message);
       }
     );
   },
-
   methods: {
     update_travel_group: function(data) {
       var vue = this;

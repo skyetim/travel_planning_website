@@ -49,6 +49,11 @@ export default new Router({
           path: '/message',
           name: 'message',
           component: () => import(/* webpackChunkName: "demo" */ './views/Message.vue')
+        },
+        {
+          path: '/friends',
+          name: 'friends',
+          component: () => import(/* webpackChunkName: "demo" */ './views/Friends.vue')
         }
       ]
     },

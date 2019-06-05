@@ -54,7 +54,7 @@
 
     <modal :show.sync="edit.modal">
       <template slot="header">
-        <h5 class="modal-title" id="exampleModalLabel">修改行迹</h5>
+        <h5 class="modal-title" id="exampleModalLabel">编辑行迹</h5>
       </template>
       <div>
         <small class="text-muted text-center">行迹名</small>
@@ -73,7 +73,7 @@
         <div class="row">
           <div class="col-11">
             <div :class="[edit.collapsed?'collapse': 'expand']">
-              <draggablelist :travel="editRow.travel" :gid="editRow.travel_group_id"></draggablelist>
+              <draggablelist :travel="editRow.travel" :gid="editRow.travel_group_id" :friend_info_list="friend_info_list"></draggablelist>
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@
         </div>
         <div class="row">
           <div class="col-11">
-            <small class="text-muted text-center">行迹颜色</small>
+            <small class="text-muted text-center">标记颜色</small>
             <br>
             <base-dropdown>
               <button
@@ -135,7 +135,8 @@ export default {
     },
     title: String,
     location: String,
-    travel_group_list: Array
+    travel_group_list: Array,
+    friend_info_list: Array
   },
   methods: {
     displayStatus: function(dates) {

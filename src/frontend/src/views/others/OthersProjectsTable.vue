@@ -26,7 +26,7 @@
 
         <template slot-scope="{row}">
           <th scope="row">
-            <i class="ni ni-settings-gear-65 icon-show" @click="showTravel(row)"></i>
+            <base-button type="primary" size="sm" @click="showTravel(row)">详细信息</base-button>
           </th>
 
           <td>
@@ -146,7 +146,7 @@ import "@/assets/vendor/nucleo/css/nucleo.css";
 import "@/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css";
 import "@/assets/scss/argon.scss";
 import moment from "moment";
-import readOnlyList from "./readOnlyList.vue";
+import readOnlyList from "./utils/readOnlyList.vue";
 
 var show = {
   modal: false,
@@ -154,11 +154,11 @@ var show = {
 };
 
 export default {
-  name: "show-projects-table",
+  name: "others-projects-table",
   data() {
     return {
       show: show,
-      showRow: this.newTravelGroup(),
+      showRow: null,
       showIndex: null
     };
   },
