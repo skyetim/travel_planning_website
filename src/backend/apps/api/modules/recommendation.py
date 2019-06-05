@@ -44,8 +44,8 @@ def make_list_distinct(target_list):
 def generate_rec_list(target_list,amount,key):
     #生成适当数量的无重复列表
     recommend_list = []
-    for i in len(target_list):
-        recommend_list.append(target_list[i][key])
+    for x in target_list:
+        recommend_list.append(x[key])
     recommend_list=make_list_distinct(recommend_list)
 
     if len(target_list) < amount:
