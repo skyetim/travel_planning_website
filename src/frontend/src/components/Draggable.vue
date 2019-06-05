@@ -73,7 +73,7 @@
             </div>
           </div>
         </div>
-        <div class="col-1">
+        <div class="col-2">
           <i class="ni ni-fat-remove icon-rm" @click="del(index)"></i>
         </div>
       </div>
@@ -87,7 +87,11 @@
             <div class="row">
               <div class="col">
                 <button dislplay="inline-block" class="btn btn-primary" @click="search()">查找</button>
-                <button dislplay="inline-block" class="btn btn-primary" @click="collapse(index)">取消</button>
+                <button
+                  dislplay="inline-block"
+                  class="btn btn-primary"
+                  @click="collapse(index)"
+                >取消</button>
               </div>
             </div>
           </div>
@@ -99,6 +103,32 @@
           @click="picked(index, r)"
         >{{r.country_name + " "+ r.province_name+ " " + r.city_name}}</div>
         <div class="row list-group-item item">{{query.status}}</div>
+      </div>
+      <div>
+        <small class="text-muted text-center">{{city_check(travel, index)?"邀请同行好友吧~": "同行好友"}}</small>
+        <br>
+        <friend-list :friend_info_list="friend_info_list"  :travel_id="travel[index].travel_id"></friend-list>
+        <div class="row">
+          <div class="col">
+            <base-alert type="warning" v-show="city_check(travel, index)">
+              <span class="alert-inner--icon" margin-right="10px">
+                <i class="ni ni-bell-55"></i>
+              </span>
+              <span class="alert-inner--text">
+                <strong>注意!</strong> 请点击查找城市名!
+              </span>
+            </base-alert>
+
+            <base-alert type="warning" v-show="time_check(travel, index)">
+              <span class="alert-inner--icon">
+                <i class="ni ni-bell-55" style="{margin-right:10px;}">
+                  <strong>注意!</strong>
+                </i>
+              </span>
+              <span class="alert-inner--text">行程开始日期应在结束日期之前!</span>
+            </base-alert>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -119,6 +149,7 @@ import flatPicker from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import draggable from "vuedraggable";
 import moment from "moment";
+import FriendList from "./FriendList";
 
 var query = {
   content: "",
@@ -133,7 +164,8 @@ export default {
   order: 12,
   components: {
     draggable,
-    flatPicker
+    flatPicker,
+    "friend-list": FriendList
   },
   props: {
     travel: Array,
@@ -148,10 +180,48 @@ export default {
           name: "flip-list"
         }
       },
-      query: query
+      query: query,
+      friend_info_list: []
     };
   },
+  created: function() {
+    var backend = this.$backend_conn;
+    var vue = this;
+    backend(
+      "get_friend_list",
+      {},
+      vue,
+      function(response) {
+        response.data.friend_list.forEach(friend => {
+          backend(
+            "get_friend_user_info",
+            { friend_user_id: friend.user_id },
+            vue,
+            function(response1) {
+              vue.friend_info_list.push({
+                user_id: friend.user_id,
+                user_name: response1.data.user_name,
+                avatar_url: response1.data.avatar_url
+              });
+            },
+            function(response1) {
+              alert(response1.data.error_message);
+            }
+          );
+        });
+      },
+      function(response) {
+        alert(response.data.error_message);
+      }
+    );
+  },
   methods: {
+    time_check: function(travel, index) {
+      return travel[index].date_start > travel[index].date_end;
+    },
+    city_check: function(travel, index) {
+      return travel[index].location == "";
+    },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;
       travel[index].visibility = travel[index].vbool ? "F" : "P";
@@ -183,6 +253,7 @@ export default {
           function(response) {
             vue.travel[vue.travel.length - 1].travel_id =
               response.data.travel_id;
+            vue.$set(vue.travel, vue.travel.length-1, vue.travel[vue.travel.length - 1]);
             console.log(response);
           },
           function(response) {
@@ -267,13 +338,13 @@ export default {
 };
 </script>
 <style scoped>
-.item {
+/* .item {
   margin-top: 0px;
   margin-bottom: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
   cursor: pointer;
-}
+} */
 
 .input-list {
   width: 30%;
@@ -324,5 +395,9 @@ export default {
 /* Show the dropdown menu on click */
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+.custom-alert {
+  height: 20px;
 }
 </style>

@@ -7,7 +7,10 @@
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col">
-          <edit-projects-table title="我的行迹" :travel_group_list="travel_group_list" @update="update"></edit-projects-table>
+          <edit-projects-table 
+          title="我的行迹" 
+          :travel_group_list="travel_group_list" 
+          @update="update"></edit-projects-table>
         </div>
       </div>
 
@@ -26,18 +29,13 @@ export default {
       travel_group_list: []
     };
   },
-
   created: function() {
-    var post_data = new Object();
-    post_data.user_id = this.$session.get("user_id");
-    post_data.session_id = this.$session.id().replace("sess:", "");
-
     var vue = this;
     var backend = this.$backend_conn;
 
     backend(
       "get_all_travel_group_details",
-      post_data,
+      {},
       vue,
       function(response) {
         var travel_group_list = response.data.travel_group_info_list;
@@ -71,8 +69,7 @@ export default {
       },
       function(response) {
         alert(response.data.error_message);
-      },
-      false
+      }
     );
   },
 

@@ -9,8 +9,8 @@
           <base-button
             type="primary"
             size="sm"
-            @click="edit.addMode = true;edit.modal = true;editRow=newTravelGroup();"
-          >添加新的行程</base-button>
+            @click="add_travel_group(newTravelGroup());"
+          >新行迹</base-button>
         </div>
       </div>
     </div>
@@ -97,7 +97,7 @@
 
     <modal :show.sync="edit.modal">
       <template slot="header">
-        <h5 class="modal-title" id="exampleModalLabel">{{edit.addMode? "新建行迹" : "修改行迹"}}</h5>
+        <h5 class="modal-title" id="exampleModalLabel">修改行迹</h5>
       </template>
       <div>
         <small class="text-muted text-center">行迹名</small>
@@ -147,7 +147,7 @@
       <template slot="footer">
         <base-button
           type="primary"
-          @click="edit.addMode?add_travel_group(editRow):set_travel_group(editRow, row);edit.modal = false;"
+          @click="set_travel_group(editRow, row);edit.modal = false;"
         >保存</base-button>
       </template>
     </modal>
@@ -161,7 +161,6 @@ import "@/assets/scss/argon.scss";
 import moment from "moment";
 
 var edit = {
-  addMode: false,
   modal: false,
   collapsed: true
 };
@@ -205,7 +204,6 @@ export default {
       this.editRow = this.copy(row);
       // this.editRow = row;
       this.editIndex = this.indexOf(this.travel_group_list, row);
-      this.edit.addMode = false;
       this.edit.modal = true;
     },
 
@@ -253,30 +251,6 @@ export default {
         },
         vue,
         function(response) {
-          row.travel.forEach(travel => {
-            backend(
-              "add_travel",
-              {
-                user_id: session.get("user_id"),
-                session_id: session.id().replace("sess:", ""),
-                travel_group_id: response.data.travel_group_id,
-                city_id: travel.city_id,
-                date_start: travel.date_start,
-                date_end: travel.date_end,
-                visibility: travel.visibility,
-                travel_note: ""
-              },
-              vue,
-              function(response) {
-                travel.travel_id = response.data.travel_id;
-                console.log(response);
-              },
-              function(response) {
-                alert(response.data.error_message);
-              },
-              false
-            );
-          });
           row.travel_group_id = response.data.travel_group_id;
           vue.travel_group_list.push(vue.copy(row));
           vue.$emit("update", vue.travel_group_list);
