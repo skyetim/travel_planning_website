@@ -128,7 +128,7 @@ def recommend_travel_group_list(user, amount=10):
     return generate_rec_list(other_travel_group_list, amount, key="travel_group_id")
 
 
-def recommend_city_list_by_travel(user, travel_id, amount=3):
+def recommend_city_list_by_travel(user, travel_id, amount=3, max_dist=500):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离排序进行推荐
     # 不包括本城市
@@ -149,10 +149,11 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
                 company_list = travel.get_company_list()
                 if user_id not in company_list:
                     city = travel.get_travel_info().get_city_id()
-                    if city != my_city:
+                    dist = get_city_distance(my_city, city)
+                    if (city != my_city) and (dist < max_dist):
                         other_travel_group_list.append({
                             'city_id': city,
-                            'city_distance': get_city_distance(my_city, city)
+                            'city_distance': dist
                         })
 
     other_travel_group_list.sort(key=lambda x: x['city_distance'])
@@ -160,7 +161,7 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
     return generate_rec_list(other_travel_group_list, amount, key="city_id")
 
 
-def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
+def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dist=500):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中已有的距离排序进行推荐
     # 不包括该travel_group中已有的city
@@ -187,10 +188,11 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
                     company_list = travel.get_company_list()
                     if user_id not in company_list:
                         city = travel.get_travel_info().get_city_id()
-                        if city not in my_city_list:
+                        dist = get_city_distance(my_city, city)
+                        if (city not in my_city_list) and (dist < max_dist):
                             other_travel_group_list.append({
                                 'city_id': city,
-                                'city_distance': get_city_distance(my_city, city)
+                                'city_distance': dist
                             })
 
     other_travel_group_list.sort(key=lambda x: x['city_distance'])
@@ -198,7 +200,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     return generate_rec_list(other_travel_group_list, amount, key="city_id")
 
 
-def recommend_travel_list_by_travel(user, travel_id, amount=5):
+def recommend_travel_list_by_travel(user, travel_id, amount=5, max_dist=500):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离、时间间隔排序进行推荐
     # 总数不超过amount
@@ -220,18 +222,19 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
                 if user_id not in company_list:
                     rep_time = travel.get_travel_info().get_date_start()
                     city = travel.get_travel_info().get_city_id()
-                    if city != my_city:
+                    dist = get_city_distance(my_city, city)
+                    if (city != my_city)and (dist < max_dist):
                         other_travel_group_list.append({
                             "travel_id": travel_id,
                             "time_delta_days": get_time_delta_days(rep_time),
-                            "city_distance": get_city_distance(my_city, city)
+                            "city_distance": dist
                         })
     other_travel_group_list.sort(key=lambda x: ((int(x['city_distance'] / 50)) ** 2 + (int(x['time_delta_days'] / 1)) ** 2))
 
     return generate_rec_list(other_travel_group_list, amount, key="travel_id")
 
 
-def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
+def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5, max_dist=500):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中城市的距离、时间间隔排序进行推荐
     # 总数不超过amount
@@ -256,11 +259,12 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
                     if user_id not in company_list:
                         rep_time = travel.get_travel_info().get_date_start()
                         city = travel.get_travel_info().get_city_id()
-                        if city not in my_city_list:
+                        dist = get_city_distance(my_city, city)
+                        if (city not in my_city_list)and (dist < max_dist):
                             other_travel_group_list.append({
                                 'travel_id': travel_id,
                                 'time_delta_days': get_time_delta_days(rep_time),
-                                'city_distance': get_city_distance(my_city, city)
+                                'city_distance': dist
                             })
 
     other_travel_group_list.sort(key=lambda x: ((int(x['city_distance'] / 50)) ** 2 + (int(x["time_delta_days"] / 1)) ** 2))
