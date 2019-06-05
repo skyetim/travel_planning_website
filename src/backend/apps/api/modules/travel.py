@@ -211,9 +211,6 @@ class TravelInfo(object):
             else:
                 raise
 
-    def get_city_name(self):
-        return mod_city.get_cityname_by_id(self.get_city_id())
-
 
 class Travel(object):
     def __init__(self, user_id, travel_id):
@@ -355,72 +352,65 @@ class Travel(object):
     def get_company_list(self):
         return sorted(self.company_set)
 
-    def _send_msg_to_company(self, msg_type, content="", company_list=[], modify_term=""):
+    def _send_msg_to_company(self, msg_type, content='', company_list=(), modify_term=''):
         # 仅通知用户将来的关联行程
         travel_info = self.get_travel_info()
 
-        date_end = travel_info.get_date_end()
-        if datetime.date.today().isoformat() > date_end:
+        if datetime.date.today().isoformat() > travel_info.get_date_end():
             return
 
-        if company_list != []:
+        if len(company_list) > 0:
             target_list = company_list
         else:
             target_list = self.get_company_list()
 
-        if target_list == []:
+        if len(target_list) == 0:
             return
 
         self_user_dbobj = get_user_instance_by_id(user_id=self.watcher_user_id)
         self_user_info_dbobj = get_user_info_instance_by_id(user_id=self.watcher_user_id)
         self_user_name = self_user_info_dbobj.user_name
         travel_dbobj = get_travel_instance_by_id(travel_id=self.get_travel_id())
-        city_name = travel_info.get_city_name()
+        city = mod_city.get_city_instance_by_id(travel_info.get_city_id())
+        city_name = ' '.join([city.country_name, city.province_name, city.city_name])
 
         if msg_type == db_msg.TravelAssociation.LEAVE:
-            for c_id in target_list:
-                other_user_dbobj = get_user_instance_by_id(user_id=c_id)
-                other_user_info_dbobj = get_user_info_instance_by_id(user_id=c_id)
+            for company_user_id in target_list:
+                other_user_dbobj = get_user_instance_by_id(user_id=company_user_id)
+                other_user_info_dbobj = get_user_info_instance_by_id(user_id=company_user_id)
                 other_user_name = other_user_info_dbobj.user_name
-                msg_content = f"Your friend {other_user_name} has leave the associated trip to {city_name}."
+                msg_content = f'Your friend {other_user_name} has leave the travel to {city_name}.'
                 db_msg.TravelAssociation.objects.create(user_id=self_user_dbobj,
                                                         friend_user_id=other_user_dbobj,
                                                         travel_id=travel_dbobj,
                                                         msg_type=msg_type,
                                                         msg_content=msg_content)
             return
-
-        if msg_type == db_msg.TravelAssociation.DELETE:
-            msg_content = f"Your friend {self_user_name} has deleted the associated trip to {city_name}."
+        elif msg_type == db_msg.TravelAssociation.DELETE:
+            msg_content = f'Your friend {self_user_name} has deleted the travel to {city_name}.'
             travel_dbobj = None
-
-        if msg_type == db_msg.TravelAssociation.ADD:
-            msg_content = f"Your friend {self_user_name} has added a new company user {content} in the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.REMOVE:
-            msg_content = f"Your friend {self_user_name} has removed you from the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.INVITE:
-            msg_content = f"Your friend {self_user_name} has invited you to join the associated trip to {city_name}."
-
-        if msg_type == db_msg.TravelAssociation.MODIFY:
-            if modify_term not in {"city", "date_start", "date_end", "general"}:
+        elif msg_type == db_msg.TravelAssociation.ADD:
+            msg_content = f'Your friend {self_user_name} has added a new company {content} to the travel to {city_name}.'
+        elif msg_type == db_msg.TravelAssociation.REMOVE:
+            msg_content = f'Your friend {self_user_name} has removed you from the travel to {city_name}.'
+        elif msg_type == db_msg.TravelAssociation.INVITE:
+            msg_content = f'Your friend {self_user_name} has invited you to join the travel to {city_name}.'
+        elif msg_type == db_msg.TravelAssociation.MODIFY:
+            if modify_term == 'city':
+                msg_content = f'Your friend {self_user_name}\'s travel\'s destination has been changed from {content} to {city_name}.'
+            elif modify_term == 'date_start':
+                msg_content = f'Your friend {self_user_name}\'s travel to {city_name}\'s start date has been changed to {content}.'
+            elif modify_term == 'date_end':
+                msg_content = f'Your friend {self_user_name}\'s travel to {city_name}\'s end date has been changed to {content}.'
+            elif modify_term == 'general':
+                msg_content = f'Your friend {self_user_name} has updated the travel to {city_name}.'
+            else:
                 raise MsgTypeError
+        else:
+            raise MsgTypeError
 
-            if modify_term == "city":
-                msg_content = f"Your friend {self_user_name}'s associated trip's destination has been changed from {content} to {city_name}."
-
-            if modify_term == "date_start":
-                msg_content = f"Your friend {self_user_name}'s associated trip to {city_name}'s start date has been changed to {content}."
-
-            if modify_term == "date_end":
-                msg_content = f"Your friend {self_user_name}'s associated trip to {city_name}'s end date has been changed to {content}."
-
-            if modify_term == "general":
-                msg_content = f"Your friend {self_user_name} has updated the associated trip to {city_name}."
-
-        for c_id in target_list:
-            other_user_dbobj = get_user_instance_by_id(c_id)
+        for company_user_id in target_list:
+            other_user_dbobj = get_user_instance_by_id(company_user_id)
             db_msg.TravelAssociation.objects.create(user_id=other_user_dbobj,
                                                     friend_user_id=self_user_dbobj,
                                                     friend_travel_id=travel_dbobj,

@@ -165,6 +165,10 @@ class User(object):
 
         others_user = get_user_instance_by_id(user_id=others_user_id)
 
+        db_msg.FriendRequest.objects.filter(user_id=others_user_id,
+                                            friend_user_id=self.get_user_id(),
+                                            msg_type=db_msg.FriendRequest.ADD).delete()
+
         db_msg.FriendRequest.objects.create(user_id=others_user,
                                             friend_user_id=self.user_dbobj,
                                             msg_type=db_msg.FriendRequest.ADD,
@@ -343,6 +347,8 @@ class FriendInfo(UserInfoBase):
         delete_asso_travel(friend_user_dbobj, self_user_dbobj)
 
         self.friend_relation_dbobj.delete()
+        db_user.FriendRelation.objects.filter(user_id=self.get_user_id(),
+                                              friend_user_id=self.self_user_id).delete()
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):
@@ -350,15 +356,20 @@ class FriendInfo(UserInfoBase):
         check_friend_relation_existence(user_id=user_id,
                                         friend_user_id=friend_user_id,
                                         need_existence=False)
+        check_friend_relation_existence(user_id=friend_user_id,
+                                        friend_user_id=user_id,
+                                        need_existence=False)
 
+        user_info_dbobj = get_user_info_instance_by_id(user_id=user_id)
+        friend_user_info_dbobj = get_user_info_instance_by_id(user_id=friend_user_id)
         if friend_note == '':
-            friend_info = db_user.UserInfo.objects.get(user_id=friend_user_id)
-            friend_note = friend_info.user_name
-        user_dbobj = get_user_instance_by_id(user_id=user_id)
-        friend_user_dbobj = get_user_instance_by_id(user_id=friend_user_id)
-        db_user.FriendRelation.objects.create(user_id=user_dbobj,
-                                              friend_user_id=friend_user_dbobj,
+            friend_note = friend_user_info_dbobj.user_name
+        db_user.FriendRelation.objects.create(user_id=user_info_dbobj.user_id,
+                                              friend_user_id=friend_user_info_dbobj.user_id,
                                               friend_note=friend_note)
+        db_user.FriendRelation.objects.create(user_id=friend_user_info_dbobj.user_id,
+                                              friend_user_id=user_info_dbobj.user_id,
+                                              friend_note=user_info_dbobj.user_name)
 
         return cls(user_id=user_id, friend_user_id=friend_user_id)
 

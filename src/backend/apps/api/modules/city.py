@@ -98,8 +98,3 @@ def get_city_instance_by_id(city_id):
     except db_city.City.DoesNotExist:
         raise CityIdDoesNotExistException(f'City (ID={city_id}) does not exist.')
     return city
-
-
-def get_cityname_by_id(city_id):
-    city = get_city_instance_by_id(city_id)
-    return ' '.join([city.country_name, city.province_name, city.city_name])

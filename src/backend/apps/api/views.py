@@ -149,13 +149,19 @@ def check_token(func):
             user_session = db_user.UserSession.objects.get(user_id=user_id,
                                                            session_id=session_id)
         except db_user.UserSession.DoesNotExist:
-            del LOGGED_IN_USERS[user_id]
+            try:
+                del LOGGED_IN_USERS[user_id]
+            except KeyError:
+                pass
             db_user.UserSession.objects.filter(user_id=user_id).delete()
             raise UserAuthorizationException(f'User (ID={user_id}) and session (ID={session_id})'
                                              f' do not match, log out.')
         else:
             if user_session.last_action_time < timezone.now() - SESSION_TIMEOUT:
-                del LOGGED_IN_USERS[user_id]
+                try:
+                    del LOGGED_IN_USERS[user_id]
+                except KeyError:
+                    pass
                 db_user.UserSession.objects.filter(user_id=user_id).delete()
                 raise UserSessionTimeoutException(f'User (ID={user_id}) has no action for 10 minutes, log out.')
             user_session.save()
@@ -640,7 +646,7 @@ def copy_travel(request_data):
     src_travel_info = src_travel.get_travel_info()
     src_travel_group_dbobj = mod_travel.get_travel_group_instance_by_travel_id(travel_id=src_travel.get_travel_id())
     src_travel_owner_user_dbobj = mod_travel.get_travel_group_owner_user_instance(
-            travel_group_id=src_travel_group_dbobj.travel_group_id)
+        travel_group_id=src_travel_group_dbobj.travel_group_id)
     travel_group = mod_travel.TravelGroup(user_id=user_id,
                                           travel_group_id=request_data['travel_group_id'])
 
