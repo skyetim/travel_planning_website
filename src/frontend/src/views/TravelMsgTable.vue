@@ -98,15 +98,15 @@
       }
     }, 
     methods: {
-      agree(friend_user_id, msg_id, travel_id){
+      agree(friend_user_id, msg_id, friend_travel_id){
         this.join_friends_travel(friend_user_id, friend_travel_id);
-        this.del_friend_msg(msg_id, '已加入');
+        this.del_travel_msg(msg_id, '已加入');
       }, 
-      ignore(friend_user_id, msg_id, travel_id){
-        this.del_friend_msg(msg_id, '已忽略');
+      ignore(friend_user_id, msg_id, friend_travel_id){
+        this.del_travel_msg(msg_id, '已忽略');
       },
-      read(friend_user_id, msg_id, travel_id){
-        this.del_friend_msg(msg_id, '已读');
+      read(friend_user_id, msg_id, friend_travel_id){
+        this.del_travel_msg(msg_id, '已读');
       },
       join_friends_travel(friend_user_id, friend_travel_id){
         var that = this;
@@ -122,7 +122,7 @@
         };
         this.$backend_conn('join_friends_travel', data, that, success, fail);
       }, 
-      del_friend_msg(msg_id, msg){
+      del_travel_msg(msg_id, msg){
         var that = this;
         var data = {
           msg_id: msg_id
@@ -133,7 +133,7 @@
         function fail(response){
             console.error('获取信息时发生未知错误', response.data);
         };
-        this.$backend_conn('del_friend_msg', data, that, success, fail);
+        this.$backend_conn('del_travel_msg', data, that, success, fail);
       }
     }
   }

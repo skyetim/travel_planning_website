@@ -35,7 +35,7 @@
 </template>
 <script>
 import FriendMessageTable from './FriendMsgTable';
-import TravelMessageTable from './FriendMsgTable';
+import TravelMessageTable from './TravelMsgTable';
 import EmptyCard from './EmptyCard';
     export default {
         name: 'test',
@@ -72,13 +72,13 @@ import EmptyCard from './EmptyCard';
                 var data = {
                     // 无需额外数据
                 };
-                function success(response){
+                async function success(response){
                     if (response.data.count == 0){
                         return;
                     }
                     that.friend_message.hasRequest = true;
                     that.friend_message.tableData = response.data['msg_list'];
-                    that.get_friends_info_list();
+                    await that.get_friends_info_list();
                 };
                 function fail(response){
                     console.error('获取信息时发生未知错误', response.data);
@@ -105,7 +105,7 @@ import EmptyCard from './EmptyCard';
                         var row = that.friend_message.tableData[index];
                         row['user_name'] = user_id_map[parseInt(row['friend_user_id'])]['user_name'];
                         row['avatar_url'] = user_id_map[parseInt(row['friend_user_id'])]['avatar_url'];
-                        row['msg_content'] = row['msg_type']=='A'?`${row['user_name']} 想要成为你的好友`:`你与 ${row['user_name']} 不再是好友`;
+                        // row['msg_content'] = row['msg_type']=='A'?`${row['user_name']} 想要成为你的好友`:`你与 ${row['user_name']} 不再是好友`;
                     }
                 };
                 function fail(response){
@@ -118,13 +118,13 @@ import EmptyCard from './EmptyCard';
                 var data = {
                     // 无需额外数据
                 };
-                function success(response){
+                async function success(response){
                     if (response.data.count == 0){
                         return;
                     }
                     that.travel_message.hasRequest = true;
                     that.travel_message.tableData = response.data['msg_list'];
-                    that.get_travel_user_info_list();
+                    await that.get_travel_user_info_list();
                 };
                 function fail(response){
                     console.error('获取信息时发生未知错误', response.data);
