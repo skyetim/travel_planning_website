@@ -33,7 +33,7 @@
                 </div> -->
 
                 <search-table :type='table.type' :title='table.title' :tableData='table.tableData' v-if='table.show'/>
-                <base-alert type='default' v-if='table.alertShow'> {{table.alertMessage}} </base-alert>
+                <base-alert type='default' v-if='table.alertShow' :dismissible='true'> {{table.alertMessage}} </base-alert>
             <!-- </card> -->
         </div>
 
@@ -79,6 +79,7 @@ import SearchTable from './SearchTable';
                         return;
                     }
                     that.table.show = true;
+                    that.alertShow = false;
                     that.table.tableData = response.data.user_info_list.map(function(user_info_dict){
                         user_info_dict['gender'] = that.$gender[user_info_dict['gender']];
                         user_info_dict['city_name'] = user_info_dict['resident_city']['city_name'];

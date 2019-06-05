@@ -4,6 +4,7 @@ export const status = {
         'user_does_not_exist': 3, 
         'user_already_exists': 4,
         'user_anthorization_error': 5,
+        'friend_already_exists': 22, 
         'user_session_timeout': 23
     };
 
