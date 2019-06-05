@@ -1,7 +1,7 @@
 import datetime
 import math
 from functools import reduce
-import random.shuffle as sf
+from random import shuffle as shuffle
 
 import apps.api.modules.city as mod_city
 import apps.api.modules.travel as mod_travel
@@ -65,7 +65,7 @@ def recommend_friend_list(user, amount=10):
     friend_id_list = user.get_friend_list()
     other_user_list = db_user.UserInfo.objects.exclude(user_id=my_user_id)
 
-    other_user_list = sf(other_user_list)
+    other_user_list = shuffle(other_user_list)
 
     user_id_list = []
     for other_user in other_user_list:
