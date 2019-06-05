@@ -68,7 +68,7 @@ def recommend_travel_group_list(user, amount=10):
     friend_list = user.get_friend_list()
     other_travel_group_list = []
     for fr in friend_list:
-        for tg_id in user.get_other_travel_group_list(fr):
+        for tg_id in user.get_others_travel_group_list(fr):
             travel_group = mod_travel.TravelGroup(
                     user_id=user_id, travel_group_id=tg_id)
             travel_list = travel_group.get_travel_list()
@@ -111,7 +111,7 @@ def recommend_city_list_by_travel(user, travel_id, amount=3):
 
     other_travel_group_list = []
     for fr in friend_list:
-        for tg_id in user.get_other_travel_group_list(fr):
+        for tg_id in user.get_others_travel_group_list(fr):
             travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
             for travel_id in travel_group.get_travel_list():
                 travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
@@ -148,7 +148,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     my_city_list = []
     for travel_id in travel_group.get_travel_list():
         travel_info = mod_travel.Travel(
-            user_id=user_id, travel_id=travel_id).get_travel_info()
+                user_id=user_id, travel_id=travel_id).get_travel_info()
         my_city = travel_info.get_city_id()
         my_city_list.append(my_city)
 
@@ -157,7 +157,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3):
     other_travel_group_list = []
     for my_city in my_city_list:
         for fr in friend_list:
-            for tg_id in user.get_other_travel_group_list(fr):
+            for tg_id in user.get_others_travel_group_list(fr):
                 travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
                 for travel_id in travel_group.get_travel_list():
                     travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
@@ -196,7 +196,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5):
 
     other_travel_group_list = []
     for fr in friend_list:
-        for tg_id in user.get_other_travel_group_list(fr):
+        for tg_id in user.get_others_travel_group_list(fr):
             travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
             # rep_time = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
             for travel_id in travel_group.get_travel_list():
@@ -241,7 +241,7 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5):
     other_travel_group_list = []
     for my_city in my_city_list:
         for fr in friend_list:
-            for tg_id in user.get_other_travel_group_list(fr):
+            for tg_id in user.get_others_travel_group_list(fr):
                 travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
                 for travel_id in travel_group.get_travel_list():
                     travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
