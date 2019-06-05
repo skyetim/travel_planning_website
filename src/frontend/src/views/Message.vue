@@ -12,12 +12,22 @@
         <base-alert type='default' v-if='alert.show'> {{alert.message}} </base-alert>
 
         <div class="container-fluid mt--7 div-table">
-            <friend-message-table :type='friend_message.type' :title='friend_message.title' :tableData='friend_message.tableData'/>
+            <div v-if='friend_message.hasRequest'>
+                <friend-message-table :type='friend_message.type' :title='friend_message.title' :tableData='friend_message.tableData'/>
+            </div>
             <!-- </card> -->
+            <div v-if='!friend_message.hasRequest'>
+                <empty-card :title='friend_message.title' message='所有好友信息处理完毕'/>
+            </div>
         </div>
 
         <div class="container-fluid mt-5 div-table">
-            <travel-message-table :type='travel_message.type' :title='travel_message.title' :tableData='travel_message.tableData'/>
+            <div v-if='travel_message.hasRequest'>
+                <travel-message-table :type='travel_message.type' :title='travel_message.title' :tableData='travel_message.tableData' v-if='travel_message.hasRequest'/>
+            </div>
+            <div v-if='!travel_message.hasRequest'>
+                <empty-card :title='travel_message.title' message='所有行迹信息处理完毕'/>
+            </div>
         </div>
 
 
@@ -26,6 +36,7 @@
 <script>
 import FriendMessageTable from './FriendMsgTable';
 import TravelMessageTable from './FriendMsgTable';
+import EmptyCard from './EmptyCard';
     export default {
         name: 'test',
         data() {
@@ -33,12 +44,14 @@ import TravelMessageTable from './FriendMsgTable';
                 friend_message:{
                     type: "light", 
                     title: '好友请求信息', 
-                    tableData: []
+                    tableData: [], 
+                    hasRequest: false
                 }, 
                 travel_message: {
                     type: "light", 
                     title: '行迹邀请信息', 
-                    tableData: []
+                    tableData: [], 
+                    hasRequest: false
                 }, 
                 alert: {
                     show: false, 
@@ -51,6 +64,7 @@ import TravelMessageTable from './FriendMsgTable';
         components: {
             'friend-message-table': FriendMessageTable,
             'travel-message-table': TravelMessageTable,
+            'empty-card': EmptyCard
         }, 
         methods: {
             get_friend_msg_list(){
@@ -59,6 +73,10 @@ import TravelMessageTable from './FriendMsgTable';
                     // 无需额外数据
                 };
                 function success(response){
+                    if (response.data.count == 0){
+                        return;
+                    }
+                    that.friend_message.hasRequest = true;
                     that.friend_message.tableData = response.data['msg_list'];
                     that.get_friends_info_list();
                 };
@@ -101,6 +119,10 @@ import TravelMessageTable from './FriendMsgTable';
                     // 无需额外数据
                 };
                 function success(response){
+                    if (response.data.count == 0){
+                        return;
+                    }
+                    that.travel_message.hasRequest = true;
                     that.travel_message.tableData = response.data['msg_list'];
                     that.get_travel_user_info_list();
                 };
