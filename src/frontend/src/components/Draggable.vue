@@ -225,7 +225,6 @@ export default {
     },
     add: function() {
       var vue = this;
-      var session = this.$session;
       this.travel.push(this.newTravel());
       this.$set(
         this.travel,
@@ -237,8 +236,6 @@ export default {
         this.$backend_conn(
           "add_travel",
           {
-            user_id: session.get("user_id"),
-            session_id: session.id().replace("sess:", ""),
             travel_group_id: vue.gid,
             city_id: 3,
             date_start: moment(Date()).format("YYYY-MM-DD"),
@@ -259,19 +256,15 @@ export default {
           },
           function(response) {
             alert(response.data.error_message);
-          },
-          false
+          }
         );
       }
     },
     del: function(index) {
       var vue = this;
-      var session = this.$session;
       this.$backend_conn(
         "remove_travel",
         {
-          user_id: session.get("user_id"),
-          session_id: session.id().replace("sess:", ""),
           travel_group_id: vue.gid,
           travel_id: vue.travel[index].travel_id
         },
@@ -282,8 +275,7 @@ export default {
         },
         function(response) {
           alert(response.data.error_message);
-        },
-        false
+        }
       );
     },
     search: function() {

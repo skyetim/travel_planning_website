@@ -36,7 +36,6 @@
               <img alt="Image placeholder" :src="friend.avatar_url">
             </a>
           </div>
-          {{travel_id}}
         </div>
         <div class="col-2 text-right">
           <base-button
