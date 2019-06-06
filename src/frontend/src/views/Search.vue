@@ -1,12 +1,12 @@
 <template>
     <div>
-        <base-header type="gradient-success" class="pb-6 pb-8 pt-5 pt-md-8">
-        <div class="container-fluid d-flex align-items-center">
+        <base-header class="pb-6 pb-8 pt-5 pt-md-8" type="gradient-success">
+            <div class="container-fluid d-flex align-items-center">
                 <div class="col-lg-7 col-md-10">
                     <h1 class="display-2 text-white">Hi {{this.$session.get('user_name')}}, </h1>
                     <p class="text-white mt-0 mb-5">你可以在这里找到你的好友</p>
                 </div>
-        </div>
+            </div>
         </base-header>
 
 
@@ -15,10 +15,13 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text">输入姓名搜索用户</span>
                 </div>
-                <input type="text" class="form-control" placeholder="姓" v-model="query_last_name" @focus="table.alertShow=false">
-                <input type="text" class="form-control" placeholder="名" aria-describedby="button-addon2" v-model="query_first_name" @focus="table.alertShow=false">
+                <input @focus="table.alertShow=false" class="form-control" placeholder="姓" type="text"
+                       v-model="query_last_name">
+                <input @focus="table.alertShow=false" aria-describedby="button-addon2" class="form-control" placeholder="名"
+                       type="text" v-model="query_first_name">
                 <div class="input-group-append">
-                    <button class="btn btn-primary" type="button" id="button-addon2" @click="search_friend()">搜索</button>
+                    <button @click="search_friend()" class="btn btn-primary" id="button-addon2" type="button">搜索
+                    </button>
                 </div>
             </div>
         </div>
@@ -32,47 +35,49 @@
                     </div>
                 </div> -->
 
-                <search-table :type='table.type' :title='table.title' :tableData='table.tableData' v-if='table.show'/>
-                <base-alert type='default' v-if='table.alertShow' :dismissible='true'> {{table.alertMessage}} </base-alert>
+            <search-table :tableData='table.tableData' :title='table.title' :type='table.type' v-if='table.show'/>
+            <base-alert :dismissible='true' type='default' v-if='table.alertShow'> {{table.alertMessage}}</base-alert>
             <!-- </card> -->
         </div>
 
     </div>
 </template>
 <script>
-import SearchTable from './SearchTable';
+    import SearchTable from './SearchTable';
+
     export default {
         name: 'test',
         data() {
             return {
-                query_first_name: '', 
-                query_last_name: '', 
+                query_first_name: '',
+                query_last_name: '',
                 table: {
-                    type: 'light', 
-                    title: '好友搜索结果', 
-                    tableData: [], 
-                    show: false, 
-                    alertShow: false, 
+                    type: 'light',
+                    title: '好友搜索结果',
+                    tableData: [],
+                    show: false,
+                    alertShow: false,
                     alertMessage: ''
                 }
             }
         },
         computed: {
-            query_user_name () {
+            query_user_name() {
                 return this.query_last_name + ' ' + this.query_first_name;
             }
-        }, 
+        },
         components: {
             'search-table': SearchTable
-        }, 
+        },
         methods: {
-            search_friend(){
+            search_friend() {
                 var that = this;
                 var data = {
                     query_user_name: this.query_user_name
-                }; 
-                function success(response){
-                    if (response.data.count == 0){
+                };
+
+                function success(response) {
+                    if (response.data.count == 0) {
                         that.table.show = false;
                         that.table.alertShow = true;
                         that.table.alertMessage = '未找到相关用户! ';
@@ -80,15 +85,15 @@ import SearchTable from './SearchTable';
                     }
                     that.table.show = true;
                     that.alertShow = false;
-                    that.table.tableData = response.data.user_info_list.map(function(user_info_dict){
+                    that.table.tableData = response.data.user_info_list.map(function (user_info_dict) {
                         user_info_dict['gender'] = that.$gender[user_info_dict['gender']];
                         user_info_dict['city_name'] = user_info_dict['resident_city']['city_name'];
                         return user_info_dict;
                     });
-                };
-                function fail(response){
+                }
+                function fail(response) {
                     console.error('获取信息时发生未知错误', response.body);
-                };
+                }
                 this.$backend_conn('search_user_info_list_by_user_name', data, that, success, fail);
             }
 

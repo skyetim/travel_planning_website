@@ -7,11 +7,11 @@
                         <small>Sign up with</small>
                     </div>
                     <div class="btn-wrapper text-center">
-                        <a href="#" class="btn btn-neutral btn-icon">
+                        <a class="btn btn-neutral btn-icon" href="#">
                             <span class="btn-inner--icon"><img src="img/icons/common/github.svg"></span>
                             <span class="btn-inner--text">Github</span>
                         </a>
-                        <a href="#" class="btn btn-neutral btn-icon">
+                        <a class="btn btn-neutral btn-icon" href="#">
                             <span class="btn-inner--icon"><img src="img/icons/common/google.svg"></span>
                             <span class="btn-inner--text">Google</span>
                         </a>
@@ -23,22 +23,22 @@
                     </div>
                     <form role="form">
 
-                        <base-input class="input-group-alternative mb-3"
+                        <base-input addon-left-icon="ni ni-hat-3"
+                                    class="input-group-alternative mb-3"
                                     placeholder="Name"
-                                    addon-left-icon="ni ni-hat-3"
                                     v-model="model.name">
                         </base-input>
 
-                        <base-input class="input-group-alternative mb-3"
+                        <base-input addon-left-icon="ni ni-email-83"
+                                    class="input-group-alternative mb-3"
                                     placeholder="Email"
-                                    addon-left-icon="ni ni-email-83"
                                     v-model="model.email">
                         </base-input>
 
-                        <base-input class="input-group-alternative"
+                        <base-input addon-left-icon="ni ni-lock-circle-open"
+                                    class="input-group-alternative"
                                     placeholder="Password"
                                     type="password"
-                                    addon-left-icon="ni ni-lock-circle-open"
                                     v-model="model.password">
                         </base-input>
 
@@ -54,19 +54,19 @@
                             </div>
                         </div>
                         <div class="text-center">
-                            <base-button type="primary" class="my-4">Create account</base-button>
+                            <base-button class="my-4" type="primary">Create account</base-button>
                         </div>
                     </form>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-6">
-                    <a href="#" class="text-light">
+                    <a class="text-light" href="#">
                         <small>Forgot password?</small>
                     </a>
                 </div>
                 <div class="col-6 text-right">
-                    <router-link to="/login" class="text-light">
+                    <router-link class="text-light" to="/login">
                         <small>Login into your account</small>
                     </router-link>
                 </div>
@@ -75,18 +75,18 @@
     </div>
 </template>
 <script>
-  export default {
-    name: 'register',
-    data() {
-      return {
-        model: {
-          name: '',
-          email: '',
-          password: ''
+    export default {
+        name: 'register',
+        data() {
+            return {
+                model: {
+                    name: '',
+                    email: '',
+                    password: ''
+                }
+            }
         }
-      }
     }
-  }
 </script>
 <style>
 </style>

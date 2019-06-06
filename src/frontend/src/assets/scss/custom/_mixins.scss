@@ -1,14 +1,9 @@
 //
 // Mixins
 //
-
 // Bootstrap default mixins
-
 @import "~bootstrap/scss/mixins";
-
-
 // Custom mixins
-
 @import "../core/mixins/alert";
 @import "../core/mixins/badge";
 @import "../core/mixins/background-variant";
