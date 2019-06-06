@@ -145,6 +145,10 @@
                     // row.is_friend = true;
                     // that.$refs[row.user_id] = '已发送好友请求';
                 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> frontend
                 function fail(response) {
                     if (response.data.status = that.$status['friend_already_exists']) {
                         that.modals.addFriendShow = false;

@@ -87,7 +87,6 @@ Vue.prototype.copy = function (obj) {
     let newObj = JSON.parse(JSON.stringify(obj));
     return newObj;
 };
-
 Vue.prototype.indexOf = function (arr, el) {
     for (var i = 0; i < arr.length; ++i) {
         if (arr[i] == el) {

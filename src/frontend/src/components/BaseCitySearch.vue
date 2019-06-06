@@ -50,9 +50,17 @@
                     that.select.options = response.data.city_list;
                     that.generate_result();
                 }
+<<<<<<< HEAD
                 function fail(response) {
                     console.error('获取信息时发生未知错误', response.data);
                 }
+=======
+
+                function fail(response) {
+                    console.error('获取信息时发生未知错误', response.data);
+                }
+
+>>>>>>> frontend
                 this.$backend_conn('address_to_city_list', {address: this.value}, that, success, fail, false);
             },
             generate_result() {

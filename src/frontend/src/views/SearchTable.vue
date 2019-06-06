@@ -151,6 +151,10 @@
                     that.alert.message = '好友请求发送成功';
                     that.alert.type = 'success';
                 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> frontend
                 function fail(response) {
                     if (response.data.status = that.$status['friend_already_exists']) {
                         that.modals.addFriendShow = false;

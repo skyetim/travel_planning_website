@@ -29,7 +29,12 @@
                 <div class="vicp-crop">
                     <div class="vicp-crop-left" v-show="true">
                         <div class="vicp-img-container">
+<<<<<<< HEAD
                             <img :src="sourceImgUrl" :style="sourceImgStyle" @drag="preventDefault" @dragend="preventDefault"
+=======
+                            <img :src="sourceImgUrl" :style="sourceImgStyle" @drag="preventDefault"
+                                 @dragend="preventDefault"
+>>>>>>> frontend
                                  @dragenter="preventDefault"
                                  @dragleave="preventDefault"
                                  @dragover="preventDefault"

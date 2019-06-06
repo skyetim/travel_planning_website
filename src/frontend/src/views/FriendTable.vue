@@ -111,9 +111,17 @@
                 function success(response) {
                     that.$refs[row.user_id].innerHTML = '删除成功';
                 }
+<<<<<<< HEAD
                 function fail(response) {
                     console.error('获取信息时发生未知错误', response.data);
                 }
+=======
+
+                function fail(response) {
+                    console.error('获取信息时发生未知错误', response.data);
+                }
+
+>>>>>>> frontend
                 this.$backend_conn('remove_friend', data, that, success, fail);
             },
             get_friends_info_list(user_list) {
@@ -129,9 +137,17 @@
                         return user_info_dict;
                     });
                 }
+<<<<<<< HEAD
                 function fail(response) {
                     console.error('获取信息时发生未知错误', response.data);
                 }
+=======
+
+                function fail(response) {
+                    console.error('获取信息时发生未知错误', response.data);
+                }
+
+>>>>>>> frontend
                 this.$backend_conn('get_others_user_info_list', data, that, success, fail);
             },
         },
@@ -147,9 +163,17 @@
                 }
                 that.get_friends_info_list(response.data.friend_list);
             }
+<<<<<<< HEAD
             function fail(response) {
                 console.error('获取信息时发生未知错误', response.data);
             }
+=======
+
+            function fail(response) {
+                console.error('获取信息时发生未知错误', response.data);
+            }
+
+>>>>>>> frontend
             this.$backend_conn('get_friend_list', data, that, success, fail);
         }
     }

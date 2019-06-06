@@ -179,7 +179,12 @@
                                     <div class="form-group">
                                         <base-input alternative=""
                                                     label="About Me">
+<<<<<<< HEAD
                                             <textarea class="form-control form-control-alternative" placeholder="A few words about you ..."
+=======
+                                            <textarea class="form-control form-control-alternative"
+                                                      placeholder="A few words about you ..."
+>>>>>>> frontend
                                                       rows="4">A beautiful Dashboard for Bootstrap 4. It is Free and Open Source.</textarea>
                                         </base-input>
                                     </div>

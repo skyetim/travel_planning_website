@@ -66,7 +66,12 @@
             </ul>
         </div>
         <SearchBox v-if="$site.themeConfig.search !== false"/>
+<<<<<<< HEAD
         <a class="btn btn-neutral btn-icon ml-sm-3 d-none d-md-block" href="https://www.creative-tim.com/product/vue-argon-dashboard"
+=======
+        <a class="btn btn-neutral btn-icon ml-sm-3 d-none d-md-block"
+           href="https://www.creative-tim.com/product/vue-argon-dashboard"
+>>>>>>> frontend
            target="_blank">
       <span class="btn-inner--icon">
         <i class="fa fa-cloud-download mr-2"></i>

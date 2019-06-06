@@ -52,6 +52,7 @@
                     </td>
                     <td>
                         <div class="avatar-group">
+<<<<<<< HEAD
                             <a class="avatar avatar-sm rounded-circle" data-original-title="Ryan Tompson" data-toggle="tooltip"
                                href="#">
                                 <img alt="Image placeholder" src="img/theme/team-1-800x800.jpg">
@@ -65,6 +66,25 @@
                                 <img alt="Image placeholder" src="img/theme/team-3-800x800.jpg">
                             </a>
                             <a class="avatar avatar-sm rounded-circle" data-original-title="Jessica Doe" data-toggle="tooltip"
+=======
+                            <a class="avatar avatar-sm rounded-circle" data-original-title="Ryan Tompson"
+                               data-toggle="tooltip"
+                               href="#">
+                                <img alt="Image placeholder" src="img/theme/team-1-800x800.jpg">
+                            </a>
+                            <a class="avatar avatar-sm rounded-circle" data-original-title="Romina Hadid"
+                               data-toggle="tooltip"
+                               href="#">
+                                <img alt="Image placeholder" src="img/theme/team-2-800x800.jpg">
+                            </a>
+                            <a class="avatar avatar-sm rounded-circle" data-original-title="Alexander Smith"
+                               data-toggle="tooltip"
+                               href="#">
+                                <img alt="Image placeholder" src="img/theme/team-3-800x800.jpg">
+                            </a>
+                            <a class="avatar avatar-sm rounded-circle" data-original-title="Jessica Doe"
+                               data-toggle="tooltip"
+>>>>>>> frontend
                                href="#">
                                 <img alt="Image placeholder" src="img/theme/team-4-800x800.jpg">
                             </a>
