@@ -1,10 +1,21 @@
 # 北京大学软件工程课程第一组项目
 
+## demo地址
+[demo](http://222.29.159.164:10018/)
+
 ## 部署
 ### 后端
 ```sh
 git clone
 conda install --file requirement.txt
+
+mysql -u root -p
+CREATE DATABASE SoftwareEngineeringProject;
+ALTER DATABASE SoftwareEngineeringProject CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+quit;
+
+把 src/backend/server/settings.py 里面的 DATABASES 的 USER 和 PASSWORD 改为对应的设置
+
 python3 src/backend/manage.py makemigrations City User Travel Message
 python3 src/backend/manage.py migrate
 python3 src/backend/manage.py shell
