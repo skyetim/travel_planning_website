@@ -378,7 +378,7 @@ class Travel(object):
         self_user_name = self_user_info_dbobj.user_name
         travel_dbobj = get_travel_instance_by_id(travel_id=self.get_travel_id())
         city = mod_city.get_city_instance_by_id(city_id=travel_info.get_city_id())
-        city_name = ' '.join([city.country_name, city.province_name, city.city_name])
+        city_name = city.city_name
 
         if msg_type == db_msg.TravelAssociation.LEAVE:
             for company_user_id in target_list:
