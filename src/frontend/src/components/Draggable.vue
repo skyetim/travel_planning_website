@@ -209,9 +209,9 @@ export default {
     display_rec_message:function(){
       this.show_rec_message = true;
       var vue = this;
-      setTimeout(function(){
-        vue.show_rec_message = false;
-      }, 3000)
+      // setTimeout(function(){
+      //   vue.show_rec_message = false;
+      // }, 3000)
     },
     newChangeStatus: function(travel, index) {
       travel[index].vbool = !travel[index].vbool;

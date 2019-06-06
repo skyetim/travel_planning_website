@@ -9,17 +9,17 @@
     <div class="container-fluid mt--7">
       <div class="row">
         <div class="col-xl-8 mb-5 mb-xl-0">
-          <div>
+          <card type='transparent' header-classes="bg-transparent">
           <recommend-friend-table/>
-          </div>
-          <div     margin-top="10px">
+          </card>
+          <card type='transparent' header-classes="bg-transparent">
           <edit-projects-table
             title="行迹"
             :travel_group_list="travel_group_list"
             :friend_info_list="friend_info_list"
             @update="update_travel_group"
           ></edit-projects-table>
-          </div>
+          </card>
         </div>
 
         <div class="col-xl-4">
