@@ -38,21 +38,24 @@ def get_city_distance(city_id_1, city_id_2):
 
 
 def make_list_distinct(target_list):
-    #去除重复元素且保持顺序不变
-    def func(x, y): return x if y in x else x + [y]
+    # 去除重复元素且保持顺序不变
+    def func(x, y):
+        return x if y in x else x + [y]
+
     return reduce(func, [[], ] + target_list)
 
 
 def generate_rec_list(target_list, amount, key):
-    #生成适当数量的无重复列表
+    # 生成适当数量的无重复列表
     recommend_list = []
     for x in target_list:
         recommend_list.append(x[key])
-    recommend_list=make_list_distinct(recommend_list)
+    recommend_list = make_list_distinct(recommend_list)
 
     if len(recommend_list) < amount:
         amount = len(recommend_list)
     return recommend_list[:amount]
+
 
 # 实现为同城推荐
 
@@ -63,8 +66,7 @@ def recommend_friend_list(user, amount=10):
     # 不要求高精度排序
     # 总数不超过amount
     my_user_id = user.get_user_id()
-    my_resident_city = db_user.UserInfo.objects.get(
-        user_id=my_user_id).resident_city_id
+    my_resident_city = db_user.UserInfo.objects.get(user_id=my_user_id).resident_city_id
     friend_id_list = user.get_friend_list()
     other_user_list = db_user.UserInfo.objects.exclude(user_id=my_user_id)
 
@@ -81,7 +83,7 @@ def recommend_friend_list(user, amount=10):
 
     # 若同城用户不足就开始随机推荐
     user_id_list_2 = []
-    amount = amount-len(user_id_list_1)
+    amount = amount - len(user_id_list_1)
     for other_user in other_user_list:
         if other_user.user_id not in friend_id_list:
             if other_user.resident_city_id != my_resident_city:
@@ -92,7 +94,7 @@ def recommend_friend_list(user, amount=10):
     if len(user_id_list_2) > amount:
         user_id_list_2 = user_id_list_2[:amount]
 
-    return user_id_list_1+user_id_list_2
+    return user_id_list_1 + user_id_list_2
 
 
 def recommend_travel_group_list(user, amount=10):
@@ -106,23 +108,24 @@ def recommend_travel_group_list(user, amount=10):
     other_travel_group_list = []
     for fr in friend_list:
         for tg_id in user.get_others_travel_group_list(fr):
-            travel_group = mod_travel.TravelGroup(
-                    user_id=user_id, travel_group_id=tg_id)
+            travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                                  travel_group_id=tg_id)
             travel_list = travel_group.get_travel_list()
             if len(travel_list) == 0:
                 continue
-            travel = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0])
+            travel = mod_travel.Travel(user_id=user_id,
+                                       travel_id=travel_list[0])
             company_list = travel.get_company_list()  # 得到朋友travel的company，自己不允许出现在里面
-            
+
             if user_id not in company_list:
                 rep_time = travel.get_travel_info().get_date_start()
-            # represent time in isoformat
-            # e.g. "1989-06-04"
+                # represent time in isoformat
+                # e.g. "1989-06-04"
 
                 other_travel_group_list.append({
                     'travel_group_id': tg_id,
                     'time_delta_days': get_time_delta_days(rep_time)
-                 })
+                })
     other_travel_group_list.sort(key=lambda x: x['time_delta_days'])
 
     return generate_rec_list(other_travel_group_list, amount, key="travel_group_id")
@@ -143,9 +146,11 @@ def recommend_city_list_by_travel(user, travel_id, amount=3, max_dist=500):
     other_travel_group_list = []
     for fr in friend_list:
         for tg_id in user.get_others_travel_group_list(fr):
-            travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
+            travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                                  travel_group_id=tg_id)
             for travel_id in travel_group.get_travel_list():
-                travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                travel = mod_travel.Travel(user_id=user_id,
+                                           travel_id=travel_id)
                 company_list = travel.get_company_list()
                 if user_id not in company_list:
                     city = travel.get_travel_info().get_city_id()
@@ -171,8 +176,8 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dis
     travel_group = mod_travel.TravelGroup(user_id, travel_group_id)
     my_city_list = []
     for travel_id in travel_group.get_travel_list():
-        travel_info = mod_travel.Travel(
-                user_id=user_id, travel_id=travel_id).get_travel_info()
+        travel_info = mod_travel.Travel(user_id=user_id,
+                                        travel_id=travel_id).get_travel_info()
         my_city = travel_info.get_city_id()
         my_city_list.append(my_city)
 
@@ -182,9 +187,11 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dis
     for my_city in my_city_list:
         for fr in friend_list:
             for tg_id in user.get_others_travel_group_list(fr):
-                travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
+                travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                                      travel_group_id=tg_id)
                 for travel_id in travel_group.get_travel_list():
-                    travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                    travel = mod_travel.Travel(user_id=user_id,
+                                               travel_id=travel_id)
                     company_list = travel.get_company_list()
                     if user_id not in company_list:
                         city = travel.get_travel_info().get_city_id()
@@ -214,16 +221,18 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5, max_dist=500):
     other_travel_group_list = []
     for fr in friend_list:
         for tg_id in user.get_others_travel_group_list(fr):
-            travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
+            travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                                  travel_group_id=tg_id)
             # rep_time = mod_travel.Travel(user_id=user_id, travel_id=travel_list[0]).get_travel_info().get_date_start()
             for travel_id in travel_group.get_travel_list():
-                travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                travel = mod_travel.Travel(user_id=user_id,
+                                           travel_id=travel_id)
                 company_list = travel.get_company_list()
                 if user_id not in company_list:
                     rep_time = travel.get_travel_info().get_date_start()
                     city = travel.get_travel_info().get_city_id()
                     dist = get_city_distance(my_city, city)
-                    if (city != my_city)and (dist < max_dist):
+                    if (city != my_city) and (dist < max_dist):
                         other_travel_group_list.append({
                             "travel_id": travel_id,
                             "time_delta_days": get_time_delta_days(rep_time),
@@ -242,7 +251,8 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5, max_d
     travel_group = mod_travel.TravelGroup(user_id, travel_group_id)
     my_city_list = []
     for travel_id in travel_group.get_travel_list():
-        travel_info = mod_travel.Travel(user_id=user_id,travel_id=travel_id).get_travel_info()
+        travel_info = mod_travel.Travel(user_id=user_id,
+                                        travel_id=travel_id).get_travel_info()
         my_city = travel_info.get_city_id()
         my_city_list.append(my_city)
 
@@ -252,15 +262,17 @@ def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5, max_d
     for my_city in my_city_list:
         for fr in friend_list:
             for tg_id in user.get_others_travel_group_list(fr):
-                travel_group = mod_travel.TravelGroup(user_id=user_id, travel_group_id=tg_id)
+                travel_group = mod_travel.TravelGroup(user_id=user_id,
+                                                      travel_group_id=tg_id)
                 for travel_id in travel_group.get_travel_list():
-                    travel = mod_travel.Travel(user_id=user_id, travel_id=travel_id)
+                    travel = mod_travel.Travel(user_id=user_id,
+                                               travel_id=travel_id)
                     company_list = travel.get_company_list()
                     if user_id not in company_list:
                         rep_time = travel.get_travel_info().get_date_start()
                         city = travel.get_travel_info().get_city_id()
                         dist = get_city_distance(my_city, city)
-                        if (city not in my_city_list)and (dist < max_dist):
+                        if (city not in my_city_list) and (dist < max_dist):
                             other_travel_group_list.append({
                                 'travel_id': travel_id,
                                 'time_delta_days': get_time_delta_days(rep_time),

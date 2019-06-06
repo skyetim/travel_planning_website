@@ -340,9 +340,6 @@ class FriendInfo(UserInfoBase):
         # not message will be sent
         from apps.api.modules.travel import delete_associated_travel
 
-        self_user_dbobj = db_user.User.objects.get(user_id=self.self_user_id)
-        friend_user_dbobj = get_user_instance_by_id(self.get_user_id())
-
         delete_associated_travel(user_id=self.self_user_id, friend_user_id=self.get_user_id())
         delete_associated_travel(user_id=self.get_user_id(), friend_user_id=self.self_user_id)
 
@@ -350,7 +347,7 @@ class FriendInfo(UserInfoBase):
         db_user.FriendRelation.objects.filter(user_id=self.get_user_id(),
                                               friend_user_id=self.self_user_id).delete()
         db_user.FriendRelation.objects.filter(user_id=self.self_user_id,
-                                              friend_user_id=self.get_user_id()).delete()                                      
+                                              friend_user_id=self.get_user_id()).delete()
 
     @classmethod
     def new_friend_info(cls, user_id, friend_user_id, friend_note):

@@ -141,4 +141,3 @@ if __name__ == '__main__':
     # latlng = (32.05549011970849, 118.7776112197085)
     # print(f'GPS to city: {latlng}->{gc.gps_to_city(latlng, version=1)}')
     print(f'Address to City List: 肯德基->{gc.address_to_city_list("肯德基")}')
-    
