@@ -1,22 +1,24 @@
 # 北京大学软件工程课程第一组项目
 
-## 19.03.11 第一次例会
-+ 确定项目：基于地图和好友关系的旅游规划平台（暂定）
-+ 分工：
-    + 前端：王天，阳磊，曹秦瑜
-    + 后端：潘学海，杨纪翔，刘茁
-+ 第一次上交材料分工：
-    + 项目开发计划及甘特图：杨纪翔，刘茁
-    + 需求捕获：潘学海
-    + 软件需求说明书：曹秦瑜
-    + 技术Demo：阳磊
-    + 课堂报告PPT：王天
+## 部署
+### 后端
+```sh
+git clone
+conda install --file requirement.txt
+python3 src/backend/manage.py makemigrations City User Travel Message
+python3 src/backend/manage.py migrate
+python3 src/backend/manage.py shell
 
-## 19.03.31 第二次例会
-+ 关于Git的使用
-    + 合并现有branch，删除重开dev
-    + 此后从dev开新分支写功能
-+ 第二阶段任务
-    + 核心任务：创建账号、增删好友、记录地点信息
-    + 后端：建数据库，定义接口
-    + 前端：创建页面框架，完成交互
+from apps.db.City.models import City
+City.objects.create(city_id=1, country_name='未设置', province_name='未设置', city_name='未设置', latitude=0, longitude=0)
+exit()
+
+python3 src/backend/manage.py runserver 127.0.0.1:port
+```
+
+### 前端
+```sh
+cd # frontend/src文件夹
+npm install # 需要预先安装node, 具体参见nodejs.org
+npm run serve
+```
