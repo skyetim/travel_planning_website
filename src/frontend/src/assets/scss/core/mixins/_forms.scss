@@ -109,7 +109,9 @@
       ~ .custom-file-label {
         border-color: $color;
 
-        &::before { border-color: inherit; }
+        &::before {
+          border-color: inherit;
+        }
       }
 
       ~ .#{$state}-feedback,

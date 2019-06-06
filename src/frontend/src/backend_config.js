@@ -1,4 +1,4 @@
-import { status } from './const';
+import {status} from './const';
 import axios from 'axios';
 import qs from 'qs';
 
@@ -61,15 +61,19 @@ export const backend = {
     get_travel_info: function (data, success, fail) {
         return backend.post_wrapper("get_travel_info", data, success, fail);
     },
+
     set_travel_info: function (data, success, fail) {
         return backend.post_wrapper("set_travel_info", data, success, fail);
     },
+
     add_travel: function (data, success, fail) {
         return backend.post_wrapper("add_travel", data, success, fail);
     },
+
     remove_travel: function (data, success, fail) {
         return backend.post_wrapper("remove_travel", data, success, fail);
     },
+
     city_id_to_city: function (data, success, fail) {
         return backend.post_wrapper("city_id_to_city", data, success, fail);
     },
@@ -77,4 +81,4 @@ export const backend = {
     address_to_city: function (data, success, fail) {
         return backend.post_wrapper("address_to_city", data, success, fail);
     },
-}
+};

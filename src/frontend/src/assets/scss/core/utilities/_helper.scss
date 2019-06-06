@@ -7,12 +7,13 @@
 // Clearfix for sections that use float property
 
 .floatfix {
-    &:before,
-    &:after {
-        content: '';
-        display: table;
-    }
-    &:after {
-        clear: both;
-    }
+  &:before,
+  &:after {
+    content: '';
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
 }

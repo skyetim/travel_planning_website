@@ -1,7 +1,7 @@
 <template>
-    <base-nav class="main-nav flex-row align-items-md-center navbar-horizontal" type="" effect="light" expand>
-        <a slot="brand" class="navbar-brand mr-0 mr-md-2" href="/"
-           aria-label="Bootstrap">
+    <base-nav class="main-nav flex-row align-items-md-center navbar-horizontal" effect="light" expand type="">
+        <a aria-label="Bootstrap" class="navbar-brand mr-0 mr-md-2" href="/"
+           slot="brand">
             <img src="https://demos.creative-tim.com/vue-argon-dashboard/img/brand/white.png">
             <sup>Docs</sup>
         </a>
@@ -29,9 +29,9 @@
         <div class="d-none d-sm-block ml-auto">
             <ul class="navbar-nav ct-navbar-nav flex-row align-items-center">
                 <li class="nav-item dropdown d-none">
-                    <a class="btn-link text-white dropdown-toggle mr-sm-3" href="#" id="ct-versions"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">1.0</a>
-                    <div class="dropdown-menu" aria-labelledby="ct-versions">
+                    <a aria-expanded="false" aria-haspopup="true" class="btn-link text-white dropdown-toggle mr-sm-3"
+                       data-toggle="dropdown" href="#" id="ct-versions">1.0</a>
+                    <div aria-labelledby="ct-versions" class="dropdown-menu">
                         <a class="dropdown-item active" href="../../docs/1.0/">Latest - 1.0</a>
                     </div>
                 </li>
@@ -66,8 +66,9 @@
             </ul>
         </div>
         <SearchBox v-if="$site.themeConfig.search !== false"/>
-        <a href="https://www.creative-tim.com/product/vue-argon-dashboard" target="_blank"
-           class="btn btn-neutral btn-icon ml-sm-3 d-none d-md-block">
+        <a class="btn btn-neutral btn-icon ml-sm-3 d-none d-md-block"
+           href="https://www.creative-tim.com/product/vue-argon-dashboard"
+           target="_blank">
       <span class="btn-inner--icon">
         <i class="fa fa-cloud-download mr-2"></i>
       </span>
@@ -76,37 +77,42 @@
     </base-nav>
 </template>
 <script>
-  import SearchBox from '../../node_modules/vuepress/lib/default-theme/SearchBox.vue';
+    import SearchBox from '../../node_modules/vuepress/lib/default-theme/SearchBox.vue';
 
-  export default {
-    components: {
-      SearchBox
+    export default {
+        components: {
+            SearchBox
+        }
     }
-  }
 </script>
 <style lang="scss">
     nav.main-nav {
-      z-index: 50;
+        z-index: 50;
+
         &.navbar {
             background-color: #41B883;
             box-shadow: rgba(116, 129, 141, .1) 0 1px 1px 0;
             position: fixed;
+
             .container {
                 max-width: 100%;
                 width: 100%;
             }
+
             .navbar-brand,
-            .navbar-brand:hover{
+            .navbar-brand:hover {
                 color: white;
             }
         }
 
         &.navbar .nav-link {
             color: white !important;
+
             &:hover {
                 border: 0 !important;
                 margin: 0 !important;
             }
+
             &.router-link-active {
                 color: white !important;
                 border-bottom: 2px solid white !important;

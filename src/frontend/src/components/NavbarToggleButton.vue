@@ -1,10 +1,10 @@
 <template>
-    <button class="navbar-toggler" type="button"
-            data-toggle="collapse"
+    <button :aria-controls="target" :aria-expanded="toggled"
             :data-target="target"
-            :aria-controls="target"
-            :aria-expanded="toggled"
-            aria-label="Toggle navigation">
+            aria-label="Toggle navigation"
+            class="navbar-toggler"
+            data-toggle="collapse"
+            type="button">
         <slot>
             <span></span>
             <span></span>
@@ -12,19 +12,19 @@
     </button>
 </template>
 <script>
-export default {
-  props: {
-    target: {
-      type: [String, Number],
-      description: "Button target element"
-    },
-    toggled: {
-      type: Boolean,
-      default: false,
-      description: "Whether button is toggled"
-    }
-  }
-};
+    export default {
+        props: {
+            target: {
+                type: [String, Number],
+                description: "Button target element"
+            },
+            toggled: {
+                type: Boolean,
+                default: false,
+                description: "Whether button is toggled"
+            }
+        }
+    };
 </script>
 <style>
 </style>

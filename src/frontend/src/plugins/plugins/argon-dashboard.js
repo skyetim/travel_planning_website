@@ -7,10 +7,10 @@ import SidebarPlugin from "@/components/SidebarPlugin/index"
 import NotificationPlugin from "@/components/NotificationPlugin/index"
 
 export default {
-  install(Vue) {
-    Vue.use(globalComponents);
-    Vue.use(globalDirectives);
-    Vue.use(SidebarPlugin);
-    Vue.use(NotificationPlugin);
-  }
+    install(Vue) {
+        Vue.use(globalComponents);
+        Vue.use(globalDirectives);
+        Vue.use(SidebarPlugin);
+        Vue.use(NotificationPlugin);
+    }
 };
