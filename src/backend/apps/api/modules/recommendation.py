@@ -131,7 +131,7 @@ def recommend_travel_group_list(user, amount=10):
     return generate_rec_list(other_travel_group_list, amount, key="travel_group_id")
 
 
-def recommend_city_list_by_travel(user, travel_id, amount=3, max_dist=500):
+def recommend_city_list_by_travel(user, travel_id, amount=3, max_dist=1200):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离排序进行推荐
     # 不包括本城市
@@ -166,7 +166,7 @@ def recommend_city_list_by_travel(user, travel_id, amount=3, max_dist=500):
     return generate_rec_list(other_travel_group_list, amount, key="city_id")
 
 
-def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dist=500):
+def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dist=1200):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中已有的距离排序进行推荐
     # 不包括该travel_group中已有的city
@@ -207,7 +207,7 @@ def recommend_city_list_by_travel_group(user, travel_group_id, amount=3, max_dis
     return generate_rec_list(other_travel_group_list, amount, key="city_id")
 
 
-def recommend_travel_list_by_travel(user, travel_id, amount=5, max_dist=500):
+def recommend_travel_list_by_travel(user, travel_id, amount=5, max_dist=1200):
     # 遍历好友的旅行记录
     # 根据城市和该travel的距离、时间间隔排序进行推荐
     # 总数不超过amount
@@ -243,7 +243,7 @@ def recommend_travel_list_by_travel(user, travel_id, amount=5, max_dist=500):
     return generate_rec_list(other_travel_group_list, amount, key="travel_id")
 
 
-def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5, max_dist=500):
+def recommend_travel_list_by_travel_group(user, travel_group_id, amount=5, max_dist=1200):
     # 遍历好友的旅行记录
     # 根据城市和该travel_group中城市的距离、时间间隔排序进行推荐
     # 总数不超过amount
